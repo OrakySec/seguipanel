@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #ffffff;
+  --color-foreground: #111111;
+  --color-primary: #c60cff;
+  --color-primary-dark: #9b00e0;
+  --color-primary-light: #f6f3ff;
+  --color-secondary: #fd5949;
+  --color-surface: #f7f8fa;
+  --color-border: #e5d9fa;
+  --color-muted: #888888;
+  --color-success: #0cc27e;
+  --color-star: #fbbf24;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-jakarta), var(--font-geist-sans), sans-serif;
+}
+
+body {
+  background: #ffffff;
+  color: #111111;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Gradiente de marca ─── */
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #c60cff 0%, #fd5949 100%);
+}
+
+.text-brand-gradient {
+  background: linear-gradient(135deg, #c60cff 0%, #fd5949 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Gradientes por plataforma ─── */
+.bg-instagram {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+.bg-tiktok {
+  background: linear-gradient(135deg, #010101 0%, #383838 100%);
+}
+.bg-kwai {
+  background: linear-gradient(135deg, #FF7000 0%, #FFAA00 100%);
+}
+.bg-youtube {
+  background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+}
+.bg-facebook {
+  background: linear-gradient(135deg, #1877F2 0%, #145DBF 100%);
+}
+
+/* ─── Animações ─── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 12, 255, 0.25); }
+  50%       { box-shadow: 0 0 24px 6px rgba(198, 12, 255, 0.12); }
+}
+
+.animate-marquee {
+  display: flex;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation-play-state: paused;
+  }
+  .animate-pulse-glow {
+    animation: none;
+  }
+  .animate-fade-in-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─── Utilitários customizados ─── */
+.border-brand {
+  border-color: #e5d9fa;
+}
+
+.shadow-brand {
+  box-shadow: 0 4px 24px 0 rgba(198, 12, 255, 0.08);
+}
+
+.shadow-card {
+  box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.06);
+}

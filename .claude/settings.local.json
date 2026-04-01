@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx @smithery/cli@latest skill add --help)",
+      "Bash(npx @smithery/cli@latest skill add nextlevelbuilder/ui-ux-pro-max --agent claude-code)",
+      "WebFetch(domain:seguifacil.online)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(python3 \"D:/SeguiFacil/public_html/smm-app/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"smm panel social media marketing comprar seguidores brasil ecommerce conversion landing\" --design-system -p \"SeguiFacil\" -f markdown)",
+      "Bash(python \"D:/SeguiFacil/public_html/smm-app/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"smm panel social media marketing comprar seguidores brasil ecommerce conversion landing\" --design-system -p \"SeguiFacil\" -f markdown)",
+      "Bash(find C:/Users/MrDel/.claude -path */ui-ux-pro-max*)"
+    ]
+  }
+}

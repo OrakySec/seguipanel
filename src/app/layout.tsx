@@ -1,0 +1,131 @@
+import type { Metadata } from "next";
+import { Geist, Plus_Jakarta_Sans } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-heading",
+});
+
+const BASE_URL = "https://seguifacil.online";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "SeguiFacil – Comprar Seguidores e Curtidas | A partir de R$2,50",
+    template: "%s | SeguiFacil",
+  },
+  description: "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017.",
+  keywords: [
+    "comprar seguidores instagram",
+    "comprar curtidas instagram",
+    "comprar seguidores tiktok",
+    "comprar seguidores brasileiros",
+    "comprar curtidas brasileiras",
+    "comprar seguidores kwai",
+    "comprar seguidores youtube",
+    "comprar seguidores facebook",
+    "aumentar seguidores instagram",
+    "smm panel brasil",
+    "seguifacil",
+  ],
+  authors: [{ name: "SeguiFacil", url: BASE_URL }],
+  creator: "SeguiFacil",
+  publisher: "SeguiFacil",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: BASE_URL,
+    siteName: "SeguiFacil",
+    title: "SeguiFacil – Comprar Seguidores e Curtidas a partir de R$2,50",
+    description: "Seguidores e curtidas reais para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega rápida, segura e com garantia de reposição.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "SeguiFacil – Comprar Seguidores e Curtidas",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SeguiFacil – Comprar Seguidores a partir de R$2,50",
+    description: "Seguidores e curtidas reais para Instagram, TikTok, Kwai e mais. Entrega em minutos.",
+    images: ["/og-image.jpg"],
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "SeguiFacil",
+  url: BASE_URL,
+  logo: `${BASE_URL}/logo.png`,
+  foundingDate: "2017",
+  description: "SeguiFacil é a plataforma líder no Brasil para compra de seguidores e curtidas para Instagram, TikTok, Kwai, YouTube e Facebook. Atendemos mais de 83.000 clientes desde 2017.",
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    availableLanguage: "Portuguese",
+  },
+  sameAs: [
+    "https://www.instagram.com/seguifacil",
+    "https://www.tiktok.com/@seguifacil",
+  ],
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "SeguiFacil",
+  url: BASE_URL,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${BASE_URL}/busca?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="pt-BR" className={`${geistSans.variable} ${plusJakarta.variable} h-full antialiased`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        {children}
+      </body>
+    </html>
+  );
+}
