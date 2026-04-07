@@ -16,8 +16,6 @@ import { prisma } from "@/lib/prisma";
 import { formatBRL } from "@/lib/utils";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
-
 export default async function AdminDashboard() {
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());

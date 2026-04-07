@@ -16,8 +16,6 @@ import { prisma } from "@/lib/prisma";
 import { getSetting } from "@/lib/settings";
 import { formatBRL, formatDate } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
-
 interface SearchParams {
   email?: string;
 }
