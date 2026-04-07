@@ -10,7 +10,7 @@ services:
       DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/smm_app"
       JWT_SECRET: "${JWT_SECRET}"
       JWT_EXPIRES_IN: "7d"
-      NEXT_PUBLIC_APP_URL: "https://seguifacil.com"
+      NEXT_PUBLIC_APP_URL: "https://sf.ykaromarques.com"
       CRON_SECRET: "${CRON_SECRET}"
       PUSHINPAY_WEBHOOK_SECRET: "${PUSHINPAY_WEBHOOK_SECRET}"
       MINIO_ENDPOINT: "minio"
@@ -32,21 +32,16 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-public"
       # Rota principal (HTTPS)
-      - "traefik.http.routers.seguifacil.rule=Host(`seguifacil.com`) || Host(`www.seguifacil.com`)"
+      - "traefik.http.routers.seguifacil.rule=Host(`sf.ykaromarques.com`)"
       - "traefik.http.routers.seguifacil.entrypoints=websecure"
       - "traefik.http.routers.seguifacil.tls.certresolver=letsencrypt"
       - "traefik.http.services.seguifacil.loadbalancer.server.port=3000"
       # Redirect HTTP → HTTPS
-      - "traefik.http.routers.seguifacil-http.rule=Host(`seguifacil.com`) || Host(`www.seguifacil.com`)"
+      - "traefik.http.routers.seguifacil-http.rule=Host(`sf.ykaromarques.com`)"
       - "traefik.http.routers.seguifacil-http.entrypoints=web"
       - "traefik.http.routers.seguifacil-http.middlewares=redirect-to-https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
-      # Redirect www → sem www
-      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www\\.seguifacil\\.com/(.*)"
-      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://seguifacil.com/$${1}"
-      - "traefik.http.middlewares.www-redirect.redirectregex.permanent=true"
-      - "traefik.http.routers.seguifacil.middlewares=www-redirect"
 
   # ──────────────────────────────────────────────────────────────────────────────
   # PostgreSQL
