@@ -13,9 +13,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Gera o Prisma client para o ambiente de produção
-RUN npx prisma generate
-
 # Build da aplicação
 RUN npm run build
 
