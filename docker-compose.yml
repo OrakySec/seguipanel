@@ -19,7 +19,7 @@ services:
       MINIO_USE_SSL: "false"
       REDIS_URL: "redis://redis:6379"
     networks:
-      - traefik-public
+      - YkaroNET
       - internal
     deploy:
       replicas: 1
@@ -29,18 +29,11 @@ services:
         max_attempts: 3
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=traefik-public"
-        # Rota HTTPS
+        - "traefik.docker.network=YkaroNET"
         - "traefik.http.routers.seguifacil.rule=Host(`sf.ykaromarques.com`)"
         - "traefik.http.routers.seguifacil.entrypoints=websecure"
-        - "traefik.http.routers.seguifacil.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.seguifacil.tls.certresolver=letsencryptresolver"
         - "traefik.http.services.seguifacil.loadbalancer.server.port=3000"
-        # Redirect HTTP → HTTPS
-        - "traefik.http.routers.seguifacil-http.rule=Host(`sf.ykaromarques.com`)"
-        - "traefik.http.routers.seguifacil-http.entrypoints=web"
-        - "traefik.http.routers.seguifacil-http.middlewares=redirect-to-https@docker"
-        - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-        - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
 
   # ──────────────────────────────────────────────────────────────────────────────
   # PostgreSQL
@@ -93,7 +86,7 @@ services:
         condition: on-failure
 
 networks:
-  traefik-public:
+  YkaroNET:
     external: true
   internal:
     driver: overlay
