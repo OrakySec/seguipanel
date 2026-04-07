@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import React from "react";
 import { getSettings, getApiProviders } from "./actions";
 import SettingsClient from "@/components/admin/settings/SettingsClient";

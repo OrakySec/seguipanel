@@ -1,8 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import React from "react";
-import { 
-  ShoppingCart, 
-  Users, 
-  TrendingUp, 
+import {
+  ShoppingCart,
+  Users,
+  TrendingUp,
   CreditCard,
   ArrowUpRight,
   Clock,
