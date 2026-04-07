@@ -34,10 +34,12 @@ COPY --from=builder /app/public                        ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static     ./.next/static
 
-# Schema do Prisma (necessário para migrations e client em runtime)
+# Schema e binários do Prisma (necessário para migrations e client em runtime)
 COPY --from=builder /app/prisma                        ./prisma
 COPY --from=builder /app/node_modules/.prisma          ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma          ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma           ./node_modules/prisma
+COPY --from=builder /app/node_modules/.bin/prisma      ./node_modules/.bin/prisma
 
 USER nextjs
 EXPOSE 3000
