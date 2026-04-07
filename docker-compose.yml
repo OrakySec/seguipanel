@@ -24,10 +24,8 @@ services:
       - traefik-public
       - internal
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - postgres
+      - redis
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-public"
