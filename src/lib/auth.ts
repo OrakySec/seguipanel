@@ -2,9 +2,9 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
-const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "fallback-secret-change-me"
-);
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) throw new Error("[auth] JWT_SECRET não definido no ambiente");
+const SECRET = new TextEncoder().encode(jwtSecret);
 
 export interface JWTPayload {
   userId: number;

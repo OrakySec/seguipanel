@@ -5,42 +5,53 @@ import { apiResponse, apiError } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   /* ─── Auth ─── */
-  const cronSecret = await getSetting("cron_secret");
+  const cronSecret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization");
   if (!cronSecret || auth !== `Bearer ${cronSecret}`) {
     return apiError("Unauthorized", 401);
   }
 
-  /* ─── Buscar pedidos pendentes com provedor ─── */
+  /* ─── Buscar pedidos pendentes não despachados ─── */
   const orders = await prisma.order.findMany({
     where: {
-      type: "api",
-      apiOrderId: 0,
-      status: "pending",
+      type:          "api",
+      apiOrderId:    0,
+      status:        "pending",
       apiProviderId: { not: null },
       apiServiceId:  { not: null },
     },
-    include: { apiProvider: true },
   });
+
+  if (orders.length === 0) {
+    return apiResponse({ processed: 0, skipped: 0, errors: [], total: 0, at: new Date().toISOString() });
+  }
+
+  /* ─── Buscar providers em lote ─── */
+  const providerIds = [...new Set(orders.map((o) => o.apiProviderId!))] as number[];
+  const providers = await prisma.apiProvider.findMany({
+    where: { id: { in: providerIds }, status: 1 },
+  });
+  const providerMap = new Map(providers.map((p) => [p.id, p]));
 
   const results = { processed: 0, skipped: 0, errors: [] as string[] };
 
   for (const order of orders) {
-    if (!order.apiProvider) {
+    const provider = providerMap.get(order.apiProviderId!);
+    if (!provider) {
       results.skipped++;
       continue;
     }
 
     try {
       const body = new URLSearchParams({
-        key:      order.apiProvider.apiKey,
+        key:      provider.apiKey,
         action:   "add",
         service:  order.apiServiceId!,
         link:     order.link ?? "",
         quantity: order.quantity ?? "100",
       });
 
-      const res = await fetch(order.apiProvider.url, {
+      const res = await fetch(provider.url, {
         method:  "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body:    body.toString(),

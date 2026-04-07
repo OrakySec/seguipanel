@@ -17,7 +17,6 @@ import { formatBRL, formatDate } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 interface SearchParams {
-  id?: string;
   email?: string;
 }
 
@@ -26,27 +25,25 @@ export default async function TrackOrderPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { id, email } = await searchParams;
+  const { email } = await searchParams;
   const siteName = await getSetting("site_name", "SeguiFacil");
   const whatsapp = await getSetting("whatsapp_number", "5511999999999");
 
-  let order = null;
+  let orders: any[] | null = null;
   let error = null;
 
-  if (id) {
-    order = await prisma.order.findUnique({
-      where: { id: parseInt(id) },
+  if (email) {
+    orders = await prisma.order.findMany({
+      where: { user: { email } },
       include: {
         service: true,
-        user: { select: { email: true } }
-      }
+      },
+      orderBy: { createdAt: 'desc' }
     });
 
-    if (!order) {
-      error = "Pedido não encontrado. Verifique o número digitado.";
-    } else if (email && order.user.email !== email) {
-      order = null;
-      error = "O e-mail informado não corresponde a este pedido.";
+    if (!orders || orders.length === 0) {
+      error = "Nenhum pedido encontrado para o e-mail informado.";
+      orders = null;
     }
   }
 
@@ -91,29 +88,17 @@ export default async function TrackOrderPage({
         </div>
 
         {/* Formulário de Busca */}
-        {!order && (
+        {!orders && (
           <form action="/meus-pedidos" method="GET" className="bg-white p-8 rounded-[32px] border border-brand/10 shadow-card space-y-6">
             <div>
-              <label className="block text-sm font-bold text-muted uppercase tracking-widest mb-2 px-1">Número do Pedido</label>
-              <div className="relative">
-                <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
-                <input 
-                  type="number" 
-                  name="id"
-                  required
-                  placeholder="Ex: 8432"
-                  className="w-full pl-12 pr-4 h-14 bg-surface rounded-2xl text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent transition-all"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-muted uppercase tracking-widest mb-2 px-1">E-mail da Compra (Opcional)</label>
+              <label className="block text-sm font-bold text-muted uppercase tracking-widest mb-2 px-1">E-mail da Compra</label>
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
                 <input 
                   type="email" 
                   name="email"
-                  placeholder="seu@email.com"
+                  required
+                  placeholder="Seu e-mail usado no checkout..."
                   className="w-full pl-12 pr-4 h-14 bg-surface rounded-2xl text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent transition-all"
                 />
               </div>
@@ -132,66 +117,74 @@ export default async function TrackOrderPage({
         )}
 
         {/* Resultado Detalhado */}
-        {order && (
+        {orders && (
           <div className="space-y-6">
-            <div className="bg-white p-8 rounded-[32px] border border-brand/10 shadow-card">
-               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                  <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted mb-1 block">Rastreamento Oficial</span>
-                    <h2 className="text-2xl font-jakarta font-extrabold text-foreground">Pedido #{order.id}</h2>
-                  </div>
-                  <div className={`px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-wide ${getStatusColor(order.status)}`}>
-                    {statusMap[order.status] || order.status}
-                  </div>
-               </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-8 border-y border-brand/10">
-                  <div className="space-y-4">
-                     <div>
-                        <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Serviço Contratado</p>
-                        <p className="font-bold text-foreground">{order.service.name}</p>
-                     </div>
-                     <div>
-                        <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Link do Perfil</p>
-                        <a href={order.link || "#"} target="_blank" className="text-primary font-bold flex items-center gap-1.5 hover:underline">
-                          {order.link} <ExternalLink size={14} />
-                        </a>
-                     </div>
-                  </div>
-                  <div className="space-y-4">
-                     <div>
-                        <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Quantidade</p>
-                        <p className="font-bold text-foreground">{order.quantity} unidades</p>
-                     </div>
-                     <div>
-                        <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Data da Compra</p>
-                        <p className="font-bold text-foreground italic">{formatDate(order.createdAt)}</p>
-                     </div>
-                  </div>
-               </div>
-
-               <div className="mt-8 pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 text-sm text-muted font-medium">
-                     <Clock size={16} /> Status atualizado em real-time
-                  </div>
-                  <Link href="/meus-pedidos" className="text-sm font-bold text-primary hover:underline">
-                    Nova Consulta
-                  </Link>
-               </div>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-jakarta font-extrabold text-foreground">
+                Foram encontrados {orders.length} pedido(s)
+              </h2>
+              <Link href="/meus-pedidos" className="text-sm font-bold text-primary hover:underline">
+                Nova Consulta
+              </Link>
             </div>
 
-            <div className="bg-primary-light border border-primary/20 p-6 rounded-3xl flex items-center justify-between gap-4">
+            {orders.map((order: any) => (
+              <div key={order.id} className="bg-white p-8 rounded-[32px] border border-brand/10 shadow-card">
+                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted mb-1 block">Rastreamento Oficial</span>
+                      <h2 className="text-2xl font-jakarta font-extrabold text-foreground">Pedido #{order.id}</h2>
+                    </div>
+                    <div className={`px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-wide ${getStatusColor(order.status)}`}>
+                      {statusMap[order.status] || order.status}
+                    </div>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-8 border-y border-brand/10">
+                    <div className="space-y-4">
+                       <div>
+                          <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Serviço Contratado</p>
+                          <p className="font-bold text-foreground">{order.service.name}</p>
+                       </div>
+                       <div>
+                          <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Link do Perfil</p>
+                          <a href={order.link || "#"} target="_blank" className="text-primary font-bold flex items-center gap-1.5 hover:underline truncate max-w-[250px]">
+                            {order.link} <ExternalLink size={14} className="shrink-0" />
+                          </a>
+                       </div>
+                    </div>
+                    <div className="space-y-4">
+                       <div>
+                          <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Quantidade</p>
+                          <p className="font-bold text-foreground">{order.quantity} unidades</p>
+                       </div>
+                       <div>
+                          <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Data da Compra</p>
+                          <p className="font-bold text-foreground italic">{formatDate(order.createdAt)}</p>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="mt-8 pt-2 flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-sm text-muted font-medium">
+                       <Clock size={16} /> Atualizado em real-time
+                    </div>
+                 </div>
+              </div>
+            ))}
+
+            <div className="bg-primary-light border border-primary/20 p-6 rounded-3xl flex items-center justify-between gap-4 mt-8">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm font-bold text-xl">?</div>
                 <div>
-                   <p className="text-sm font-bold text-primary">Alguma dúvida sobre seu pedido?</p>
+                   <p className="text-sm font-bold text-primary">Alguma dúvida sobre seus pedidos?</p>
                    <p className="text-xs text-primary/70 font-medium">Fale agora mesmo com nosso suporte VIP.</p>
                 </div>
               </div>
               <Link 
-                href={`https://wa.me/${whatsapp}?text=Olá! Preciso de ajuda com o pedido #${order.id}`}
+                href={`https://wa.me/${whatsapp}?text=Olá! Preciso de ajuda com os meus pedidos do email ${email}`}
                 target="_blank"
-                className="bg-primary text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg hover:scale-105 transition-all"
+                className="bg-primary text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg hover:scale-105 transition-all w-max shrink-0 text-center"
               >
                 Suporte WhatsApp
               </Link>

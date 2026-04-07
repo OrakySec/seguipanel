@@ -1,111 +1,263 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #ffffff;
-  --color-foreground: #111111;
+  /* --- Cores Base --- */
   --color-primary: #c60cff;
   --color-primary-dark: #9b00e0;
-  --color-primary-light: #f6f3ff;
   --color-secondary: #fd5949;
-  --color-surface: #f7f8fa;
-  --color-border: #e5d9fa;
-  --color-muted: #888888;
   --color-success: #0cc27e;
   --color-star: #fbbf24;
+  
+  /* --- Tema Dinâmico (Variáveis CSS) --- */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-muted: var(--muted);
+  
+  /* --- Tipografia & Arredondamento --- */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-jakarta), var(--font-geist-sans), sans-serif;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 2.5rem;
 }
 
+/* ───────────────────────────────────────── */
+/* ─── Definição de Variáveis por Tema ─── */
+/* ───────────────────────────────────────── */
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --surface: #ffffff;
+  --border: #f1f5f9;
+  --border-hover: #e2e8f0;
+  --muted: #64748b;
+  --primary-light: #f8f6ff;
+  
+  /* Gradientes 2026 */
+  --mesh-1: #c60cff0d;
+  --mesh-2: #fd59490d;
+  --mesh-3: #1877F20d;
+}
+
+.dark {
+  --background: #0a0a0c;
+  --foreground: #f8fafc;
+  --card: #121215;
+  --card-foreground: #f8fafc;
+  --surface: #0f0f12;
+  --border: #1e1e24;
+  --border-hover: #2d2d38;
+  --muted: #94a3b8;
+  --primary-light: rgba(198, 12, 255, 0.05);
+
+  --mesh-1: rgba(198, 12, 255, 0.1);
+  --mesh-2: rgba(253, 89, 73, 0.1);
+  --mesh-3: rgba(24, 119, 242, 0.1);
+}
+
+/* ───────────────────────────────────────── */
+/* ─── Estilos Base ─── */
+/* ───────────────────────────────────────── */
+
 body {
-  background: #ffffff;
-  color: #111111;
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
 }
 
-/* ─── Gradiente de marca ─── */
+/* --- Gradientes de Marca 2026 --- */
 .bg-brand-gradient {
-  background: linear-gradient(135deg, #c60cff 0%, #fd5949 100%);
+  background: linear-gradient(135deg, #c60cff 0%, #ff1f7d 50%, #fd5949 100%);
 }
 
 .text-brand-gradient {
-  background: linear-gradient(135deg, #c60cff 0%, #fd5949 100%);
+  background: linear-gradient(135deg, #c60cff 0%, #ff1f7d 50%, #fd5949 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* ─── Gradientes por plataforma ─── */
-.bg-instagram {
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-}
-.bg-tiktok {
-  background: linear-gradient(135deg, #010101 0%, #383838 100%);
-}
-.bg-kwai {
-  background: linear-gradient(135deg, #FF7000 0%, #FFAA00 100%);
-}
-.bg-youtube {
-  background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
-}
-.bg-facebook {
-  background: linear-gradient(135deg, #1877F2 0%, #145DBF 100%);
+/* --- Glassmorphism 2026 (Liquid Glass) --- */
+.glass-2026 {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.03);
 }
 
-/* ─── Animações ─── */
-@keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+.dark .glass-2026 {
+  background: rgba(18, 18, 21, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+.glass-card-2026 {
+  background: rgba(255, 255, 255, 0.01);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 12, 255, 0.25); }
-  50%       { box-shadow: 0 0 24px 6px rgba(198, 12, 255, 0.12); }
+.glass-card-2026:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
 }
 
-.animate-marquee {
-  display: flex;
-  animation: marquee 28s linear infinite;
+/* --- Mesh Gradient Animado --- */
+@keyframes meshRotate {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  33%  { transform: translate(10%, 10%) rotate(120deg); }
+  66%  { transform: translate(-10%, -5%) rotate(240deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease forwards;
+.mesh-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: -1;
+  opacity: 0.8;
+  filter: blur(100px);
+}
+
+.mesh-ball {
+  position: absolute;
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  animation: meshRotate 20s infinite linear;
+}
+
+.mesh-ball-1 { top: -10%; left: -10%; background: var(--mesh-1); animation-duration: 25s; }
+.mesh-ball-2 { top: 40%; right: -10%; background: var(--mesh-2); animation-duration: 30s; animation-direction: reverse; }
+.mesh-ball-3 { bottom: -10%; left: 20%; background: var(--mesh-3); animation-duration: 35s; }
+
+/* --- Botão Tátil 2026 --- */
+.btn-tactile {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.btn-tactile::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+  z-index: -1;
+}
+
+.btn-tactile:hover::after {
+  transform: translateX(100%);
+}
+
+.btn-tactile:active {
+  transform: scale(0.96) translateY(1px);
+}
+
+/* --- Claymorphism (Soft 3D Volume) --- */
+.clay-button {
+  background-color: var(--color-primary);
+  border-radius: 9999px;
+  box-shadow: 
+    inset 2px 5px 10px rgba(255, 255, 255, 0.4),
+    inset -2px -5px 10px rgba(0, 0, 0, 0.1),
+    0 10px 20px rgba(198, 12, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+}
+
+.clay-button:active {
+  transform: scale(0.95);
+  box-shadow: 
+    inset 1px 2px 5px rgba(255, 255, 255, 0.3),
+    inset -1px -2px 5px rgba(0, 0, 0, 0.1),
+    0 5px 10px rgba(198, 12, 255, 0.2);
+}
+
+.clay-card {
+  background-color: white;
+  border-radius: 2rem;
+  box-shadow: 
+    inset 4px 4px 10px rgba(255, 255, 255, 0.8),
+    inset -4px -4px 10px rgba(0, 0, 0, 0.02),
+    0 15px 35px -5px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .clay-card {
+  background-color: #121215;
+  box-shadow: 
+    inset 2px 2px 5px rgba(255, 255, 255, 0.05),
+    inset -2px -2px 5px rgba(0, 0, 0, 0.2),
+    0 15px 35px -5px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+/* --- Pulso de Luz 2026 --- */
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(198, 12, 255, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(198, 12, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(198, 12, 255, 0); }
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2.5s ease-in-out infinite;
+  animation: pulseGlow 2s infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
-    animation-play-state: paused;
-  }
-  .animate-pulse-glow {
-    animation: none;
-  }
-  .animate-fade-in-up {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
+/* --- Tipografia 2026 --- */
+.heading-huge {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
 }
 
-/* ─── Utilitários customizados ─── */
-.border-brand {
-  border-color: #e5d9fa;
+/* --- Sombras Customizadas --- */
+.shadow-premium {
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
 }
 
-.shadow-brand {
-  box-shadow: 0 4px 24px 0 rgba(198, 12, 255, 0.08);
+.dark .shadow-premium {
+  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.5);
 }
 
-.shadow-card {
-  box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.06);
+/* --- Scrollbar Customizado 2026 --- */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--background);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
 }

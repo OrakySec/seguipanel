@@ -7,33 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────────────────────
-// USUÁRIOS E AUTENTICAÇÃO
-// ─────────────────────────────────────────
-
 model User {
-  id             Int      @id @default(autoincrement())
-  role           UserRole @default(CUSTOMER)
-  email          String   @unique
-  password       String?
-  firstName      String?
-  lastName       String?
-  whatsapp       String?
-  timezone       String?
-  settings       String?  @db.Text
-  apiKey         String?  @unique @db.VarChar(191)
-  customRate     Int      @default(0)
-  totalOrders    Int      @default(0)
-  totalSpent     Decimal  @default(0) @db.Decimal(15, 5)
-  historyIp      String?
-  description    String?  @db.Text
-  activationKey  String?
-  resetKey       String?
-  status         Int      @default(1)
-  enviado        Int      @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
+  id              Int              @id @default(autoincrement())
+  role            UserRole         @default(CUSTOMER)
+  email           String           @unique
+  password        String?
+  firstName       String?
+  lastName        String?
+  whatsapp        String?
+  timezone        String?
+  settings        String?
+  apiKey          String?          @unique @db.VarChar(191)
+  customRate      Int              @default(0)
+  totalOrders     Int              @default(0)
+  totalSpent      Decimal          @default(0) @db.Decimal(15, 5)
+  historyIp       String?
+  description     String?
+  activationKey   String?
+  resetKey        String?
+  status          Int              @default(1)
+  enviado         Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   orders          Order[]
   transactionLogs TransactionLog[]
   userLogs        UserLog[]
@@ -41,21 +36,14 @@ model User {
   @@map("users")
 }
 
-enum UserRole {
-  ADMIN
-  SUPPORTER
-  CUSTOMER
-}
-
 model UserLog {
   id        Int      @id @default(autoincrement())
   userId    Int
   ip        String
   country   String?
-  type      Int      // 0=logout, 1=login
+  type      Int
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_logs")
 }
@@ -69,37 +57,28 @@ model BlockedIp {
   @@map("blocked_ips")
 }
 
-// ─────────────────────────────────────────
-// CONFIGURAÇÕES DO SISTEMA (chave-valor)
-// ─────────────────────────────────────────
-
 model Setting {
   id    Int    @id @default(autoincrement())
   key   String @unique
-  value String @db.Text
+  value String
 
   @@map("settings")
 }
 
-// ─────────────────────────────────────────
-// CATÁLOGO DE SERVIÇOS
-// ─────────────────────────────────────────
-
 model SocialNetwork {
   id              Int        @id @default(autoincrement())
   name            String
-  description     String?    @db.Text
+  description     String?
   image           String?
   urlSlug         String?    @unique @db.VarChar(255)
-  pageTitle       String?    @db.Text
-  metaKeywords    String?    @db.Text
-  metaDescription String?    @db.Text
+  pageTitle       String?
+  metaKeywords    String?
+  metaDescription String?
   sortOrder       Int        @default(0)
   status          Int        @default(1)
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
-
-  categories Category[]
+  categories      Category[]
 
   @@map("social_networks")
 }
@@ -108,179 +87,157 @@ model Category {
   id              Int           @id @default(autoincrement())
   socialNetworkId Int
   name            String
-  description     String?       @db.Text
+  description     String?
   requiredField   String?       @db.VarChar(255)
-  videoTutorial   String?       @db.Text
+  videoTutorial   String?
   sortOrder       Int           @default(0)
   status          Int           @default(1)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-
-  socialNetwork SocialNetwork @relation(fields: [socialNetworkId], references: [id])
-  services      Service[]
+  socialNetwork   SocialNetwork @relation(fields: [socialNetworkId], references: [id])
+  services        Service[]
 
   @@map("categories")
 }
 
 model ApiProvider {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   name         String
-  url          String   @db.VarChar(255)
-  apiKey       String   @db.Text
-  type         String   @default("standard") @db.VarChar(100)
-  balance      Decimal? @db.Decimal(15, 5)
-  currencyCode String?  @db.VarChar(10)
-  description  String?  @db.Text
-  status       Int      @default(1)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  services Service[]
+  url          String    @db.VarChar(255)
+  apiKey       String
+  type         String    @default("standard") @db.VarChar(100)
+  balance      Decimal?  @db.Decimal(15, 5)
+  currencyCode String?   @db.VarChar(10)
+  description  String?
+  status       Int       @default(1)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  services     Service[]
 
   @@map("api_providers")
 }
 
 model Service {
-  id            Int      @id @default(autoincrement())
-  categoryId    Int
-  name          String   @db.Text
-  description   String?  @db.Text
-  quantity      String?  @db.VarChar(191)
-  price         Decimal  @db.Decimal(15, 4)
-  originalPrice Decimal? @db.Decimal(15, 4)
-  discount      Int      @default(0)
-  minOrder      Int?
-  maxOrder      Int?
-  addType       AddType  @default(MANUAL)
-  type          String   @default("default") @db.VarChar(100)
-  apiProviderId Int?
-  apiServiceId  String?  @db.VarChar(200)
-  status        Int      @default(1)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  category        Category     @relation(fields: [categoryId], references: [id])
-  apiProvider     ApiProvider? @relation(fields: [apiProviderId], references: [id])
-  orders          Order[]
+  id              Int              @id @default(autoincrement())
+  categoryId      Int
+  name            String
+  description     String?
+  quantity        String?          @db.VarChar(191)
+  price           Decimal          @db.Decimal(15, 4)
+  originalPrice   Decimal?         @db.Decimal(15, 4)
+  discount        Int              @default(0)
+  minOrder        Int?
+  maxOrder        Int?
+  addType         AddType          @default(MANUAL)
+  type            String           @default("default") @db.VarChar(100)
+  apiProviderId   Int?
+  apiServiceId    String?          @db.VarChar(200)
+  status          Int              @default(1)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  isBestSeller    Boolean          @default(false)
   offersAsMain    ExclusiveOffer[] @relation("MainProduct")
   offersAsService ExclusiveOffer[] @relation("OfferService")
+  orders          Order[]
+  apiProvider     ApiProvider?     @relation(fields: [apiProviderId], references: [id])
+  category        Category         @relation(fields: [categoryId], references: [id])
 
   @@map("services")
 }
 
-enum AddType {
-  MANUAL
-  API
-}
-
-// ─────────────────────────────────────────
-// OFERTAS EXCLUSIVAS (cross-sell)
-// ─────────────────────────────────────────
-
 model ExclusiveOffer {
-  id            Int      @id @default(autoincrement())
-  mainProductId Int
+  id             Int      @id @default(autoincrement())
+  mainProductId  Int
   offerServiceId Int
-  offerName     String
-  quantity      Int
-  offerPrice    Decimal  @db.Decimal(15, 4)
-  originalPrice Decimal? @db.Decimal(15, 4)
-  emoji         String?
-  isBestseller  Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  mainProduct  Service @relation("MainProduct", fields: [mainProductId], references: [id])
-  offerService Service @relation("OfferService", fields: [offerServiceId], references: [id])
+  offerName      String
+  quantity       Int
+  offerPrice     Decimal  @db.Decimal(15, 4)
+  originalPrice  Decimal? @db.Decimal(15, 4)
+  emoji          String?
+  isBestseller   Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  mainProduct    Service  @relation("MainProduct", fields: [mainProductId], references: [id])
+  offerService   Service  @relation("OfferService", fields: [offerServiceId], references: [id])
 
   @@map("exclusive_offers")
 }
 
-// ─────────────────────────────────────────
-// CUPONS DE DESCONTO
-// ─────────────────────────────────────────
-
 model Coupon {
-  id          Int      @id @default(autoincrement())
-  code        String   @unique @db.VarChar(50)
-  name        String   @db.VarChar(100)
-  type        String   @default("percentage") // ENUM: 'percentage'
-  value       Decimal  @db.Decimal(5, 2)      // % de desconto
-  usageLimit  Int      @default(0)            // 0 = ilimitado
-  usedCount   Int      @default(0)
-  isActive    Boolean  @default(true)
+  id          Int       @id @default(autoincrement())
+  code        String    @unique @db.VarChar(50)
+  name        String    @db.VarChar(100)
+  type        String    @default("percentage")
+  value       Decimal   @db.Decimal(5, 2)
+  usageLimit  Int       @default(0)
+  usedCount   Int       @default(0)
+  isActive    Boolean   @default(true)
+  expiresAt   DateTime?
   createdById Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@map("coupons")
 }
 
-// ─────────────────────────────────────────
-// TRANSAÇÕES E PEDIDOS
-// ─────────────────────────────────────────
-
 model TransactionLog {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   userId         Int
-  paymentType    String   // "pushinpay"
-  transactionId  String   @unique // ID retornado pela API da gateway
-  orderId        Int?     // preenchido após webhook confirmar pagamento
-  orderDetails   Json     // { serviceId, link, couponCode, email, whatsapp }
+  paymentType    String
+  transactionId  String    @unique
+  orderId        Int?
+  orderDetails   Json
   amount         Float
   transactionFee Float?
-  status         Int      @default(0) // 0=pendente, 1=pago
-  // Suporte a estorno
-  refundStatus   Int      @default(0) // 0=não, 1=estornado
-  refundId       String?  @db.VarChar(50)
+  status         Int       @default(0)
+  refundStatus   Int       @default(0)
+  refundId       String?   @db.VarChar(50)
   refundDate     DateTime?
-  refundAmount   Decimal? @db.Decimal(10, 2)
-  refundResponse String?  @db.Text
-  createdAt      DateTime @default(now())
+  refundAmount   Decimal?  @db.Decimal(10, 2)
+  refundResponse String?
+  createdAt      DateTime  @default(now())
+  order          Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  user           User      @relation(fields: [userId], references: [id])
 
-  user  User   @relation(fields: [userId], references: [id])
-  order Order? @relation(fields: [orderId], references: [id])
-
+  @@index([userId, status])
   @@map("transaction_logs")
 }
 
 model Order {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  type          String   @default("direct") @db.VarChar(10) // 'direct' | 'api'
-  categoryId    Int?
-  serviceId     Int
-  serviceType   String   @default("default") @db.VarChar(50)
-  apiProviderId Int?
-  apiServiceId  String?  @db.VarChar(200)
-  apiOrderId    Int?     @default(0)
-  // status: 'active','completed','processing','inprogress',
-  //         'pending','partial','canceled','refunded','awaiting'
-  status        String   @default("pending") @db.VarChar(20)
-  charge        Decimal  @db.Decimal(15, 4)
-  link          String?  @db.VarChar(191)
-  quantity      String?  @db.VarChar(191)
-  startCounter  String?  @default("0")
-  remains       String?  @default("0")
-  note          String?  @db.Text
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  user            User             @relation(fields: [userId], references: [id])
+  id              Int              @id @default(autoincrement())
+  userId          Int
+  type            String           @default("direct") @db.VarChar(10)
+  categoryId      Int?
+  serviceId       Int
+  serviceType     String           @default("default") @db.VarChar(50)
+  apiProviderId   Int?
+  apiServiceId    String?          @db.VarChar(200)
+  apiOrderId      Int?             @default(0)
+  status          String           @default("pending") @db.VarChar(20)
+  charge          Decimal          @db.Decimal(15, 4)
+  link            String?          @db.VarChar(191)
+  quantity        String?          @db.VarChar(191)
+  startCounter    String?          @default("0")
+  remains           String?          @default("0")
+  note              String?
+  lastStatusCheckAt DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
   service         Service          @relation(fields: [serviceId], references: [id])
+  user            User             @relation(fields: [userId], references: [id])
   transactionLogs TransactionLog[]
 
+  @@index([userId, status])
+  @@index([status, type])
+  @@index([apiOrderId, status])
+  @@index([status, type, lastStatusCheckAt])
   @@map("orders")
 }
 
-// ─────────────────────────────────────────
-// CONTEÚDO
-// ─────────────────────────────────────────
-
 model Faq {
   id        Int      @id @default(autoincrement())
-  question  String   @db.Text
-  answer    String   @db.Text
+  question  String
+  answer    String
   sortOrder Int      @default(0)
   status    Int      @default(1)
   createdAt DateTime @default(now())
@@ -291,13 +248,13 @@ model Faq {
 
 model Blog {
   id              Int       @id @default(autoincrement())
-  title           String    @db.Text
+  title           String
   category        String?   @db.VarChar(255)
   urlSlug         String    @unique @db.VarChar(255)
-  image           String?   @db.Text
-  content         String    @db.Text
-  metaKeywords    String?   @db.Text
-  metaDescription String?   @db.Text
+  image           String?
+  content         String
+  metaKeywords    String?
+  metaDescription String?
   sortOrder       Int       @default(0)
   status          Int       @default(1)
   publishedAt     DateTime?
@@ -308,13 +265,24 @@ model Blog {
 }
 
 model CustomPage {
-  id      Int    @id @default(autoincrement())
-  title   String @db.Text
-  slug    String @unique @db.VarChar(255)
-  content String @db.Text
-  status  Int    @default(1)
+  id        Int      @id @default(autoincrement())
+  title     String
+  slug      String   @unique @db.VarChar(255)
+  content   String
+  status    Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("custom_pages")
+}
+
+enum UserRole {
+  ADMIN
+  SUPPORTER
+  CUSTOMER
+}
+
+enum AddType {
+  MANUAL
+  API
 }

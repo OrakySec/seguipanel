@@ -8,6 +8,15 @@ type OrderLike = {
   charge: { toString(): string } | number | string;
 };
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /* ─── Transporter ─── */
 async function createTransporter() {
   const host     = await getSetting("smtp_host");
@@ -27,8 +36,8 @@ async function createTransporter() {
 /* ─── Base ─── */
 export async function sendEmail(to: string, subject: string, html: string) {
   const siteName  = await getSetting("site_name", "SeguiFacil");
-  const fromEmail = await getSetting("smtp_from_email", "noreply@seguifacil.online");
-  const fromName  = await getSetting("smtp_from_name", siteName);
+  const fromEmail = (await getSetting("smtp_from_email", "noreply@seguifacil.online")).replace(/[\r\n]/g, "");
+  const fromName  = (await getSetting("smtp_from_name", siteName)).replace(/[\r\n]/g, "");
 
   const transporter = await createTransporter();
   await transporter.sendMail({
@@ -90,8 +99,8 @@ function orderConfirmedHtml(order: any, serviceName: string, siteName: string) {
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f8fa;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
       ${infoRow("Pedido nº", `#${order.id}`)}
-      ${infoRow("Serviço", serviceName)}
-      ${infoRow("Perfil", order.link ?? "—")}
+      ${infoRow("Serviço", escapeHtml(serviceName))}
+      ${infoRow("Perfil", escapeHtml(order.link ?? "—"))}
       ${infoRow("Total pago", `R$ ${Number(order.charge).toFixed(2).replace(".", ",")}`)}
     </table>
     <p style="margin:0;font-size:13px;color:#888888;">
@@ -109,8 +118,8 @@ function orderCompletedHtml(order: OrderLike, siteName: string) {
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f8fa;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
       ${infoRow("Pedido nº", `#${order.id}`)}
-      ${infoRow("Perfil", order.link ?? "—")}
-      ${infoRow("Quantidade", order.quantity ?? "—")}
+      ${infoRow("Perfil", escapeHtml(order.link ?? "—"))}
+      ${infoRow("Quantidade", escapeHtml(order.quantity ?? "—"))}
     </table>
     <p style="margin:0;font-size:13px;color:#888888;">
       Obrigado por confiar no ${siteName}! Volte quando precisar de mais seguidores ou curtidas.

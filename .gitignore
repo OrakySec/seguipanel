@@ -12,6 +12,10 @@ jspm_packages/
 # IDEs and editors
 .idea/
 .vscode/
+.claude/
+
+# TypeScript build info
+tsconfig.tsbuildinfo
 *.swp
 *.swo
 .DS_Store

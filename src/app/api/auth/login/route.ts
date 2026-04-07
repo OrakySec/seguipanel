@@ -67,7 +67,6 @@ export async function POST(req: NextRequest) {
     });
 
     return apiResponse({
-      success: true,
       user: {
         id: user.id,
         email: user.email,
@@ -75,7 +74,7 @@ export async function POST(req: NextRequest) {
         firstName: user.firstName,
         historyIp: req.headers.get("x-forwarded-for") ?? "",
       },
-    });
+    }, "Login realizado com sucesso");
   } catch (err) {
     console.error("[AUTH LOGIN]", err);
     return apiError("Erro interno do servidor", 500);

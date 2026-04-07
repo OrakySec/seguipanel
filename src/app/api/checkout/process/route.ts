@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
         where: { code: couponCode, isActive: true },
       });
       if (!coupon) return apiError("Cupom inválido ou inativo");
+      if (coupon.expiresAt && coupon.expiresAt < new Date()) return apiError("Cupom expirado");
       if (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) {
         return apiError("Cupom atingiu o limite de uso");
       }
@@ -97,7 +98,8 @@ export async function POST(req: NextRequest) {
 
     if (!ppId || !pixCode) {
       console.error("[CHECKOUT] PushinPay response:", pixData);
-      return apiError("Erro ao gerar PIX. Tente novamente.", 502);
+      const errorMessage = pixData?.message || pixData?.error || "Erro ao gerar PIX. Tente novamente.";
+      return apiError(errorMessage, 502);
     }
 
     // 6. Criar TransactionLog (status=0 pendente, order_id null)
@@ -119,17 +121,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 7. Incrementar uso do cupom
-    if (couponId) {
-      await prisma.coupon.update({
-        where: { id: couponId },
-        data: { usedCount: { increment: 1 } },
-      });
-    }
-
-    // 8. Retornar dados para o frontend renderizar o modal PIX
+    // 7. Retornar dados para o frontend renderizar o modal PIX
+    // (cupom increment movido para o webhook, após confirmação do pagamento)
     return apiResponse({
       transactionId: transaction.id,
+      pollToken: transaction.transactionId,
       pixCode,
       qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixCode)}`,
       amount: finalPrice,

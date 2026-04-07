@@ -21,6 +21,7 @@ interface ServiceInfo {
 
 interface PixData {
   transactionId: number;
+  pollToken: string;
   pixCode: string;
   qrCodeUrl: string;
   amount: number;
@@ -73,18 +74,30 @@ function formatCountdown(secs: number) {
   return `${m}:${s}`;
 }
 
-function normalizeLink(raw: string, platform: string): string {
+function normalizeLink(raw: string, platform: string, isProfile: boolean): string {
   const v = raw.trim();
   if (v.startsWith("http")) return v;
+  
   const handle = v.startsWith("@") ? v.slice(1) : v;
+  const platformLower = platform.toLowerCase();
+  
   const bases: Record<string, string> = {
-    Instagram: "https://instagram.com/",
-    TikTok:    "https://tiktok.com/@",
-    Kwai:      "https://kwai.com/@",
-    YouTube:   "https://youtube.com/@",
-    Facebook:  "https://facebook.com/",
+    instagram: "https://instagram.com/",
+    tiktok:    "https://tiktok.com/@",
+    kwai:      "https://kwai.com/@",
+    youtube:   "https://youtube.com/@",
+    facebook:  "https://facebook.com/",
   };
-  return (bases[platform] ?? "https://instagram.com/") + handle;
+
+  const base = bases[platformLower] || "https://instagram.com/";
+  
+  if (isProfile) {
+    return base + handle;
+  }
+  
+  // Se for um link de postagem mas o usuário digitou apenas um termo, 
+  // não temos como adivinhar a URL da postagem, então retornamos o que ele digitou.
+  return v;
 }
 
 /* ─── Step Indicator ─── */
@@ -219,6 +232,9 @@ export default function CheckoutClient() {
       MOCK_SERVICE.platformGradient,
   };
 
+  const requiredFieldRaw = params.get("requiredField") || "Link do Perfil";
+  const isProfileField = requiredFieldRaw.toLowerCase().includes("perfil") || requiredFieldRaw.toLowerCase().includes("usuário");
+
   /* Steps */
   const [step, setStep] = useState<Step>("form");
 
@@ -240,7 +256,8 @@ export default function CheckoutClient() {
   const [countdown, setCountdown] = useState(PIX_DURATION);
   const [copied, setCopied]       = useState(false);
   const [polling, setPolling]     = useState(false);
-  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollingRef    = useRef<ReturnType<typeof setInterval> | null>(null);
+  const submittingRef = useRef(false);
 
   /* Countdown */
   useEffect(() => {
@@ -251,9 +268,9 @@ export default function CheckoutClient() {
   }, [step, countdown]);
 
   /* Polling de pagamento */
-  const checkPayment = useCallback(async (txId: number) => {
+  const checkPayment = useCallback(async (pollToken: string) => {
     try {
-      const res = await fetch(`/api/checkout/status/${txId}`);
+      const res = await fetch(`/api/checkout/status/${pollToken}`);
       const json = await res.json();
       if (json.data?.status === 1) {
         clearInterval(pollingRef.current!);
@@ -264,7 +281,7 @@ export default function CheckoutClient() {
 
   useEffect(() => {
     if (step !== "pix" || !pix) return;
-    pollingRef.current = setInterval(() => checkPayment(pix.transactionId), 3000);
+    pollingRef.current = setInterval(() => checkPayment(pix.pollToken), 3000);
     return () => clearInterval(pollingRef.current!);
   }, [step, pix, checkPayment]);
 
@@ -273,7 +290,7 @@ export default function CheckoutClient() {
     const e: Record<string, string> = {};
     if (!email.includes("@")) e.email = "E-mail inválido";
     if (whatsapp.replace(/\D/g, "").length < 10) e.whatsapp = "WhatsApp inválido (mínimo 10 dígitos)";
-    if (!link.trim()) e.link = "Informe o @ do seu perfil";
+    if (!link.trim()) e.link = `Informe o ${requiredFieldRaw}`;
     return e;
   }
 
@@ -296,7 +313,7 @@ export default function CheckoutClient() {
           error: "",
         }));
       } else {
-        setCoupon((c) => ({ ...c, status: "invalid", error: json.message }));
+        setCoupon((c) => ({ ...c, status: "invalid", error: json.message || json.error || "Erro ao validar cupom" }));
       }
     } catch {
       setCoupon((c) => ({ ...c, status: "invalid", error: "Erro ao validar cupom" }));
@@ -306,21 +323,23 @@ export default function CheckoutClient() {
   /* ─── Submeter checkout ─── */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submittingRef.current) return;
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
+    submittingRef.current = true;
     setSubmitting(true);
     setSubmitError("");
 
     try {
-      const normalizedLink = normalizeLink(link, service.platform);
+      const normalized = normalizeLink(link, service.platform, isProfileField);
       const res = await fetch("/api/checkout/process", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           serviceId: service.id,
-          link: normalizedLink,
+          link: normalized,
           email,
           whatsapp: whatsapp.replace(/\D/g, ""),
           couponCode: coupon.status === "valid" ? coupon.code : undefined,
@@ -328,7 +347,7 @@ export default function CheckoutClient() {
       });
       const json = await res.json();
       if (!json.success) {
-        setSubmitError(json.message ?? "Erro ao processar pedido");
+        setSubmitError(json.message || json.error || "Erro ao processar pedido");
         return;
       }
       setPix(json.data);
@@ -337,6 +356,7 @@ export default function CheckoutClient() {
     } catch {
       setSubmitError("Erro de conexão. Tente novamente.");
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
@@ -392,21 +412,26 @@ export default function CheckoutClient() {
               </div>
             </section>
 
-            {/* @ do perfil */}
+            {/* Link / @ do perfil */}
             <section className="bg-white rounded-2xl border border-border shadow-card p-5">
-              <h2 className="font-semibold text-gray-900 mb-1">Perfil {service.platform}</h2>
+              <h2 className="font-semibold text-gray-900 mb-1">{requiredFieldRaw} ({service.platform})</h2>
               <p className="text-xs text-gray-400 mb-4">
-                O perfil precisa estar <strong>público</strong>.
+                {isProfileField ? "O perfil precisa estar" : "A postagem precisa estar"} <strong>público</strong>.
               </p>
-              <Field label={`@ do seu ${service.platform} *`} error={errors.link}>
+              <Field label={`${requiredFieldRaw} *`} error={errors.link}>
                 <div className={`flex items-center rounded-xl border ${errors.link ? "border-red-300" : "border-border"} bg-white focus-within:border-primary transition-colors`}>
-                  <span className="pl-4 pr-1 text-base font-semibold text-gray-400 select-none">@</span>
+                  {isProfileField && (
+                    <span className="pl-4 pr-1 text-base font-semibold text-gray-400 select-none">@</span>
+                  )}
                   <input
                     type="text"
-                    value={link}
-                    onChange={(e) => setLink(e.target.value.replace(/^@+/, "").replace(/\s/g, ""))}
-                    placeholder="seuusername"
-                    className="flex-1 py-3 pr-4 text-sm bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
+                    value={isProfileField ? link.replace(/^@+/, "") : link}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setLink(isProfileField ? val.replace(/^@+/, "").replace(/\s/g, "") : val.trim());
+                    }}
+                    placeholder={isProfileField ? "seuusername" : "https://instagram.com/p/..."}
+                    className={`flex-1 py-3 px-4 text-sm bg-transparent outline-none text-gray-900 placeholder:text-gray-400 ${isProfileField ? "pl-0" : ""}`}
                     autoComplete="off"
                     autoCapitalize="none"
                     autoCorrect="off"
@@ -417,11 +442,11 @@ export default function CheckoutClient() {
               {link.trim().length > 0 && (
                 <div className="mt-3 flex items-center justify-between gap-3 bg-primary-light border border-border rounded-xl px-3 py-2.5">
                   <div className="min-w-0">
-                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-normal mb-0.5 whitespace-nowrap">Verifique se é o perfil correto</p>
-                    <p className="text-sm font-semibold text-gray-800 truncate">{normalizeLink(link, service.platform)}</p>
+                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-normal mb-0.5 whitespace-nowrap">Verifique se o link está correto</p>
+                    <p className="text-sm font-semibold text-gray-800 truncate">{normalizeLink(link, service.platform, isProfileField)}</p>
                   </div>
                   <a
-                    href={normalizeLink(link, service.platform)}
+                    href={normalizeLink(link, service.platform, isProfileField)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-shrink-0 text-xs font-semibold text-primary border border-primary/30 rounded-lg px-3 py-1.5 hover:bg-primary/5 transition-colors"
@@ -598,7 +623,7 @@ export default function CheckoutClient() {
               </button>
             ) : (
               <button
-                onClick={() => checkPayment(pix.transactionId)}
+                onClick={() => checkPayment(pix.pollToken)}
                 disabled={polling}
                 className="w-full mt-3 py-3.5 text-sm font-semibold text-gray-600 border border-border rounded-xl hover:bg-surface transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >

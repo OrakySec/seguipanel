@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSetting, getSettingBool } from "@/lib/settings";
 import { apiResponse, apiError } from "@/lib/utils";
 import { sendOrderConfirmedEmail } from "@/lib/email";
+import { sendEvolutionFlow } from "@/lib/evolution";
 
 async function sendGA4Conversion(
   transactionId: string,
@@ -138,6 +139,12 @@ async function createOrder(transactionId: number) {
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Verificar token do webhook (header x-pushinpay-token configurado no painel PushinPay)
+    const token = req.headers.get("x-pushinpay-token");
+    if (!token || token !== process.env.PUSHINPAY_WEBHOOK_SECRET) {
+      return apiError("Unauthorized", 401);
+    }
+
     // 1. Ler payload (JSON ou URL-encoded, como faz o PHP original)
     const contentType = req.headers.get("content-type") ?? "";
     let payload: Record<string, unknown> = {};
@@ -153,8 +160,9 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Extrair id e status da PushinPay
-    const ppId = String(payload?.id ?? payload?.data?.id ?? "");
-    const ppStatus = String(payload?.status ?? payload?.data?.status ?? "");
+    const nested = payload.data as Record<string, unknown> | undefined;
+    const ppId     = String(payload.id ?? nested?.id ?? "");
+    const ppStatus = String(payload.status ?? nested?.status ?? "");
     const isPaid =
       ppStatus === "paid" ||
       ppStatus === "PAID" ||
@@ -193,18 +201,44 @@ export async function POST(req: NextRequest) {
     // 6. Criar pedido
     const order = await createOrder(transaction.id);
 
-    // 7. Conversões de marketing + e-mail (em paralelo, não bloqueia a resposta)
+    // 7. Incrementar uso do cupom (feito aqui, após confirmação do pagamento)
     const details = transaction.orderDetails as Record<string, unknown>;
     const email = (details.email as string) ?? "";
+    const couponCode = details.couponCode as string | undefined;
+    if (couponCode) {
+      await prisma.coupon.updateMany({
+        where: { code: couponCode, isActive: true },
+        data:  { usedCount: { increment: 1 } },
+      });
+    }
+
+    // 8. Conversões de marketing + e-mail (em paralelo, não bloqueia a resposta)
+
+    const serviceName = order
+      ? await prisma.service
+          .findUnique({ where: { id: order.serviceId }, select: { name: true } })
+          .then((s) => s?.name ?? "Serviço")
+      : "Serviço";
 
     if (order && email) {
-      const service = await prisma.service.findUnique({
-        where:  { id: order.serviceId },
-        select: { name: true },
-      });
-      sendOrderConfirmedEmail(email, order, service?.name ?? "Serviço").catch(
+      sendOrderConfirmedEmail(email, order, serviceName).catch(
         (e) => console.error("[WEBHOOK] Email error:", e)
       );
+    }
+
+    // 9. WhatsApp automático via Evolution API
+    const phone = (details.whatsapp as string | undefined)?.replace(/\D/g, "");
+    if (order && phone) {
+      const userName = await prisma.user
+        .findUnique({ where: { id: transaction.userId }, select: { firstName: true } })
+        .then((u) => u?.firstName ?? "Cliente");
+
+      sendEvolutionFlow(phone, "evolution_msg_order_confirmed", {
+        nome:    userName,
+        orderId: String(order.id),
+        valor:   `R$ ${transaction.amount.toFixed(2)}`,
+        servico: serviceName,
+      }).catch((e) => console.error("[WEBHOOK] Evolution error:", e));
     }
 
     Promise.all([

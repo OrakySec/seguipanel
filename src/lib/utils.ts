@@ -47,13 +47,35 @@ export function slugify(text: string): string {
     .replace(/\s+/g, "-");
 }
 
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: string;
+}
+
 export function apiResponse<T>(
   data: T,
+  message?: string,
   status = 200
 ): Response {
-  return Response.json(data, { status });
+  return Response.json(
+    {
+      success: true,
+      message,
+      data,
+    },
+    { status }
+  );
 }
 
 export function apiError(message: string, status = 400): Response {
-  return Response.json({ error: message }, { status });
+  return Response.json(
+    {
+      success: false,
+      message, // Using message instead of error for consistency with frontend
+      error: message, // keeping error for backward compatibility if needed
+    },
+    { status }
+  );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getSetting } from "@/lib/settings";
 
 const platformLinks = [
   { name: "Seguidores Instagram", href: "/comprar-seguidores-instagram" },
@@ -18,7 +19,12 @@ const helpLinks = [
   { name: "Política de Privacidade", href: "/privacidade" },
 ];
 
-export default function Footer() {
+export default async function Footer() {
+  const logoType = await getSetting("logo_type", "text");
+  const logoUrl = await getSetting("logo_url", "");
+  const websiteName = await getSetting("website_name", "SeguiFacil");
+  const logoText = await getSetting("website_logo_text", websiteName);
+
   return (
     <footer className="bg-surface border-t border-brand mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -26,8 +32,12 @@ export default function Footer() {
 
           {/* Marca */}
           <div className="lg:col-span-2">
-            <Link href="/" className="inline-block mb-3">
-              <span className="text-2xl font-bold text-brand-gradient">SeguiFacil</span>
+            <Link href="/" className="inline-block mb-4" aria-label={websiteName}>
+              {logoType === "image" && logoUrl ? (
+                 <img src={logoUrl} alt={websiteName} className="h-8 w-auto object-contain" />
+              ) : (
+                 <span className="text-2xl font-black tracking-tighter text-brand-gradient uppercase" style={{ fontFamily: "var(--font-heading)" }}>{logoText}</span>
+              )}
             </Link>
             <p className="text-sm text-muted leading-relaxed max-w-xs">
               A plataforma mais confiável do Brasil para comprar seguidores e curtidas
@@ -92,7 +102,7 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-muted">
-            © 2017–{new Date().getFullYear()} SeguiFacil. Todos os direitos reservados.
+            © 2017–{new Date().getFullYear()} {websiteName}. Todos os direitos reservados.
           </p>
           <p className="text-xs text-muted">
             Desenvolvido com segurança e transparência para nossos clientes.

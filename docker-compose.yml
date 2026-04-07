@@ -1,38 +1,118 @@
 services:
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Aplicação Next.js
+  # ──────────────────────────────────────────────────────────────────────────────
+  app:
+    image: ghcr.io/orakysec/seguipanel:latest
+    container_name: seguifacil_app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/smm_app"
+      JWT_SECRET: "${JWT_SECRET}"
+      JWT_EXPIRES_IN: "7d"
+      NEXT_PUBLIC_APP_URL: "https://seguifacil.com"
+      CRON_SECRET: "${CRON_SECRET}"
+      PUSHINPAY_WEBHOOK_SECRET: "${PUSHINPAY_WEBHOOK_SECRET}"
+      MINIO_ENDPOINT: "minio"
+      MINIO_PORT: "9000"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+      MINIO_BUCKET: "smm-app"
+      MINIO_USE_SSL: "false"
+      REDIS_URL: "redis://redis:6379"
+    networks:
+      - traefik-public
+      - internal
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      # Rota principal (HTTPS)
+      - "traefik.http.routers.seguifacil.rule=Host(`seguifacil.com`) || Host(`www.seguifacil.com`)"
+      - "traefik.http.routers.seguifacil.entrypoints=websecure"
+      - "traefik.http.routers.seguifacil.tls.certresolver=letsencrypt"
+      - "traefik.http.services.seguifacil.loadbalancer.server.port=3000"
+      # Redirect HTTP → HTTPS
+      - "traefik.http.routers.seguifacil-http.rule=Host(`seguifacil.com`) || Host(`www.seguifacil.com`)"
+      - "traefik.http.routers.seguifacil-http.entrypoints=web"
+      - "traefik.http.routers.seguifacil-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      # Redirect www → sem www
+      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www\\.seguifacil\\.com/(.*)"
+      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://seguifacil.com/$${1}"
+      - "traefik.http.middlewares.www-redirect.redirectregex.permanent=true"
+      - "traefik.http.routers.seguifacil.middlewares=www-redirect"
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # PostgreSQL
+  # ──────────────────────────────────────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
-    container_name: smm_postgres
+    container_name: seguifacil_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       POSTGRES_DB: smm_app
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Redis
+  # ──────────────────────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: smm_redis
+    container_name: seguifacil_redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
 
+  # ──────────────────────────────────────────────────────────────────────────────
+  # MinIO (armazenamento de arquivos)
+  # ──────────────────────────────────────────────────────────────────────────────
   minio:
     image: minio/minio
-    container_name: smm_minio
+    container_name: seguifacil_minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: "${MINIO_ACCESS_KEY}"
+      MINIO_ROOT_PASSWORD: "${MINIO_SECRET_KEY}"
     volumes:
       - minio_data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
+    networks:
+      - internal
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      # Console do MinIO (opcional — remova se não quiser expor)
+      - "traefik.http.routers.minio-console.rule=Host(`minio.seguifacil.com`)"
+      - "traefik.http.routers.minio-console.entrypoints=websecure"
+      - "traefik.http.routers.minio-console.tls.certresolver=letsencrypt"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+
+networks:
+  traefik-public:
+    external: true   # criada pelo Traefik — deve existir antes do deploy
+  internal:
+    driver: bridge
 
 volumes:
   postgres_data:
+  redis_data:
   minio_data:
