@@ -306,6 +306,7 @@ export default function SettingsClient({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <SettingField label="Status Gateway" name="is_active_pushinpay" type="select" options={[{v: "1", l: "Habilitado"}, {v: "0", l: "Desativado"}]} value={settings.is_active_pushinpay} onChange={handleChange} />
                             <SettingField label="Token de API" name="api_token_pushinpay" type="password" value={settings.api_token_pushinpay} onChange={handleChange} />
+                            <SettingField label="Webhook Secret Token" name="pushinpay_webhook_secret" type="password" value={settings.pushinpay_webhook_secret} onChange={handleChange} />
                             <SettingField label="Base URL" name="pushinpay_base_url" value={settings.pushinpay_base_url} onChange={handleChange} full />
                         </div>
                     </div>

@@ -141,7 +141,8 @@ export async function POST(req: NextRequest) {
   try {
     // 0. Verificar token do webhook (header x-pushinpay-token configurado no painel PushinPay)
     const token = req.headers.get("x-pushinpay-token");
-    if (!token || token !== process.env.PUSHINPAY_WEBHOOK_SECRET) {
+    const webhookSecret = await getSetting("pushinpay_webhook_secret");
+    if (!token || !webhookSecret || token !== webhookSecret) {
       return apiError("Unauthorized", 401);
     }
 
