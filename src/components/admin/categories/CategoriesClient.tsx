@@ -38,7 +38,7 @@ interface SocialNetwork {
   id: number;
   name: string;
   description: string | null;
-  icon: string | null;
+  image: string | null;
   sortOrder: number;
   status: number;
   categories: Category[];

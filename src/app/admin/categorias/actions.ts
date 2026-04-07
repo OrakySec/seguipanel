@@ -31,7 +31,7 @@ export async function upsertSocialNetwork(id: number | null, data: any) {
         data: {
           name: data.name,
           description: data.description,
-          image: data.icon,
+          image: data.image,
           sortOrder: Number(data.sortOrder ?? 0),
           status: Number(data.status ?? 1)
         }
@@ -41,7 +41,7 @@ export async function upsertSocialNetwork(id: number | null, data: any) {
         data: {
           name: data.name,
           description: data.description,
-          image: data.icon,
+          image: data.image,
           sortOrder: Number(data.sortOrder ?? 0),
           status: Number(data.status ?? 1)
         }
