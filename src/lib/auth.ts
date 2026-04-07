@@ -2,10 +2,6 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
-const jwtSecret = process.env.JWT_SECRET;
-if (!jwtSecret) throw new Error("[auth] JWT_SECRET não definido no ambiente");
-const SECRET = new TextEncoder().encode(jwtSecret);
-
 export interface JWTPayload {
   userId: number;
   email: string;
@@ -14,17 +10,23 @@ export interface JWTPayload {
   exp?: number;
 }
 
+function getSecret(): Uint8Array {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) throw new Error("[auth] JWT_SECRET não definido no ambiente");
+  return new TextEncoder().encode(jwtSecret);
+}
+
 export async function signToken(payload: Omit<JWTPayload, "iat" | "exp">) {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(process.env.JWT_EXPIRES_IN ?? "7d")
-    .sign(SECRET);
+    .sign(getSecret());
 }
 
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, SECRET);
+    const { payload } = await jwtVerify(token, getSecret());
     return payload as unknown as JWTPayload;
   } catch {
     return null;
