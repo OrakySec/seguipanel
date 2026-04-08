@@ -25,38 +25,62 @@ export async function GET(
     return apiResponse({ status: 1, orderId: transaction.orderId });
   }
 
-  // Fallback: consulta a PushinPay diretamente
+  // Fallback: consulta a PushinPay diretamente para verificar status do pagamento
+  let _debug: Record<string, unknown> = {};
+
   try {
     const apiToken = await getSetting("api_token_pushinpay");
     const baseUrl  = await getSetting("pushinpay_base_url", "https://api.pushinpay.com.br");
 
+    _debug.hasToken = !!apiToken;
+    _debug.baseUrl = baseUrl;
+
     if (apiToken) {
-      const ppRes = await fetch(`${baseUrl}/api/transaction/${id}`, {
+      const ppUrl = `${baseUrl}/api/transaction/${id}`;
+      _debug.ppUrl = ppUrl;
+
+      const ppRes = await fetch(ppUrl, {
         headers: { Authorization: `Bearer ${apiToken}`, Accept: "application/json" },
       });
 
+      _debug.ppHttpStatus = ppRes.status;
+
       if (ppRes.ok) {
-        const ppData   = await ppRes.json();
+        const ppData = await ppRes.json();
+        _debug.ppData = ppData;
+
         const ppStatus = String(ppData?.data?.status ?? ppData?.status ?? "");
-        const isPaid   =
+        _debug.ppStatus = ppStatus;
+
+        const isPaid =
           ppStatus === "paid"     ||
           ppStatus === "PAID"     ||
           ppStatus === "approved" ||
           ppStatus === "completed";
 
+        _debug.isPaid = isPaid;
+
         if (isPaid) {
-          // Usa a mesma função do webhook — cria pedido, incrementa cupom, envia notificações
           const result = await processConfirmedPayment(id);
           if (result && !result.alreadyProcessed) {
             console.log("[STATUS POLL] Pagamento confirmado via polling, transactionId:", id);
           }
           return apiResponse({ status: 1, orderId: result?.orderId ?? null });
         }
+      } else {
+        // Capturar corpo da resposta de erro
+        const errText = await ppRes.text().catch(() => "(não conseguiu ler)");
+        _debug.ppErrorBody = errText;
       }
     }
   } catch (e) {
+    _debug.error = String(e);
     console.error("[STATUS POLL] Erro ao consultar PushinPay:", e);
   }
 
-  return apiResponse({ status: transaction.status, orderId: transaction.orderId });
+  return apiResponse({
+    status: transaction.status,
+    orderId: transaction.orderId,
+    _debug,
+  });
 }
