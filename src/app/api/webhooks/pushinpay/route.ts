@@ -93,12 +93,13 @@ export async function POST(req: NextRequest) {
     // Verificar token se configurado no admin
     const token = req.headers.get("x-pushinpay-token");
     const webhookSecret = await getSetting("pushinpay_webhook_secret");
-    console.log("[WEBHOOK] token recebido:", token ? `${token.slice(0, 6)}...` : "(vazio)");
-    console.log("[WEBHOOK] secret configurado:", webhookSecret ? "sim" : "NÃO CONFIGURADO");
+    console.log("[WEBHOOK] token recebido:", token ?? "(nenhum header)");
+    console.log("[WEBHOOK] secret configurado:", webhookSecret ? "sim" : "não");
 
-    // Só bloqueia se ambos existem E não batem — se a PushinPay não manda o header, deixa passar
-    if (token && webhookSecret && token !== webhookSecret) {
-      console.log("[WEBHOOK] Token enviado não bate com o configurado — bloqueado");
+    // Só bloqueia se secret está configurado no admin E o token não bate
+    // Se PushinPay não envia o header (token=null), aceita mesmo assim
+    if (webhookSecret && token !== webhookSecret) {
+      console.log("[WEBHOOK] BLOQUEADO — secret configurado mas token não bate");
       return apiError("Unauthorized", 401);
     }
 
@@ -163,7 +164,11 @@ export async function POST(req: NextRequest) {
 
     return apiResponse({ received: true, orderId: result.orderId });
   } catch (err) {
-    console.error("[WEBHOOK PUSHINPAY]", err);
-    return apiResponse({ received: true, error: true });
+    console.error("[WEBHOOK PUSHINPAY] Erro não tratado:", err);
+    // Retorna 500 para PushinPay retentar (até 3 tentativas)
+    return new Response(
+      JSON.stringify({ received: false, error: String(err) }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }

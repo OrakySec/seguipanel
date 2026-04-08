@@ -31,7 +31,7 @@ export async function GET(
     const baseUrl  = await getSetting("pushinpay_base_url", "https://api.pushinpay.com.br");
 
     if (apiToken) {
-      const ppRes = await fetch(`${baseUrl}/api/pix/cashIn/${id}`, {
+      const ppRes = await fetch(`${baseUrl}/api/transaction/${id}`, {
         headers: { Authorization: `Bearer ${apiToken}`, Accept: "application/json" },
       });
 
