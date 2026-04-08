@@ -93,7 +93,7 @@ function playNotificationSound() {
 function PlatformIcon({ platform, bg }: { platform: string; bg: string }) {
   return (
     <div
-      className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0"
+      className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0 border-2 border-white/40 ring-1 ring-black/10"
       style={{ background: bg }}
     >
       {platform === "Instagram" && (
