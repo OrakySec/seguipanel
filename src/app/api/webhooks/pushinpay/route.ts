@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
 
     // 2. Extrair id e status
     const nested = payload.data as Record<string, unknown> | undefined;
-    const ppId     = String(payload.id ?? nested?.id ?? "");
+    const ppId     = String(payload.id ?? nested?.id ?? "").toLowerCase();
     const ppStatus = String(payload.status ?? nested?.status ?? "");
     const isPaid =
       ppStatus === "paid"      ||

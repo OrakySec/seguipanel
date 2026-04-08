@@ -13,7 +13,7 @@ export async function processConfirmedPayment(pushinpayTransactionId: string): P
   alreadyProcessed: boolean;
 } | null> {
   const transaction = await prisma.transactionLog.findUnique({
-    where: { transactionId: pushinpayTransactionId },
+    where: { transactionId: pushinpayTransactionId.toLowerCase() },
   });
 
   if (!transaction) return null;

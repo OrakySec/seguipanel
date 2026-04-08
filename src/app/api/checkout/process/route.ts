@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
     const pixData = await pixResponse.json();
 
     const ppId: string =
-      pixData?.data?.id ?? pixData?.id ?? null;
+      (pixData?.data?.id ?? pixData?.id ?? "").toLowerCase() || null;
     const pixCode: string =
       pixData?.data?.qr_code ?? pixData?.data?.emv ?? pixData?.qr_code ?? pixData?.emv ?? null;
 
