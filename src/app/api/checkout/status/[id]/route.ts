@@ -36,41 +36,54 @@ export async function GET(
     _debug.baseUrl = baseUrl;
 
     if (apiToken) {
-      const ppUrl = `${baseUrl}/api/transaction/${id}`;
-      _debug.ppUrl = ppUrl;
+      // Tentar múltiplos endpoints — PushinPay doc é ambígua
+      const candidates = [
+        `${baseUrl}/api/pix/cashIn/${id}`,
+        `${baseUrl}/api/transaction/${id}`,
+        `${baseUrl}/api/pix/${id}`,
+      ];
+      _debug.candidates = candidates;
 
-      const ppRes = await fetch(ppUrl, {
-        headers: { Authorization: `Bearer ${apiToken}`, Accept: "application/json" },
-      });
+      for (const ppUrl of candidates) {
+        const ppRes = await fetch(ppUrl, {
+          headers: { Authorization: `Bearer ${apiToken}`, Accept: "application/json" },
+        });
 
-      _debug.ppHttpStatus = ppRes.status;
+        if (!_debug.attempts) _debug.attempts = [];
+        const attempt: Record<string, unknown> = { url: ppUrl, httpStatus: ppRes.status };
 
-      if (ppRes.ok) {
-        const ppData = await ppRes.json();
-        _debug.ppData = ppData;
+        if (ppRes.ok) {
+          const ppData = await ppRes.json();
+          attempt.data = ppData;
 
-        const ppStatus = String(ppData?.data?.status ?? ppData?.status ?? "");
-        _debug.ppStatus = ppStatus;
+          const ppStatus = String(ppData?.data?.status ?? ppData?.status ?? "");
+          attempt.extractedStatus = ppStatus;
 
-        const isPaid =
-          ppStatus === "paid"     ||
-          ppStatus === "PAID"     ||
-          ppStatus === "approved" ||
-          ppStatus === "completed";
+          const isPaid =
+            ppStatus === "paid"     ||
+            ppStatus === "PAID"     ||
+            ppStatus === "approved" ||
+            ppStatus === "completed";
 
-        _debug.isPaid = isPaid;
+          attempt.isPaid = isPaid;
+          (_debug.attempts as Record<string, unknown>[]).push(attempt);
 
-        if (isPaid) {
-          const result = await processConfirmedPayment(id);
-          if (result && !result.alreadyProcessed) {
-            console.log("[STATUS POLL] Pagamento confirmado via polling, transactionId:", id);
+          if (isPaid) {
+            _debug.confirmedVia = ppUrl;
+            const result = await processConfirmedPayment(id);
+            if (result && !result.alreadyProcessed) {
+              console.log("[STATUS POLL] Pagamento confirmado via polling, url:", ppUrl);
+            }
+            return apiResponse({ status: 1, orderId: result?.orderId ?? null });
           }
-          return apiResponse({ status: 1, orderId: result?.orderId ?? null });
+
+          // Got a valid response, no need to try other endpoints
+          break;
+        } else {
+          const errText = await ppRes.text().catch(() => "");
+          attempt.errorBody = errText;
+          (_debug.attempts as Record<string, unknown>[]).push(attempt);
         }
-      } else {
-        // Capturar corpo da resposta de erro
-        const errText = await ppRes.text().catch(() => "(não conseguiu ler)");
-        _debug.ppErrorBody = errText;
       }
     }
   } catch (e) {
