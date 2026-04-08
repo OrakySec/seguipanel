@@ -58,7 +58,7 @@ export default async function TrackOrderPage({
   };
 
   const statusMap: Record<string, string> = {
-    pending: "Pendente (Aguardando Pagamento)",
+    pending: "Aguardando Entrega",
     processing: "Em Processamento",
     inprogress: "Em Andamento",
     completed: "Concluído com Sucesso",
