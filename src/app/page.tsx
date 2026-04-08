@@ -24,7 +24,11 @@ import { getActiveSocialNetworks, getBestSellerServices, getActivityFeedServices
 import { AestheticHero } from "@/components/home/AestheticHero";
 import { AnimatedPlatformCards } from "@/components/home/AnimatedPlatformCards";
 import { AnimatedPopularServices } from "@/components/home/AnimatedPopularServices";
-import { LiveActivityFeed } from "@/components/home/LiveActivityFeed";
+import dynamic from "next/dynamic";
+const LiveActivityFeed = dynamic(
+  () => import("@/components/home/LiveActivityFeed").then((m) => m.LiveActivityFeed),
+  { ssr: false }
+);
 
 export const metadata = {
   title: "Comprar Seguidores Brasileiros e Curtidas Reais | A partir de R$2,50",
