@@ -30,7 +30,7 @@ export const metadata = {
   title: "Comprar Seguidores Brasileiros e Curtidas Reais | A partir de R$2,50",
   description: "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017.",
   alternates: {
-    canonical: "https://seguifacil.online",
+    canonical: "https://seguifacil.com",
   },
 };
 
@@ -164,7 +164,7 @@ const localBusinessSchema = {
   "@type": "LocalBusiness",
   name: "SeguiFacil",
   description: "Plataforma SMM brasileira para compra de seguidores e curtidas para Instagram, TikTok, Kwai, YouTube e Facebook.",
-  url: "https://seguifacil.online",
+  url: "https://seguifacil.com",
   foundingDate: "2017",
   priceRange: "R$2,50 - R$500",
   areaServed: { "@type": "Country", name: "Brasil" },

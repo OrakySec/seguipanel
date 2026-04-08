@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getActiveSocialNetworks } from "@/lib/catalog";
 
-const BASE_URL = "https://seguifacil.online";
+const BASE_URL = "https://seguifacil.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const platforms = await getActiveSocialNetworks().catch(() => []);

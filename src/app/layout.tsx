@@ -18,7 +18,7 @@ const pacifico = Pacifico({
   variable: "--font-script",
 });
 
-const BASE_URL = "https://seguifacil.online";
+const BASE_URL = "https://seguifacil.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

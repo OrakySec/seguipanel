@@ -36,7 +36,7 @@ async function createTransporter() {
 /* ─── Base ─── */
 export async function sendEmail(to: string, subject: string, html: string) {
   const siteName  = await getSetting("site_name", "SeguiFacil");
-  const fromEmail = (await getSetting("smtp_from_email", "noreply@seguifacil.online")).replace(/[\r\n]/g, "");
+  const fromEmail = (await getSetting("smtp_from_email", "noreply@seguifacil.com")).replace(/[\r\n]/g, "");
   const fromName  = (await getSetting("smtp_from_name", siteName)).replace(/[\r\n]/g, "");
 
   const transporter = await createTransporter();
