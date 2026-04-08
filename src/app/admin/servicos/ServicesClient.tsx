@@ -11,7 +11,7 @@ import {
   bulkApiIdAdjustment
 } from "@/app/admin/servicos/actions";
 import { AnimatePresence, motion } from "framer-motion";
-import { TrendingUp, Percent, AlertCircle, Settings, CheckSquare } from "lucide-react";
+import { TrendingUp, Percent, AlertCircle, Settings, CheckSquare, RefreshCw } from "lucide-react";
 import CustomSelect from "@/components/ui/CustomSelect";
 import { useToast } from "@/components/ui/Toast";
 
@@ -39,6 +39,27 @@ export default function ServicesClient({
   const [isBulkApiModalOpen, setIsBulkApiModalOpen] = useState(false);
   const [bulkApiProviderId, setBulkApiProviderId] = useState<number | "">("");
   const [bulkApiServiceId, setBulkApiServiceId] = useState("");
+
+  const [isRecalculating, setIsRecalculating] = useState(false);
+
+  const handleRecalculatePrices = async () => {
+    if (!confirm("Recalcular o preço original de todos os serviços com base no preço atual + desconto?")) return;
+    setIsRecalculating(true);
+    try {
+      const res = await fetch("/api/admin/recalculate-prices", { method: "POST" });
+      const data = await res.json();
+      if (data.ok) {
+        toast("success", `${data.updated} preços atualizados!`);
+        window.location.reload();
+      } else {
+        toast("error", "Erro ao recalcular", data.error);
+      }
+    } catch {
+      toast("error", "Erro ao recalcular");
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
 
   const handleEdit = (service: any) => {
     setEditingService(service);
@@ -152,12 +173,20 @@ export default function ServicesClient({
             {isSelectionMode ? "Concluir / Cancelar" : "Selecionar Vários"}
           </button>
           <div className="w-px h-8 bg-border/50 mx-1" />
-          <button 
+          <button
             onClick={() => setIsBulkModalOpen(true)}
             className="flex items-center gap-2 px-5 py-3 bg-white border border-brand/10 text-primary rounded-2xl text-xs font-black shadow-sm hover:bg-primary-light transition-all active:scale-95"
           >
             <Percent size={16} />
             Ajuste em Massa
+          </button>
+          <button
+            onClick={handleRecalculatePrices}
+            disabled={isRecalculating}
+            className="flex items-center gap-2 px-5 py-3 bg-white border border-green-200 text-green-600 rounded-2xl text-xs font-black shadow-sm hover:bg-green-50 transition-all active:scale-95 disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={isRecalculating ? "animate-spin" : ""} />
+            {isRecalculating ? "Recalculando..." : "Atualizar Preços Cortados"}
           </button>
         </div>
       </div>
