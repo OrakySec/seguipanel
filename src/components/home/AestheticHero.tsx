@@ -212,7 +212,13 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
           </span>
         </h1>
 
-        {/* CTA principal - Posicionamento Estratégico */}
+        {/* Parágrafo GEO anchor — logo após o h1 para SEO e alinhamento SSR/client */}
+        <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed opacity-70 font-medium">
+          O SeguiFacil é a plataforma SMM brasileira com mais de 83.000 clientes atendidos desde 2017.
+          Seguidores reais com entrega automática e garantia de reposição.
+        </p>
+
+        {/* CTA principal */}
         <div className="flex flex-col items-center gap-4 mb-10">
           <button
             onClick={() => setModalOpen(true)}
@@ -232,16 +238,10 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
           <p className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
             Entrega rápida, 100% seguro, sem senha.
           </p>
-          <p className="text-lg sm:text-lg text-gray-600 font-medium">
+          <p className="text-lg text-gray-600 font-medium">
             Pacotes a partir de <span className="text-gray-900 font-bold">R$2,50</span>.
           </p>
         </div>
-
-        {/* Parágrafo GEO anchor */}
-        <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto mb-4 leading-relaxed opacity-70 font-medium">
-          O SeguiFacil é a plataforma SMM brasileira com mais de 83.000 clientes atendidos desde 2017. 
-          Seguidores reais com entrega automática e garantia de reposição.
-        </p>
 
 
 
