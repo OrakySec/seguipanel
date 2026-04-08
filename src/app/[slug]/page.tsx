@@ -74,13 +74,28 @@ export default async function PlatformPage({ params }: Props) {
               __html: network.description || `<p>Acelere seu perfil no ${network.name} com seguidores reais e brasileiros. Entrega rápida e garantida.</p>`,
             }}
           />
+
+          {/* Navegação rápida por categoria */}
+          {network.categories.length > 1 && (
+            <div className="flex flex-wrap justify-center gap-3 mt-8">
+              {network.categories.map((cat) => (
+                <a
+                  key={cat.id}
+                  href={`#cat-${cat.id}`}
+                  className="px-5 py-2.5 rounded-full text-sm font-bold border border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all shadow-sm"
+                >
+                  {cat.name}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Listagem de Serviços agrupados por Categorias */}
       <main className="max-w-7xl mx-auto px-4 py-16">
         {network.categories.map((category) => (
-          <div key={category.id} className="mb-20 last:mb-0">
+          <div key={category.id} id={`cat-${category.id}`} className="mb-20 last:mb-0 scroll-mt-24">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
               <div>
                 <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2 tracking-tight">
