@@ -8,7 +8,7 @@ export default async function Header() {
   
   const platforms = networks.map(n => ({
     name: n.name,
-    href: `/${n.urlSlug || 'comprar-seguidores-' + n.name.toLowerCase()}` 
+    href: `/comprar-seguidores-${n.urlSlug || n.name.toLowerCase()}`,
   }));
 
   const logoType = await getSetting("logo_type", "text");
