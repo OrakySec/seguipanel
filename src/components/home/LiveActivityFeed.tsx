@@ -100,28 +100,35 @@ function playNotificationSound() {
   }
 }
 
+// Random between min and max ms
+function randomDelay(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 export function LiveActivityFeed() {
   const [current, setCurrent] = useState<Activity | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isFirst = useRef(true);
 
   function showNext() {
     const next = randomItem();
     setCurrent(next);
     playNotificationSound();
 
+    // Fica visível por tempo aleatório entre 4s e 7s
+    const displayTime = randomDelay(4000, 7000);
     dismissRef.current = setTimeout(() => {
       setCurrent(null);
-      timerRef.current = setTimeout(showNext, 6000);
-    }, 5000);
+      // Intervalo aleatório entre 8s e 20s antes da próxima
+      const waitTime = randomDelay(8000, 20000);
+      timerRef.current = setTimeout(showNext, waitTime);
+    }, displayTime);
   }
 
   useEffect(() => {
-    timerRef.current = setTimeout(() => {
-      isFirst.current = false;
-      showNext();
-    }, 3000);
+    // Primeira aparece após 2s a 5s
+    const firstDelay = randomDelay(2000, 5000);
+    timerRef.current = setTimeout(showNext, firstDelay);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -130,8 +137,9 @@ export function LiveActivityFeed() {
   }, []);
 
   return (
+    // top-[88px] garante que fica logo abaixo do header sticky (h-20 = 80px)
     <div
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm pointer-events-none"
+      className="fixed top-[88px] left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-xs pointer-events-none"
       aria-live="polite"
       aria-label="Compras recentes"
     >
@@ -139,38 +147,44 @@ export function LiveActivityFeed() {
         {current && (
           <motion.div
             key={current.id}
-            initial={{ opacity: 0, y: -60, scale: 0.95 }}
+            initial={{ opacity: 0, y: -24, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-100 overflow-hidden pointer-events-auto"
+            exit={{ opacity: 0, y: -16, scale: 0.95 }}
+            transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full bg-white/97 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100 overflow-hidden pointer-events-auto"
           >
-            {/* Notification bar top */}
-            <div className="flex items-center gap-1.5 px-3 pt-2 pb-0.5">
-              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
-                Picão Duro
-              </span>
-              <span className="text-[10px] text-gray-300">·</span>
+            {/* Topo estilo iOS: app name + tempo */}
+            <div className="flex items-center justify-between px-3 pt-2.5 pb-1">
+              <div className="flex items-center gap-1.5">
+                <div className="w-4 h-4 rounded-[4px] bg-brand-gradient flex items-center justify-center">
+                  <span className="text-[8px]">🛒</span>
+                </div>
+                <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+                  Picão Duro
+                </span>
+              </div>
               <span className="text-[10px] text-gray-400">agora</span>
             </div>
 
-            {/* Notification body */}
-            <div className="flex items-center gap-3 px-3 pb-3 pt-1">
+            {/* Corpo da notificação */}
+            <div className="flex items-center gap-3 px-3 pb-3 pt-0.5">
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                style={{ backgroundColor: current.platformColor + "22" }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                style={{ backgroundColor: current.platformColor + "18" }}
               >
                 {current.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-gray-900 leading-tight truncate">
+                <p className="text-[11px] font-bold text-gray-900 leading-tight">
                   {current.name}{" "}
                   <span className="font-normal text-gray-500">de</span>{" "}
-                  <span style={{ color: current.platformColor }}>{current.city}</span>
+                  <span style={{ color: current.platformColor }} className="font-semibold">
+                    {current.city}
+                  </span>
                 </p>
-                <p className="text-xs text-gray-600 leading-tight mt-0.5">
+                <p className="text-[11px] text-gray-500 leading-tight mt-0.5">
                   comprou{" "}
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-gray-800">
                     {current.service} {current.platform}
                   </span>
                 </p>
