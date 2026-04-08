@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 import { Zap, ShieldCheck, RefreshCw, Headphones, Eye, Star, X } from "lucide-react";
 
@@ -23,14 +24,23 @@ function PlatformModal({
   platforms: any[];
   onClose: () => void;
 }) {
-  // Fecha ao pressionar Esc
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    // Impede scroll do body enquanto modal está aberto
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+    };
   }, [onClose]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       <motion.div
         className="fixed inset-0 z-[99999] flex items-center justify-center px-4"
@@ -118,7 +128,8 @@ function PlatformModal({
           </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 
