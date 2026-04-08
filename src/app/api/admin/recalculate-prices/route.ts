@@ -15,7 +15,7 @@ export async function POST() {
       const price = Number(s.price);
       const disc  = Number(s.discount);
       const originalPrice =
-        disc > 0 && disc < 100 ? price / (1 - disc / 100) : null;
+        disc > 0 ? price * (1 + disc / 100) : null;
 
       await prisma.service.update({
         where: { id: s.id },

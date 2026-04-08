@@ -66,12 +66,12 @@ export async function upsertService(data: any) {
   const { id, ...rest } = data;
 
   // Sempre recalcula originalPrice a partir de price + discount.
-  // Garante consistência independente de qual campo foi alterado.
+  // Fórmula: preço * (1 + desconto/100)  ex: R$105 + 87% = R$196,35
   const price    = Number(rest.price);
   const discount = Number(rest.discount ?? 0);
   rest.originalPrice =
-    discount > 0 && discount < 100
-      ? price / (1 - discount / 100)
+    discount > 0
+      ? price * (1 + discount / 100)
       : null;
 
   try {

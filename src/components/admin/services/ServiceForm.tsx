@@ -66,12 +66,13 @@ export default function ServiceForm({
     price: initialData?.price ? Number(initialData.price) : "",
   });
 
-  // Preço original calculado automaticamente: preço / (1 - desconto/100)
+  // Preço original calculado automaticamente: preço * (1 + desconto/100)
+  // Ex: R$105 com 87% → R$105 * 1.87 = R$196,35
   const computedOriginalPrice = (() => {
     const price = Number(formData.price);
     const disc  = Number(formData.discount);
-    if (!price || disc <= 0 || disc >= 100) return null;
-    return price / (1 - disc / 100);
+    if (!price || disc <= 0) return null;
+    return price * (1 + disc / 100);
   })();
 
   const { toast } = useToast();
