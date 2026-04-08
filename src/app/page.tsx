@@ -535,9 +535,9 @@ export default async function HomePage() {
     <>
       <AnnouncementBar />
       <Header />
+      <LiveActivityFeed />
       <main className="overflow-x-hidden">
         <HeroSection platforms={platforms} />
-        <LiveActivityFeed />
         <AnimatedPlatformCards platforms={platforms} />
         <HowItWorks />
         <AnimatedPopularServices services={bestSellers} />
