@@ -261,3 +261,33 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
+
+/* --- Animacoes 2026 --- */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-ticker {
+  display: flex;
+  width: max-content;
+  animation: ticker 40s linear infinite;
+}
+
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+.font-script-stylized {
+  font-family: var(--font-script) !important;
+  font-weight: 400;
+  font-size: 1em;
+  letter-spacing: 0px;
+  line-height: 1.2;
+  display: block;
+  margin-top: 1rem;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, #ff616d, #fb24b1, #2d348b);
+  padding: 1rem 0;
+}

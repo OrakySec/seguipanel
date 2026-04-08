@@ -43,9 +43,23 @@ export default async function Footer() {
               A plataforma mais confiável do Brasil para comprar seguidores e curtidas
               para Instagram, TikTok, Kwai, YouTube e Facebook desde 2017.
             </p>
-            <p className="mt-4 text-sm text-muted">
-              <span className="font-semibold text-gray-700">83.327+</span> clientes satisfeitos
-            </p>
+            <div className="mt-6 flex items-center gap-2">
+              <div className="flex -space-x-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden shadow-sm">
+                    <img 
+                      src={`https://images.unsplash.com/photo-${i === 1 ? '1507003211169-0a1dd7228f2d' : i === 2 ? '1494790108377-be9c29b29330' : '1599566150163-29194dcaad36'}?q=80&w=50&h=50&auto=format&fit=crop`} 
+                      alt="Cliente" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs font-bold tracking-tight">
+                <span className="text-[#ff1f7d]">83.327+ </span>
+                <span className="text-muted">clientes satisfeitos</span>
+              </p>
+            </div>
             {/* Formas de pagamento */}
             <div className="mt-4">
               <p className="text-xs text-muted mb-2 uppercase tracking-wide font-semibold">Pagamentos aceitos</p>

@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-import { Geist, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist, Plus_Jakarta_Sans, Pacifico } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +9,12 @@ const geistSans = Geist({
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-heading",
+});
+
+const pacifico = Pacifico({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-script",
 });
 
 const BASE_URL = "https://seguifacil.online";
@@ -114,7 +119,7 @@ export default function RootLayout({
   return (
     <html 
       lang="pt-BR" 
-      className={`${geistSans.variable} ${plusJakarta.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${plusJakarta.variable} ${pacifico.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
