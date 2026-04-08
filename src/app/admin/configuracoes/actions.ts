@@ -99,20 +99,29 @@ export async function getApiProviders() {
  */
 export async function upsertApiProvider(id: number | null, data: any) {
   try {
+    // Extrai só os campos do schema — evita erro do Prisma com campos extras (id, createdAt, etc)
+    const clean = {
+      name:   String(data.name   ?? "").trim(),
+      url:    String(data.url    ?? "").trim(),
+      apiKey: String(data.apiKey ?? "").trim(),
+      type:   String(data.type   ?? "standard").trim(),
+      status: data.status !== undefined ? Number(data.status) : 1,
+    };
+
+    if (!clean.name || !clean.url || !clean.apiKey) {
+      return { success: false, error: "Nome, URL e API Key são obrigatórios." };
+    }
+
     if (id) {
-      await prisma.apiProvider.update({
-        where: { id },
-        data
-      });
+      await prisma.apiProvider.update({ where: { id }, data: clean });
     } else {
-      await prisma.apiProvider.create({
-        data
-      });
+      await prisma.apiProvider.create({ data: clean });
     }
     revalidatePath("/admin/configuracoes");
     return { success: true };
   } catch (error) {
-    return { success: false, error: "Erro ao salvar provedor." };
+    console.error("Erro ao salvar provedor:", error);
+    return { success: false, error: "Erro ao salvar provedor: " + String(error) };
   }
 }
 
