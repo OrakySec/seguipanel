@@ -65,6 +65,15 @@ export async function getServices(filters?: {
 export async function upsertService(data: any) {
   const { id, ...rest } = data;
 
+  // Sempre recalcula originalPrice a partir de price + discount.
+  // Garante consistência independente de qual campo foi alterado.
+  const price    = Number(rest.price);
+  const discount = Number(rest.discount ?? 0);
+  rest.originalPrice =
+    discount > 0 && discount < 100
+      ? price / (1 - discount / 100)
+      : null;
+
   try {
     if (id) {
       await prisma.service.update({
