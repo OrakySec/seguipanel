@@ -24,7 +24,7 @@ import { getActiveSocialNetworks, getBestSellerServices, getActivityFeedServices
 import { AestheticHero } from "@/components/home/AestheticHero";
 import { AnimatedPlatformCards } from "@/components/home/AnimatedPlatformCards";
 import { AnimatedPopularServices } from "@/components/home/AnimatedPopularServices";
-import { LiveActivityFeed } from "@/components/home/LiveActivityFeed";
+import { LiveActivityFeedClient } from "@/components/home/LiveActivityFeedClient";
 
 export const metadata = {
   title: "Comprar Seguidores Brasileiros e Curtidas Reais | A partir de R$2,50",
@@ -536,7 +536,7 @@ export default async function HomePage() {
     <>
       <AnnouncementBar />
       <Header />
-      <LiveActivityFeed services={feedServices} />
+      <LiveActivityFeedClient services={feedServices} />
       <main className="overflow-x-hidden">
         <HeroSection platforms={platforms} />
         <AnimatedPlatformCards platforms={platforms} />
