@@ -208,7 +208,7 @@ function AnnouncementBar() {
   return (
     <div className="bg-brand-gradient py-2 overflow-hidden" role="marquee" aria-label="Promoções ativas">
       <div className="flex" style={{ width: "max-content" }}>
-        <div className="animate-marquee flex gap-10 whitespace-nowrap">
+        <div className="animate-ticker flex gap-10 whitespace-nowrap">
           {doubled.map((item, i) => (
             <span key={i} className="text-white text-xs font-medium px-4">{item}</span>
           ))}
@@ -220,7 +220,7 @@ function AnnouncementBar() {
 
 function HeroSection({ platforms }: { platforms: any[] }) {
   return (
-    <section className="pt-20 pb-16 px-4 text-center relative overflow-hidden">
+    <section className="pt-4 pb-16 px-4 text-center relative overflow-hidden">
       <div className="mesh-container">
         <div className="mesh-ball mesh-ball-1" />
         <div className="mesh-ball mesh-ball-2" />
@@ -274,16 +274,25 @@ function StatsSection() {
     { value: "4.9★", label: "Avaliação", Icon: Star },
   ];
   return (
-    <section className="bg-gray-900 py-20 px-4 relative overflow-hidden" aria-label="Números do SeguiFacil">
-      <div className="absolute inset-0 opacity-20 bg-brand-gradient mix-blend-overlay" />
-      <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-12 text-center text-white relative z-10">
+    <section className="bg-[#0a0a0c] py-24 px-4 relative overflow-hidden" aria-label="Números do SeguiFacil">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 blur-[120px] rounded-full opacity-50" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full opacity-30" />
+      
+      <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 text-center text-white relative z-10">
         {stats.map((s) => (
-          <div key={s.label} className="group">
-            <div className="flex justify-center mb-4 transition-transform group-hover:scale-110" aria-hidden>
-              <s.Icon size={32} className="text-white/40" />
+          <div key={s.label} className="group p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-white/20 transition-all duration-500 hover:-translate-y-2">
+            <div className="flex justify-center mb-5" aria-hidden>
+              <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-brand-gradient transition-all duration-500">
+                <s.Icon size={24} className="text-white group-hover:text-white" />
+              </div>
             </div>
-            <div className="text-4xl sm:text-5xl font-black mb-2 tracking-tighter">{s.value}</div>
-            <div className="text-xs font-bold uppercase tracking-widest text-white/50">{s.label}</div>
+            <div className="text-4xl sm:text-5xl font-black mb-2 tracking-tighter bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
+              {s.value}
+            </div>
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-primary transition-colors">
+              {s.label}
+            </div>
           </div>
         ))}
       </div>

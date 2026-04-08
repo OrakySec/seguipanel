@@ -146,48 +146,66 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* Badge social proof */}
-        <div className="inline-flex items-center gap-3 glass-2026 rounded-full pl-2 pr-5 py-2 mb-8 shadow-premium">
-          <div className="flex -space-x-2.5 flex-shrink-0">
+        {/* Badge social proof premium (ESTILO FORÇADO VIA INLINE PARA PRECISÃO) */}
+        <div 
+          className="inline-flex items-center bg-white/70 rounded-full px-6 py-1.5 mb-8 transition-all duration-500 hover:scale-105"
+          style={{ 
+            border: '1.2px solid #ece4ff',
+            boxShadow: '0 8px 30px rgba(124, 77, 255, 0.12)',
+            backdropFilter: 'blur(10px)',
+            gap: '12px'
+          }}
+        >
+          <div className="flex flex-shrink-0">
             {[
-              { initial: "J", color: "#E1306C" },
-              { initial: "C", color: "#9b00e0" },
-              { initial: "L", color: "#FF7000" },
-            ].map((a, i) => (
+              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&h=150&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&h=150&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=150&h=150&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&h=150&auto=format&fit=crop"
+            ].map((img, i) => (
               <div
-                key={i}
-                className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-bold"
-                style={{ background: a.color, zIndex: 3 - i }}
-                aria-hidden
+                key={`avatar-force-${i}`}
+                style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  minWidth: '32px', 
+                  minHeight: '32px',
+                  borderRadius: '9999px',
+                  border: '2px solid white',
+                  overflow: 'hidden',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  zIndex: i,
+                  marginLeft: i === 0 ? 0 : '-12px',
+                  position: 'relative'
+                }}
               >
-                {a.initial}
+                <img src={img} alt="Cliente" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
-          <div className="w-px h-5 bg-border mx-1" />
-          <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">
-            <span className="text-gray-900">83.327</span> clientes satisfeitos desde 2017
+          <p className="text-xs font-bold tracking-tight whitespace-nowrap">
+            <span style={{ 
+              background: 'linear-gradient(to right, #fb24b1, #7c4dff)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              color: 'transparent'
+            }}>
+              Mais de 83.327 clientes satisfeitos
+            </span>
           </p>
         </div>
 
-        {/* H1 */}
-        <h1 className="heading-huge text-5xl sm:text-7xl lg:text-8xl text-gray-900 mb-6 tracking-tighter">
-          Compre <span className="text-brand-gradient">Seguidores</span>
-          <br /> para suas Redes
+        <h1 className="text-5xl sm:text-7xl lg:text-[86px] font-black text-gray-900 tracking-tight leading-[0.95] mb-6">
+          Compre Seguidores
+          <br /> Para Suas
+          <span className="font-script-stylized">
+            Redes sociais ✨
+          </span>
         </h1>
 
-        {/* Parágrafo GEO anchor */}
-        <p className="text-xs text-gray-400 max-w-2xl mx-auto mb-6 leading-relaxed">
-          O SeguiFacil é a plataforma SMM brasileira com mais de 83.000 clientes atendidos desde 2017. Seguidores reais para Instagram, TikTok, Kwai, YouTube e Facebook com entrega automática via PIX em até 8 horas, garantia de reposição inclusa e suporte humano 24h. Preços a partir de R$2,50.
-        </p>
-
-        {/* Subtítulo */}
-        <p className="text-lg sm:text-2xl text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
-          Entrega em minutos, 100% seguro, sem senha.
-          <br /> Planos brasileiros a partir de <strong className="text-gray-900">R$2,50</strong>.
-        </p>
-
-        {/* CTA principal */}
-        <div className="flex flex-col items-center gap-3 mb-8">
+        {/* CTA principal - Posicionamento Estratégico */}
+        <div className="flex flex-col items-center gap-4 mb-10">
           <button
             onClick={() => setModalOpen(true)}
             className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-lg font-black text-white bg-brand-gradient shadow-brand hover:opacity-90 active:scale-95 transition-all animate-pulse-glow cursor-pointer"
@@ -200,6 +218,24 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
             <span>✓ Garantia inclusa</span>
           </p>
         </div>
+
+        {/* Subtítulo e Promo */}
+        <div className="mb-8 text-center">
+          <p className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+            Entrega rápida, 100% seguro, sem senha.
+          </p>
+          <p className="text-lg sm:text-lg text-gray-600 font-medium">
+            Pacotes a partir de <span className="text-gray-900 font-bold">R$2,50</span>.
+          </p>
+        </div>
+
+        {/* Parágrafo GEO anchor */}
+        <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto mb-4 leading-relaxed opacity-70 font-medium">
+          O SeguiFacil é a plataforma SMM brasileira com mais de 83.000 clientes atendidos desde 2017. 
+          Seguidores reais com entrega automática e garantia de reposição.
+        </p>
+
+
 
         {/* Botões de plataforma */}
         <div className="flex flex-wrap justify-center gap-3 mb-10">
@@ -248,7 +284,7 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
             </span>
             <Eye size={13} className="text-gray-400" aria-hidden />
             <span className="text-[11px] font-bold text-gray-500">
-              <span className="text-gray-900">{viewers}</span> pessoas visualizando agora
+              <span className="text-gray-900" suppressHydrationWarning={true}>{viewers}</span> pessoas visualizando agora
             </span>
           </div>
         </div>
