@@ -5,12 +5,6 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // Desabilita o cache em disco do Turbopack no dev.
-  // Sem isso, chunks SSR compilados em sessões anteriores persistem em
-  // .next/cache/turbopack e causam hydration mismatch quando o código muda.
-  experimental: {
-    turbopackFileSystemCacheForDev: false,
-  },
   images: {
     remotePatterns: [
       {
@@ -28,6 +22,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async headers() {
+    const isDev = process.env.NODE_ENV === "development";
     return [
       {
         source: "/(.*)",
@@ -38,13 +33,20 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
       },
-      {
-        // Cache imagens e fontes por 1 ano
-        source: "/_next/static/(.*)",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
+      // Em PROD: chunks têm content hashes reais no nome, immutable é correto.
+      // Em DEV: Turbopack reutiliza os mesmos nomes de chunk entre rebuilds —
+      // com immutable o browser cacheia o JS antigo por 1 ano e nunca busca
+      // a versão nova, causando hydration mismatch persistente.
+      ...(!isDev
+        ? [
+            {
+              source: "/_next/static/(.*)",
+              headers: [
+                { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+              ],
+            },
+          ]
+        : []),
     ];
   },
 };
