@@ -20,7 +20,7 @@ import {
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FaqAccordion from "@/components/home/FaqAccordion";
-import { getActiveSocialNetworks, getBestSellerServices } from "@/lib/catalog";
+import { getActiveSocialNetworks, getBestSellerServices, getActivityFeedServices } from "@/lib/catalog";
 import { AestheticHero } from "@/components/home/AestheticHero";
 import { AnimatedPlatformCards } from "@/components/home/AnimatedPlatformCards";
 import { AnimatedPopularServices } from "@/components/home/AnimatedPopularServices";
@@ -528,14 +528,15 @@ function MobileStickyCta() {
 }
 
 export default async function HomePage() {
-  const platforms = await getActiveSocialNetworks();
-  const bestSellers = await getBestSellerServices();
+  const platforms    = await getActiveSocialNetworks();
+  const bestSellers  = await getBestSellerServices();
+  const feedServices = await getActivityFeedServices();
 
   return (
     <>
       <AnnouncementBar />
       <Header />
-      <LiveActivityFeed />
+      <LiveActivityFeed services={feedServices} />
       <main className="overflow-x-hidden">
         <HeroSection platforms={platforms} />
         <AnimatedPlatformCards platforms={platforms} />

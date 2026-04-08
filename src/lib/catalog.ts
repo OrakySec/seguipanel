@@ -1,5 +1,14 @@
 import { prisma } from "./prisma";
 
+export const SOCIAL_COLORS: Record<string, string> = {
+  instagram: "#E1306C",
+  tiktok:    "#010101",
+  kwai:      "#FF6B00",
+  youtube:   "#FF0000",
+  facebook:  "#1877F2",
+  default:   "#6b7280",
+};
+
 export const SOCIAL_METADATA: Record<string, { gradient: string }> = {
   instagram: {
     gradient: "linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)",
@@ -68,6 +77,29 @@ export async function getActiveSocialNetworks() {
       description: n.description,
       fromPrice: minPrice !== Infinity ? `R$${minPrice.toFixed(2).replace('.', ',')}` : "Sob consulta",
       gradient: metadata.gradient
+    };
+  });
+}
+
+export async function getActivityFeedServices() {
+  const services = await prisma.service.findMany({
+    where: { status: 1 },
+    include: {
+      category: {
+        include: { socialNetwork: true },
+      },
+    },
+    orderBy: { id: "asc" },
+  });
+
+  return services.map((s) => {
+    const slug = s.category.socialNetwork.urlSlug?.toLowerCase() || "default";
+    return {
+      serviceName: s.name,
+      platform:    s.category.socialNetwork.name,
+      platformSlug: slug,
+      platformColor: SOCIAL_COLORS[slug] ?? SOCIAL_COLORS.default,
+      platformBg:    (SOCIAL_METADATA[slug] ?? SOCIAL_METADATA.default).gradient,
     };
   });
 }

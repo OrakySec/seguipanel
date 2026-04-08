@@ -3,73 +3,88 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Activity = {
-  id: number;
-  name: string;
-  city: string;
-  service: string;
-  quantity: string;
-  platform: string;
+/* ── Tipos ─────────────────────────────────────────────────────────── */
+
+export type FeedService = {
+  serviceName:   string;
+  platform:      string;
+  platformSlug:  string;
   platformColor: string;
-  platformBg: string;
+  platformBg:    string;
 };
 
-const POOL: Omit<Activity, "id">[] = [
-  { name: "Lucas R.", city: "São Paulo",        quantity: "1.247", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Mariana S.", city: "Rio de Janeiro", quantity: "873",   service: "curtidas",          platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
-  { name: "Felipe O.", city: "Belo Horizonte",  quantity: "2.500", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Camila A.", city: "Curitiba",        quantity: "1.100", service: "seguidores",        platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
-  { name: "Rafael M.", city: "Fortaleza",       quantity: "5.320", service: "visualizações",     platform: "YouTube",   platformColor: "#FF0000", platformBg: "#FF0000" },
-  { name: "Juliana P.", city: "Recife",         quantity: "640",   service: "seguidores",        platform: "Kwai",      platformColor: "#FF6B00", platformBg: "#FF6B00" },
-  { name: "Thiago B.", city: "Salvador",        quantity: "1.050", service: "curtidas",          platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Ana C.", city: "Manaus",             quantity: "2.190", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Bruno L.", city: "Porto Alegre",     quantity: "530",   service: "seguidores",        platform: "Facebook",  platformColor: "#1877F2", platformBg: "#1877F2" },
-  { name: "Fernanda G.", city: "Brasília",      quantity: "3.400", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Diego N.", city: "Goiânia",          quantity: "980",   service: "seguidores",        platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
-  { name: "Isabela F.", city: "Florianópolis",  quantity: "720",   service: "curtidas",          platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Pedro H.", city: "Natal",            quantity: "10.200","service": "visualizações",   platform: "YouTube",   platformColor: "#FF0000", platformBg: "#FF0000" },
-  { name: "Letícia M.", city: "Maceió",         quantity: "2.370", service: "curtidas",          platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
-  { name: "Carlos V.", city: "Belém",           quantity: "1.560", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Beatriz A.", city: "São Luís",       quantity: "490",   service: "seguidores",        platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
-  { name: "Rodrigo T.", city: "Teresina",       quantity: "3.100", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Amanda O.", city: "João Pessoa",     quantity: "1.230", service: "curtidas",          platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Gabriel S.", city: "Aracaju",        quantity: "550",   service: "seguidores",        platform: "Kwai",      platformColor: "#FF6B00", platformBg: "#FF6B00" },
-  { name: "Larissa C.", city: "Campo Grande",   quantity: "1.890", service: "seguidores",        platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
-  { name: "Vinícius R.", city: "Cuiabá",        quantity: "4.750", service: "curtidas",          platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Priscila N.", city: "Porto Velho",   quantity: "1.973", service: "visualizações",     platform: "YouTube",   platformColor: "#FF0000", platformBg: "#FF0000" },
-  { name: "Eduardo B.", city: "Macapá",         quantity: "3.210", service: "visualizações",     platform: "YouTube",   platformColor: "#FF0000", platformBg: "#FF0000" },
-  { name: "Tatiane L.", city: "Boa Vista",      quantity: "660",   service: "curtidas",          platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
-  { name: "Henrique F.", city: "Palmas",        quantity: "1.340", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Natália V.", city: "Vitória",        quantity: "2.080", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Gustavo M.", city: "Campinas",       quantity: "780",   service: "seguidores",        platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
-  { name: "Aline P.", city: "Santos",           quantity: "1.420", service: "curtidas",          platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Marcos D.", city: "Ribeirão Preto",  quantity: "5.600", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Patrícia E.", city: "Uberlândia",    quantity: "430",   service: "seguidores",        platform: "Kwai",      platformColor: "#FF6B00", platformBg: "#FF6B00" },
-  { name: "Renato C.", city: "Sorocaba",        quantity: "2.640", service: "curtidas",          platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
-  { name: "Simone A.", city: "Londrina",        quantity: "910",   service: "seguidores",        platform: "Facebook",  platformColor: "#1877F2", platformBg: "#1877F2" },
-  { name: "André K.", city: "Joinville",        quantity: "12.500","service": "visualizações",   platform: "YouTube",   platformColor: "#FF0000", platformBg: "#FF0000" },
-  { name: "Cíntia R.", city: "Caxias do Sul",   quantity: "3.780", service: "seguidores",        platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Maurício T.", city: "Pelotas",       quantity: "560",   service: "curtidas",          platform: "Instagram", platformColor: "#E1306C", platformBg: "linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" },
-  { name: "Vanessa O.", city: "Mogi das Cruzes",quantity: "1.180", service: "seguidores",        platform: "TikTok",    platformColor: "#010101", platformBg: "#010101" },
+type Activity = {
+  id:            number;
+  name:          string;
+  city:          string;
+  serviceName:   string;
+  platform:      string;
+  platformColor: string;
+  platformBg:    string;
+};
+
+/* ── Dados fake de identidade ───────────────────────────────────────── */
+
+const NAMES = [
+  "Lucas R.", "Mariana S.", "Felipe O.", "Camila A.", "Rafael M.",
+  "Juliana P.", "Thiago B.", "Ana C.", "Bruno L.", "Fernanda G.",
+  "Diego N.", "Isabela F.", "Pedro H.", "Letícia M.", "Carlos V.",
+  "Beatriz A.", "Rodrigo T.", "Amanda O.", "Gabriel S.", "Larissa C.",
+  "Vinícius R.", "Priscila N.", "Eduardo B.", "Tatiane L.", "Henrique F.",
+  "Natália V.", "Gustavo M.", "Aline P.", "Marcos D.", "Patrícia E.",
+  "Renato C.", "Simone A.", "André K.", "Cíntia R.", "Maurício T.",
+  "Vanessa O.", "Leandro F.", "Jéssica M.", "Fábio S.", "Carolina B.",
 ];
 
-let idCounter = 0;
-let lastIndex = -1;
+const CITIES = [
+  "São Paulo", "Rio de Janeiro", "Belo Horizonte", "Curitiba", "Fortaleza",
+  "Recife", "Salvador", "Manaus", "Porto Alegre", "Brasília",
+  "Goiânia", "Florianópolis", "Natal", "Maceió", "Belém",
+  "São Luís", "Teresina", "João Pessoa", "Aracaju", "Campo Grande",
+  "Cuiabá", "Porto Velho", "Macapá", "Boa Vista", "Palmas",
+  "Vitória", "Campinas", "Santos", "Ribeirão Preto", "Uberlândia",
+  "Sorocaba", "Londrina", "Joinville", "Caxias do Sul", "Pelotas",
+];
 
-function randomItem(): Activity {
-  let index: number;
-  do { index = Math.floor(Math.random() * POOL.length); } while (index === lastIndex);
-  lastIndex = index;
-  return { ...POOL[index], id: ++idCounter };
+/* ── Helpers ────────────────────────────────────────────────────────── */
+
+let idCounter  = 0;
+let lastSvcIdx = -1;
+let lastNameIdx = -1;
+let lastCityIdx = -1;
+
+function pick<T>(arr: T[], lastIdx: number): { value: T; index: number } {
+  let idx: number;
+  do { idx = Math.floor(Math.random() * arr.length); } while (idx === lastIdx);
+  return { value: arr[idx], index: idx };
 }
 
 function randomDelay(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function buildActivity(services: FeedService[]): Activity {
+  const svc  = pick(services, lastSvcIdx);
+  const name = pick(NAMES,    lastNameIdx);
+  const city = pick(CITIES,   lastCityIdx);
+  lastSvcIdx  = svc.index;
+  lastNameIdx = name.index;
+  lastCityIdx = city.index;
+  return {
+    id:            ++idCounter,
+    name:          name.value,
+    city:          city.value,
+    serviceName:   svc.value.serviceName,
+    platform:      svc.value.platform,
+    platformColor: svc.value.platformColor,
+    platformBg:    svc.value.platformBg,
+  };
+}
+
 function playNotificationSound() {
   try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const ctx = new (window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const t = ctx.currentTime;
     const osc1 = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
@@ -86,60 +101,66 @@ function playNotificationSound() {
     osc1.start(t); osc1.stop(t + 0.12);
     osc2.start(t + 0.1); osc2.stop(t + 0.35);
     setTimeout(() => ctx.close(), 500);
-  } catch { /* silently ignore */ }
+  } catch { /* ignore */ }
 }
 
-/* Ícones SVG por plataforma */
+/* ── Ícone SVG por plataforma ────────────────────────────────────────── */
+
 function PlatformIcon({ platform, bg }: { platform: string; bg: string }) {
+  const slug = platform.toLowerCase();
   return (
     <div
       className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
       style={{ background: bg }}
     >
-      {platform === "Instagram" && (
+      {slug === "instagram" && (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="2" width="20" height="20" rx="6" fill="white" fillOpacity="0"/>
           <path d="M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9zm0 1.5a3 3 0 110 6 3 3 0 010-6zm4.75-2.25a1 1 0 110 2 1 1 0 010-2z" fill="white"/>
           <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="white" strokeWidth="1.5" fill="none"/>
         </svg>
       )}
-      {platform === "TikTok" && (
+      {slug === "tiktok" && (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
           <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z"/>
         </svg>
       )}
-      {platform === "YouTube" && (
+      {slug === "youtube" && (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
           <path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.5 5 12 5 12 5s-4.5 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.2.9C6.4 19 12 19 12 19s4.5 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.5 2.8-5.5 2.7z"/>
         </svg>
       )}
-      {platform === "Facebook" && (
+      {slug === "facebook" && (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
           <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.27h3.32l-.53 3.5h-2.79V24C19.61 23.1 24 18.1 24 12.07z"/>
         </svg>
       )}
-      {platform === "Kwai" && (
+      {slug === "kwai" && (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+        </svg>
+      )}
+      {!["instagram","tiktok","youtube","facebook","kwai"].includes(slug) && (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+          <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
         </svg>
       )}
     </div>
   );
 }
 
-export function LiveActivityFeed() {
-  const [current, setCurrent] = useState<Activity | null>(null);
+/* ── Componente principal ────────────────────────────────────────────── */
+
+export function LiveActivityFeed({ services }: { services: FeedService[] }) {
+  const [current,   setCurrent]   = useState<Activity | null>(null);
   const [topOffset, setTopOffset] = useState(120);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Mede a posição real do bottom do header a cada scroll/resize
+  // Posiciona dinamicamente abaixo do header sticky
   useEffect(() => {
     const update = () => {
       const header = document.querySelector("header");
-      if (header) {
-        setTopOffset(header.getBoundingClientRect().bottom + 8);
-      }
+      if (header) setTopOffset(header.getBoundingClientRect().bottom + 8);
     };
     update();
     window.addEventListener("scroll", update, { passive: true });
@@ -151,10 +172,9 @@ export function LiveActivityFeed() {
   }, []);
 
   function showNext() {
-    const next = randomItem();
-    setCurrent(next);
+    if (!services.length) return;
+    setCurrent(buildActivity(services));
     playNotificationSound();
-
     dismissRef.current = setTimeout(() => {
       setCurrent(null);
       timerRef.current = setTimeout(showNext, randomDelay(8000, 20000));
@@ -162,12 +182,15 @@ export function LiveActivityFeed() {
   }
 
   useEffect(() => {
+    if (!services.length) return;
     timerRef.current = setTimeout(showNext, randomDelay(2000, 5000));
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current)  clearTimeout(timerRef.current);
       if (dismissRef.current) clearTimeout(dismissRef.current);
     };
-  }, []);
+  }, [services]);
+
+  if (!services.length) return null;
 
   return (
     <div
@@ -187,8 +210,8 @@ export function LiveActivityFeed() {
           <motion.div
             key={current.id}
             initial={{ opacity: 0, y: -20, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0,   scale: 1    }}
+            exit={{    opacity: 0, y: -10,  scale: 0.97 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="w-full max-w-sm pointer-events-auto"
           >
@@ -196,29 +219,25 @@ export function LiveActivityFeed() {
               className="bg-white rounded-2xl px-3 py-3 flex items-center gap-3"
               style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07)" }}
             >
-              {/* Ícone da plataforma */}
               <PlatformIcon platform={current.platform} bg={current.platformBg} />
 
-              {/* Conteúdo */}
               <div className="flex-1 min-w-0">
-                {/* Linha 1: plataforma + "Agora" */}
+                {/* plataforma + "Agora" */}
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[11px] font-semibold text-gray-400">
                     {current.platform}
                   </span>
                   <span className="text-[11px] text-gray-400 flex-shrink-0">Agora</span>
                 </div>
-                {/* Linha 2: nome */}
+                {/* nome */}
                 <p className="text-[13px] font-bold text-gray-900 leading-tight mt-0.5">
-                  {current.name} <span className="font-normal text-gray-500">de {current.city}</span>
+                  {current.name}{" "}
+                  <span className="font-normal text-gray-500">de {current.city}</span>
                 </p>
-                {/* Linha 3: ação */}
+                {/* serviço */}
                 <p className="text-[12px] text-gray-500 leading-tight mt-0.5">
                   Comprou{" "}
-                  <span className="font-bold text-gray-800">
-                    {current.quantity} {current.service}
-                  </span>
-                  {" "}para seu {current.platform}
+                  <span className="font-bold text-gray-800">{current.serviceName}</span>
                 </p>
               </div>
             </div>
