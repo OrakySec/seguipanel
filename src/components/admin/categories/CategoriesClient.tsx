@@ -24,6 +24,7 @@ import {
     deleteCategory 
 } from "@/app/admin/categorias/actions";
 import CustomSelect from "@/components/ui/CustomSelect";
+import { useToast } from "@/components/ui/Toast";
 
 interface Category {
   id: number;
@@ -49,6 +50,7 @@ export default function CategoriesClient({
 }: { 
   initialSocialNetworks: SocialNetwork[] 
 }) {
+  const { toast } = useToast();
   const [networks, setNetworks] = useState<SocialNetwork[]>(initialSocialNetworks);
   const [selectedNetworkId, setSelectedNetworkId] = useState<number | null>(
     initialSocialNetworks.length > 0 ? initialSocialNetworks[0].id : null
@@ -70,9 +72,10 @@ export default function CategoriesClient({
     setIsSaving(true);
     const result = await upsertSocialNetwork(editingNetwork.id || null, editingNetwork);
     if (result.success) {
+      toast("success", "Rede social salva!");
       window.location.reload();
     } else {
-      alert(result.error);
+      toast("error", "Erro ao salvar", result.error);
     }
     setIsSaving(false);
   };
@@ -83,8 +86,9 @@ export default function CategoriesClient({
       if (result.success) {
         setNetworks(prev => prev.filter(n => n.id !== id));
         if (selectedNetworkId === id) setSelectedNetworkId(null);
+        toast("success", "Rede social removida.");
       } else {
-        alert(result.error);
+        toast("error", "Erro ao remover", result.error);
       }
     }
   };
@@ -96,9 +100,10 @@ export default function CategoriesClient({
     setIsSaving(true);
     const result = await upsertCategory(editingCategory.id || null, selectedNetworkId, editingCategory);
     if (result.success) {
+      toast("success", "Categoria salva!");
       window.location.reload();
     } else {
-      alert(result.error);
+      toast("error", "Erro ao salvar categoria", result.error);
     }
     setIsSaving(false);
   };
@@ -107,9 +112,10 @@ export default function CategoriesClient({
     if (confirm("Excluir esta categoria? Isso falhará se houver serviços vinculados.")) {
       const result = await deleteCategory(id);
       if (result.success) {
+        toast("success", "Categoria removida.");
         window.location.reload();
       } else {
-        alert(result.error);
+        toast("error", "Erro ao remover categoria", result.error);
       }
     }
   };

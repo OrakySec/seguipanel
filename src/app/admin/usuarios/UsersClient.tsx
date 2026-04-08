@@ -3,20 +3,22 @@
 import React, { useState } from "react";
 import UsersList from "@/components/admin/users/UsersList";
 import UserForm from "@/components/admin/users/UserForm";
-import { 
-  getUsers, 
-  updateUser, 
-  toggleUserStatus, 
-  deleteUser 
+import {
+  getUsers,
+  updateUser,
+  toggleUserStatus,
+  deleteUser
 } from "@/app/admin/usuarios/actions";
 import { AnimatePresence, motion } from "framer-motion";
 import { Users, UserPlus, Search } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
 
 export default function UsersClient({ 
   initialUsers 
 }: { 
   initialUsers: any[]
 }) {
+  const { toast } = useToast();
   const [users, setUsers] = useState(initialUsers);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -32,9 +34,9 @@ export default function UsersClient({
     const result = await updateUser(id, data);
     if (result.success) {
       // Recarrega para refletir mudanças pesadas (como role/email)
-      window.location.reload(); 
+      window.location.reload();
     } else {
-      alert(result.error);
+      toast("error", "Erro ao salvar usuário", result.error);
     }
     setIsSaving(false);
   };
@@ -51,8 +53,9 @@ export default function UsersClient({
       const result = await deleteUser(id);
       if (result.success) {
         setUsers(prev => prev.filter(u => u.id !== id));
+        toast("success", "Usuário excluído.");
       } else {
-        alert(result.error);
+        toast("error", "Erro ao excluir usuário", result.error);
       }
     }
   };

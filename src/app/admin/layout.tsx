@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { ToastProvider } from "@/components/ui/Toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, 
@@ -82,6 +83,7 @@ export default function AdminLayout({
   if (!mounted) return null;
 
   return (
+    <ToastProvider>
     <div className={`h-screen w-full transition-colors duration-300 ${theme === 'dark' ? 'dark' : ''}`}>
       <div className="flex h-full bg-background text-foreground overflow-hidden">
         {/* Sidebar - Desktop */}
@@ -179,5 +181,6 @@ export default function AdminLayout({
         </main>
       </div>
     </div>
+    </ToastProvider>
   );
 }

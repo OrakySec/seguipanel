@@ -22,6 +22,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { updateSettings, upsertApiProvider, deleteApiProvider, getProviderBalance, uploadLogo } from "@/app/admin/configuracoes/actions";
 import CustomSelect from "@/components/ui/CustomSelect";
+import { useToast } from "@/components/ui/Toast";
 
 interface ApiProvider {
   id: number;
@@ -49,6 +50,7 @@ export default function SettingsClient({
   initialProviders: ApiProvider[]
 }) {
   const [activeTab, setActiveTab] = useState("geral");
+  const { toast } = useToast();
   const [settings, setSettings] = useState(initialSettings);
   const [providers, setProviders] = useState<ApiProvider[]>(initialProviders);
   const [isSaving, setIsSaving] = useState(false);
@@ -75,9 +77,9 @@ export default function SettingsClient({
     };
     const result = await updateSettings(merged);
     if (result.success) {
-      alert("Configurações salvas! ✨");
+      toast("success", "Configurações salvas!");
     } else {
-      alert("Erro: " + result.error);
+      toast("error", "Erro ao salvar", result.error);
     }
     setIsSaving(false);
   };
@@ -95,22 +97,25 @@ export default function SettingsClient({
 
     if (result.success && result.url) {
       setSettings(prev => ({ ...prev, logo_url: result.url }));
-      alert("Logo enviada com sucesso! Lembre-se de clicar em 'Salvar Tudo' para gravar essa alteração.");
+      toast("info", "Logo enviada!", "Clique em 'Salvar Tudo' para confirmar.");
     } else {
-      alert(result.error);
+      toast("error", "Erro no upload", result.error);
     }
   };
 
   const handleUpsertProvider = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProvider?.name || !editingProvider?.url || !editingProvider?.apiKey) return;
-    
+
     setIsSaving(true);
     const result = await upsertApiProvider(editingProvider.id || null, editingProvider);
     if (result.success) {
+      setIsProviderModalOpen(false);
+      const updated = await fetch("/api/admin/providers").catch(() => null);
+      toast("success", "Provedor salvo com sucesso!");
       window.location.reload();
     } else {
-      alert(result.error);
+      toast("error", "Erro ao salvar provedor", result.error);
     }
     setIsSaving(false);
   };
@@ -120,8 +125,9 @@ export default function SettingsClient({
       const result = await deleteApiProvider(id);
       if (result.success) {
         setProviders(prev => prev.filter(p => p.id !== id));
+        toast("success", "Provedor removido.");
       } else {
-        alert(result.error);
+        toast("error", "Erro ao remover provedor", result.error);
       }
     }
   };

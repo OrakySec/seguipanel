@@ -13,6 +13,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { TrendingUp, Percent, AlertCircle, Settings, CheckSquare } from "lucide-react";
 import CustomSelect from "@/components/ui/CustomSelect";
+import { useToast } from "@/components/ui/Toast";
 
 export default function ServicesClient({ 
   initialServices, 
@@ -23,6 +24,7 @@ export default function ServicesClient({
   socialNetworks: any[], 
   apiProviders: any[] 
 }) {
+  const { toast } = useToast();
   const [services, setServices] = useState(initialServices);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
@@ -52,10 +54,10 @@ export default function ServicesClient({
     setIsSaving(true);
     const result = await upsertService(data);
     if (result.success) {
-      // Recarrega localmente ou via router.refresh()
-      window.location.reload(); 
+      toast("success", "Serviço salvo!");
+      window.location.reload();
     } else {
-      alert(result.error);
+      toast("error", "Erro ao salvar serviço", result.error);
     }
     setIsSaving(false);
   };
@@ -64,6 +66,7 @@ export default function ServicesClient({
     const result = await toggleServiceStatus(id, currentStatus);
     if (result.success) {
       setServices(prev => prev.map(s => s.id === id ? { ...s, status: currentStatus === 1 ? 0 : 1 } : s));
+      toast("success", currentStatus === 1 ? "Serviço desativado." : "Serviço ativado.");
     }
   };
 
@@ -71,6 +74,7 @@ export default function ServicesClient({
     if (confirm("Tem certeza que deseja excluir? Se houver pedidos vinculados, o serviço será apenas desativado.")) {
       const result = await deleteService(id);
       if (result.success) {
+        toast("success", result.message ?? "Serviço removido.");
         window.location.reload();
       }
     }
@@ -78,13 +82,13 @@ export default function ServicesClient({
 
   const handleBulkAdjustment = async () => {
     if (!bulkPercentage || isNaN(Number(bulkPercentage))) return;
-    
+
     if (confirm(`Ajustar preços em ${bulkPercentage}% para ${bulkNetworkId === 'all' ? 'todos os serviços' : 'a rede selecionada'}?`)) {
-      const result = await bulkPriceAdjustment(Number(bulkPercentage), { 
-        socialNetworkId: bulkNetworkId === 'all' ? undefined : Number(bulkNetworkId) 
+      const result = await bulkPriceAdjustment(Number(bulkPercentage), {
+        socialNetworkId: bulkNetworkId === 'all' ? undefined : Number(bulkNetworkId)
       });
       if (result.success) {
-        alert(`${result.count} serviços atualizados!`);
+        toast("success", `${result.count} serviços atualizados!`);
         window.location.reload();
       }
     }
@@ -92,19 +96,19 @@ export default function ServicesClient({
 
   const handleBulkApiAdjustment = async () => {
     if (selectedServices.length === 0) return;
-    
+
     setIsSaving(true);
     const result = await bulkApiIdAdjustment(
-      selectedServices, 
-      bulkApiProviderId ? Number(bulkApiProviderId) : null, 
+      selectedServices,
+      bulkApiProviderId ? Number(bulkApiProviderId) : null,
       bulkApiServiceId
     );
-    
+
     if (result.success) {
-      alert(`${result.count} serviços vinculados com sucesso!`);
+      toast("success", `${result.count} serviços vinculados com sucesso!`);
       window.location.reload();
     } else {
-      alert(result.error);
+      toast("error", "Erro no ajuste em massa", result.error);
     }
     setIsSaving(false);
   };

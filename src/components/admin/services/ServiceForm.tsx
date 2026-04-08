@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CustomSelect from "@/components/ui/CustomSelect";
+import { useToast } from "@/components/ui/Toast";
 
 interface Category {
   id: number;
@@ -66,6 +67,7 @@ export default function ServiceForm({
     originalPrice: initialData?.originalPrice ? Number(initialData.originalPrice) : ""
   });
 
+  const { toast } = useToast();
   const [selectedNetworkId, setSelectedNetworkId] = useState<number | "">(
     initialData?.category?.socialNetworkId || ""
   );
@@ -75,7 +77,7 @@ export default function ServiceForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.categoryId || !formData.price) {
-      alert("Por favor, preencha os campos obrigatórios (Nome, Categoria e Preço)");
+      toast("error", "Campos obrigatórios", "Preencha Nome, Categoria e Preço.");
       return;
     }
     
