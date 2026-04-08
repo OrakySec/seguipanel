@@ -96,10 +96,10 @@ export async function POST(req: NextRequest) {
     console.log("[WEBHOOK] token recebido:", token ?? "(nenhum header)");
     console.log("[WEBHOOK] secret configurado:", webhookSecret ? "sim" : "não");
 
-    // Só bloqueia se secret está configurado no admin E o token não bate
-    // Se PushinPay não envia o header (token=null), aceita mesmo assim
-    if (webhookSecret && token !== webhookSecret) {
-      console.log("[WEBHOOK] BLOQUEADO — secret configurado mas token não bate");
+    // Só bloqueia se o token FOI enviado E não bate com o secret
+    // Se PushinPay não envia header (token=null), aceita — segurança via UUID imprevisível
+    if (token && webhookSecret && token !== webhookSecret) {
+      console.log("[WEBHOOK] BLOQUEADO — token enviado mas não bate com secret");
       return apiError("Unauthorized", 401);
     }
 
