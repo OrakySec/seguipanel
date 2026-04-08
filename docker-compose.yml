@@ -8,7 +8,7 @@ services:
       DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/smm_app"
       JWT_SECRET: "${JWT_SECRET}"
       JWT_EXPIRES_IN: "7d"
-      NEXT_PUBLIC_APP_URL: "https://sf.ykaromarques.com"
+      NEXT_PUBLIC_APP_URL: "https://seguifacil.com"
       CRON_SECRET: "${CRON_SECRET}"
       PUSHINPAY_WEBHOOK_SECRET: "${PUSHINPAY_WEBHOOK_SECRET}"
       MINIO_ENDPOINT: "minio"
@@ -30,7 +30,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=YkaroNET"
-        - "traefik.http.routers.seguifacil.rule=Host(`sf.ykaromarques.com`)"
+        - "traefik.http.routers.seguifacil.rule=Host(`seguifacil.com`) || Host(`www.seguifacil.com`)"
         - "traefik.http.routers.seguifacil.entrypoints=websecure"
         - "traefik.http.routers.seguifacil.tls.certresolver=letsencryptresolver"
         - "traefik.http.services.seguifacil.loadbalancer.server.port=3000"
