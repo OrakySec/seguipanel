@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Geist, Plus_Jakarta_Sans, Pacifico } from "next/font/google";
 import "./globals.css";
 
