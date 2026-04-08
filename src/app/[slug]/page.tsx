@@ -68,9 +68,12 @@ export default async function PlatformPage({ params }: Props) {
           <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-4 tracking-tight">
             Comprar Seguidores {network.name}
           </h1>
-          <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            {network.description || `Acelere seu perfil no ${network.name} com seguidores reais e brasileiros. Entrega rápida e garantida.`}
-          </p>
+          <div
+            className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed [&_strong]:font-bold [&_strong]:text-gray-700 [&_p]:mb-2"
+            dangerouslySetInnerHTML={{
+              __html: network.description || `<p>Acelere seu perfil no ${network.name} com seguidores reais e brasileiros. Entrega rápida e garantida.</p>`,
+            }}
+          />
         </div>
       </section>
 
