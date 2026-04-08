@@ -194,20 +194,22 @@ export function LiveActivityFeed({ services }: { services: FeedService[] }) {
     };
   }, [services]);
 
-  if (!mounted || !services.length) return null;
-
+  // Always render the same container on server + client first render.
+  // Only show content after mount to avoid any hydration mismatch.
   return (
     <div
-      className="fixed inset-x-0 flex justify-center px-4 pointer-events-none"
+      className="fixed left-4 sm:left-6 right-4 sm:right-auto pointer-events-none"
       style={{
         top: topOffset,
         zIndex: 2147483647,
         isolation: "isolate",
         transform: "translateZ(0)",
         willChange: "transform",
+        display: mounted && services.length > 0 ? undefined : "none",
       }}
       aria-live="polite"
       aria-label="Compras recentes"
+      suppressHydrationWarning
     >
       <AnimatePresence>
         {current && (
