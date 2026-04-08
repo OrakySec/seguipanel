@@ -73,7 +73,15 @@ export async function POST(req: NextRequest) {
 
     // 5. Chamar API PushinPay
     const valueInCents = Math.round(finalPrice * 100);
-    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/pushinpay`;
+
+    // Construir webhook URL dinamicamente para funcionar em qualquer domínio
+    const forwardedProto = req.headers.get("x-forwarded-proto") ?? "https";
+    const forwardedHost  = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
+    const appOrigin = forwardedHost
+      ? `${forwardedProto}://${forwardedHost}`
+      : (process.env.NEXT_PUBLIC_APP_URL ?? "");
+    const webhookUrl = `${appOrigin}/api/webhooks/pushinpay`;
+    console.log("[CHECKOUT] webhookUrl:", webhookUrl);
 
     const pixResponse = await fetch(`${baseUrl}/api/pix/cashIn`, {
       method: "POST",
