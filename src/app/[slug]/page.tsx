@@ -114,11 +114,11 @@ export default async function PlatformPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {category.services.map((service) => (
                 <div 
                   key={service.id}
-                  className="glass-card-2026 flex flex-col bg-white rounded-3xl border border-gray-100 p-6 shadow-premium hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  className="glass-card-2026 flex flex-col bg-white rounded-3xl border border-gray-100 p-4 md:p-6 shadow-premium hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
                 >
                   {service.discount > 0 && (
                     <div className="absolute -top-3 -right-3 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg z-10">
@@ -127,25 +127,9 @@ export default async function PlatformPage({ params }: Props) {
                   )}
                   
                   <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 mb-2 text-lg leading-tight">
+                    <h3 className="font-bold text-gray-900 mb-4 text-base md:text-lg leading-tight">
                       {service.name}
                     </h3>
-                    <div 
-                      className="text-xs text-gray-500 mb-6 leading-relaxed line-clamp-3 prose prose-sm prose-p:my-0.5"
-                      dangerouslySetInnerHTML={{ __html: service.description || "Entrega garantida e perfis de alta qualidade para seu perfil." }}
-                    />
-                    
-                    <ul className="space-y-2 mb-8">
-                      <li className="flex items-center gap-2 text-[11px] font-medium text-gray-600">
-                        <Check size={14} className="text-success" /> Entrega em minutos
-                      </li>
-                      <li className="flex items-center gap-2 text-[11px] font-medium text-gray-600">
-                        <Check size={14} className="text-success" /> Sem precisar de senha
-                      </li>
-                      <li className="flex items-center gap-2 text-[11px] font-medium text-gray-600">
-                        <Check size={14} className="text-success" /> Garantia de reposição
-                      </li>
-                    </ul>
                   </div>
 
                   <div className="pt-6 border-t border-gray-50">

@@ -199,16 +199,8 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
         <h1 className="text-5xl sm:text-7xl lg:text-[86px] font-black text-gray-900 tracking-tight leading-[0.95] mb-6">
           Compre Seguidores
           <br /> Para Suas
-          <span
-            className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-[#fb24b1] to-[#7c4dff]"
-            style={{
-              fontFamily: "var(--font-script)",
-              fontWeight: 400,
-              fontSize: "1.1em",
-              filter: "drop-shadow(0 2px 4px rgba(251, 36, 177, 0.1))",
-            }}
-          >
-            Redes Sociais
+          <span className="font-script-stylized">
+            Redes sociais
           </span>
         </h1>
 

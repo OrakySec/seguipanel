@@ -232,8 +232,11 @@ export default function CheckoutClient() {
       MOCK_SERVICE.platformGradient,
   };
 
-  const requiredFieldRaw = params.get("requiredField") || "Link do Perfil";
-  const isProfileField = requiredFieldRaw.toLowerCase().includes("perfil") || requiredFieldRaw.toLowerCase().includes("usuário");
+  let requiredFieldRaw = params.get("requiredField") || "Link do Perfil";
+  if (service.name.toLowerCase().includes("seguidores") && requiredFieldRaw === "Link do Perfil") {
+    requiredFieldRaw = "Seu @ do perfil";
+  }
+  const isProfileField = requiredFieldRaw.toLowerCase().includes("perfil") || requiredFieldRaw.toLowerCase().includes("usuário") || requiredFieldRaw.toLowerCase().includes("@");
 
   /* Steps */
   const [step, setStep] = useState<Step>("form");
@@ -289,7 +292,8 @@ export default function CheckoutClient() {
   function validate() {
     const e: Record<string, string> = {};
     if (!email.includes("@")) e.email = "E-mail inválido";
-    if (whatsapp.replace(/\D/g, "").length < 10) e.whatsapp = "WhatsApp inválido (mínimo 10 dígitos)";
+    const whatsappDigits = whatsapp.replace(/\D/g, "");
+    if (whatsappDigits.length !== 11) e.whatsapp = "Informe os 11 dígitos (DDD + número)";
     if (!link.trim()) e.link = `Informe o ${requiredFieldRaw}`;
     return e;
   }
@@ -399,14 +403,25 @@ export default function CheckoutClient() {
                     autoComplete="email"
                   />
                 </Field>
-                <Field label="WhatsApp *" hint="Para receber atualizações do pedido" error={errors.whatsapp}>
+                <Field label="WhatsApp *" hint="Digite os 11 dígitos (DDD + Número)" error={errors.whatsapp}>
                   <input
                     type="tel"
                     value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/\D/g, "");
+                      if (v.length > 11) v = v.slice(0, 11);
+                      let f = v;
+                      if (v.length > 2) f = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+                      if (v.length > 7) {
+                        if (v.length <= 10) f = `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+                        else f = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+                      }
+                      setWhatsapp(f);
+                    }}
                     placeholder="(11) 99999-9999"
                     className={inputClass(!!errors.whatsapp)}
                     autoComplete="tel"
+                    maxLength={15}
                   />
                 </Field>
               </div>
