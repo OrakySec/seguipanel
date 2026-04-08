@@ -64,8 +64,15 @@ export default function ServiceForm({
     ...initialData,
     // Se estiver editando, Price e Decimal podem vir como objetos Prisma.Decimal
     price: initialData?.price ? Number(initialData.price) : "",
-    originalPrice: initialData?.originalPrice ? Number(initialData.originalPrice) : ""
   });
+
+  // Preço original calculado automaticamente: preço / (1 - desconto/100)
+  const computedOriginalPrice = (() => {
+    const price = Number(formData.price);
+    const disc  = Number(formData.discount);
+    if (!price || disc <= 0 || disc >= 100) return null;
+    return price / (1 - disc / 100);
+  })();
 
   const { toast } = useToast();
   const [selectedNetworkId, setSelectedNetworkId] = useState<number | "">(
@@ -88,7 +95,7 @@ export default function ServiceForm({
       description: formData.description,
       categoryId: Number(formData.categoryId),
       price: Number(formData.price),
-      originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
+      originalPrice: computedOriginalPrice ?? null,
       discount: Number(formData.discount),
       addType: formData.addType,
       apiProviderId: formData.apiProviderId ? Number(formData.apiProviderId) : null,
@@ -218,22 +225,31 @@ export default function ServiceForm({
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-black uppercase tracking-widest text-muted mb-2 ml-1">Preço Original (R$)</label>
-                <input 
-                  type="number" step="0.01" 
-                  className="w-full h-12 px-4 bg-surface rounded-2xl border border-transparent focus:ring-2 focus:ring-primary/20 font-bold text-sm outline-none"
-                  value={formData.originalPrice}
-                  onChange={(e) => setFormData({...formData, originalPrice: e.target.value})}
-                />
-              </div>
-              <div>
                 <label className="block text-[11px] font-black uppercase tracking-widest text-muted mb-2 ml-1">% Desconto Exibido</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
+                  min="0" max="99"
                   className="w-full h-12 px-4 bg-surface rounded-2xl border border-transparent focus:ring-2 focus:ring-primary/20 font-bold text-sm outline-none"
                   value={formData.discount}
                   onChange={(e) => setFormData({...formData, discount: e.target.value})}
                 />
+              </div>
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-widest text-muted mb-2 ml-1">Preço S/ Desconto (auto)</label>
+                <div className="w-full h-12 px-4 bg-surface/60 rounded-2xl border border-dashed border-border flex items-center gap-2">
+                  {computedOriginalPrice ? (
+                    <>
+                      <span className="font-black text-sm text-foreground line-through opacity-60">
+                        R$ {computedOriginalPrice.toFixed(2).replace(".", ",")}
+                      </span>
+                      <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                        -{formData.discount}%
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-xs text-muted font-medium">Defina preço + desconto</span>
+                  )}
+                </div>
               </div>
 
               <div>
