@@ -129,8 +129,26 @@ function PlatformIcon({ platform, bg }: { platform: string; bg: string }) {
 
 export function LiveActivityFeed() {
   const [current, setCurrent] = useState<Activity | null>(null);
+  const [topOffset, setTopOffset] = useState(120);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Mede a posição real do bottom do header a cada scroll/resize
+  useEffect(() => {
+    const update = () => {
+      const header = document.querySelector("header");
+      if (header) {
+        setTopOffset(header.getBoundingClientRect().bottom + 8);
+      }
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   function showNext() {
     const next = randomItem();
@@ -152,14 +170,9 @@ export function LiveActivityFeed() {
   }, []);
 
   return (
-    /*
-     * top-20 = 80px = altura exata do header sticky (h-20).
-     * A notificação sempre aparece logo abaixo do header após qualquer scroll.
-     * No carregamento inicial (announcement bar visível), ela pode sobrepor
-     * levemente, mas o 1º intervalo aleatório (2-5s) dá tempo pro usuário scrollar.
-     */
     <div
-      className="fixed top-20 inset-x-0 z-40 flex justify-center px-4 pointer-events-none"
+      className="fixed inset-x-0 z-[9999] flex justify-center px-4 pointer-events-none"
+      style={{ top: topOffset }}
       aria-live="polite"
       aria-label="Compras recentes"
     >
