@@ -171,8 +171,14 @@ export function LiveActivityFeed() {
 
   return (
     <div
-      className="fixed inset-x-0 z-[9999] flex justify-center px-4 pointer-events-none"
-      style={{ top: topOffset }}
+      className="fixed inset-x-0 flex justify-center px-4 pointer-events-none"
+      style={{
+        top: topOffset,
+        zIndex: 2147483647,
+        isolation: "isolate",
+        transform: "translateZ(0)",
+        willChange: "transform",
+      }}
       aria-live="polite"
       aria-label="Compras recentes"
     >
