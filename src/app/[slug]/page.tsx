@@ -77,7 +77,9 @@ export default async function PlatformPage({ params }: Props) {
 
           {/* Navegação rápida por categoria */}
           {network.categories.length > 1 && (
-            <div className="flex flex-wrap justify-center gap-3 mt-8">
+            <div className="mt-10">
+              <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">Serviços Disponíveis</p>
+            <div className="flex flex-wrap justify-center gap-3">
               {network.categories.map((cat) => (
                 <a
                   key={cat.id}
@@ -87,6 +89,7 @@ export default async function PlatformPage({ params }: Props) {
                   {cat.name}
                 </a>
               ))}
+            </div>
             </div>
           )}
         </div>
