@@ -102,21 +102,68 @@ export async function toggleUserStatus(id: number, currentStatus: number) {
 }
 
 /**
- * Remove um usuário (Hard delete)
+ * Remove um usuário e todos os dados relacionados (Hard delete)
  */
 export async function deleteUser(id: number) {
   try {
-    // Verificamos se existem pedidos ou logs vinculados
-    const orderCount = await prisma.order.count({ where: { userId: id } });
-    
-    if (orderCount > 0) {
-      return { success: false, error: "Não é possível excluir: usuário possui pedidos vinculados." };
-    }
+    // Desvincula transaction_logs dos orders antes de deletar
+    await prisma.transactionLog.updateMany({
+      where: { userId: id },
+      data: { orderId: null },
+    });
 
+    // Deleta transaction_logs do usuário
+    await prisma.transactionLog.deleteMany({ where: { userId: id } });
+
+    // Deleta orders do usuário
+    await prisma.order.deleteMany({ where: { userId: id } });
+
+    // Deleta user_logs
+    await prisma.userLog.deleteMany({ where: { userId: id } });
+
+    // Deleta o usuário
     await prisma.user.delete({ where: { id } });
+
     revalidatePath("/admin/usuarios");
     return { success: true };
   } catch (error) {
+    console.error("Erro ao excluir usuário:", error);
     return { success: false, error: "Falha ao excluir usuário." };
+  }
+}
+
+/**
+ * Deleta um pedido e seus transaction_logs
+ */
+export async function deleteOrder(id: number) {
+  try {
+    await prisma.transactionLog.updateMany({
+      where: { orderId: id },
+      data: { orderId: null },
+    });
+    await prisma.order.delete({ where: { id } });
+    revalidatePath("/admin/pedidos");
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao excluir pedido:", error);
+    return { success: false, error: "Falha ao excluir pedido." };
+  }
+}
+
+/**
+ * Deleta um transaction log (extrato)
+ */
+export async function deleteTransactionLog(id: number) {
+  try {
+    await prisma.transactionLog.update({
+      where: { id },
+      data: { orderId: null },
+    });
+    await prisma.transactionLog.delete({ where: { id } });
+    revalidatePath("/admin/financeiro");
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao excluir transação:", error);
+    return { success: false, error: "Falha ao excluir transação." };
   }
 }

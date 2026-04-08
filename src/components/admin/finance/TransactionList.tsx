@@ -1,19 +1,22 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { 
-  Search, 
-  ArrowUpRight, 
-  ArrowDownLeft, 
+import {
+  Search,
+  ArrowUpRight,
+  ArrowDownLeft,
   Download,
   History,
   Hash,
   CheckCircle2,
   Clock,
-  PieChart
+  PieChart,
+  Trash2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CustomSelect from "@/components/ui/CustomSelect";
+import { useToast } from "@/components/ui/Toast";
+import { deleteTransactionLog } from "@/app/admin/usuarios/actions";
 
 interface TransactionLog {
   id: number;
@@ -36,11 +39,24 @@ interface TransactionListProps {
 }
 
 export default function TransactionList({ transactions }: TransactionListProps) {
+  const { toast } = useToast();
+  const [items, setItems] = useState(transactions);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
 
+  const handleDelete = async (id: number) => {
+    if (!confirm("Excluir esta transação permanentemente?")) return;
+    const result = await deleteTransactionLog(id);
+    if (result.success) {
+      setItems(prev => prev.filter(t => t.id !== id));
+      toast("success", "Transação excluída.");
+    } else {
+      toast("error", "Erro ao excluir", result.error);
+    }
+  };
+
   const filteredTransactions = useMemo(() => {
-    return transactions.filter(t => {
+    return items.filter(t => {
       const uName = `${t.user.firstName || ""} ${t.user.lastName || ""}`.toLowerCase();
       const matchesSearch = 
         t.user.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -97,6 +113,7 @@ export default function TransactionList({ transactions }: TransactionListProps) 
               <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted border-b border-border">Data / Referência</th>
               <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted border-b border-border text-right">Valor</th>
               <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted border-b border-border text-right">Status</th>
+              <th className="px-8 py-5 border-b border-border" />
             </tr>
           </thead>
           <tbody>
@@ -143,13 +160,21 @@ export default function TransactionList({ transactions }: TransactionListProps) 
                   </td>
                   <td className="px-8 py-6 text-right">
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                        t.status === 1 
-                          ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" 
+                        t.status === 1
+                          ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
                           : "bg-amber-500/10 text-amber-500 border-amber-500/20"
                     }`}>
                         {t.status === 1 ? <CheckCircle2 size={10} className="animate-pulse" /> : <Clock size={10} />}
                         {t.status === 1 ? "Pago" : "Pendente"}
                     </span>
+                  </td>
+                  <td className="px-8 py-6 text-right">
+                    <button
+                      onClick={() => handleDelete(t.id)}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 size={15} />
+                    </button>
                   </td>
                 </motion.tr>
               ))}
