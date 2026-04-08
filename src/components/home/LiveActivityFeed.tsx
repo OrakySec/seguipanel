@@ -151,10 +151,14 @@ function PlatformIcon({ platform, bg }: { platform: string; bg: string }) {
 /* ── Componente principal ────────────────────────────────────────────── */
 
 export function LiveActivityFeed({ services }: { services: FeedService[] }) {
+  const [mounted,   setMounted]   = useState(false);
   const [current,   setCurrent]   = useState<Activity | null>(null);
   const [topOffset, setTopOffset] = useState(120);
   const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Garante render apenas no cliente — elimina qualquer hydration mismatch
+  useEffect(() => { setMounted(true); }, []);
 
   // Posiciona dinamicamente abaixo do header sticky
   useEffect(() => {
@@ -190,7 +194,7 @@ export function LiveActivityFeed({ services }: { services: FeedService[] }) {
     };
   }, [services]);
 
-  if (!services.length) return null;
+  if (!mounted || !services.length) return null;
 
   return (
     <div
