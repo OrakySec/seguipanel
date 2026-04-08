@@ -4,6 +4,13 @@ const nextConfig: NextConfig = {
   output: "standalone",
   compress: true,
   poweredByHeader: false,
+
+  // Desabilita o cache em disco do Turbopack no dev.
+  // Sem isso, chunks SSR compilados em sessões anteriores persistem em
+  // .next/cache/turbopack e causam hydration mismatch quando o código muda.
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
   images: {
     remotePatterns: [
       {
