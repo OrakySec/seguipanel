@@ -334,6 +334,16 @@ export default function CategoriesClient({
                          required
                        />
                    </div>
+                   <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Descrição</label>
+                       <textarea
+                         className="w-full px-6 py-4 bg-surface rounded-2xl border border-transparent focus:ring-8 focus:ring-primary/5 outline-none transition-all resize-none text-sm"
+                         rows={3}
+                         value={editingCategory?.description || ""}
+                         onChange={(e) => setEditingCategory({...editingCategory, description: e.target.value})}
+                         placeholder="Descrição opcional da categoria..."
+                       />
+                   </div>
                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Ordem (Prioridade)</label>
