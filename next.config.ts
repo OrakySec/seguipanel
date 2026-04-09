@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self'",
-              "img-src 'self' data: https://api.dicebear.com https://img.icons8.com https://api.qrserver.com",
+              "img-src 'self' data: https://api.dicebear.com https://img.icons8.com https://api.qrserver.com https://images.unsplash.com https:",
               "connect-src 'self'",
               "frame-ancestors 'none'",
               "base-uri 'self'",
