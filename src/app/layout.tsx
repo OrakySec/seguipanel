@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Plus_Jakarta_Sans, Pacifico } from "next/font/google";
 import "./globals.css";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { NavigationProgress } from "@/components/ui/NavigationProgress";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -138,6 +139,7 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-background text-foreground"
         suppressHydrationWarning
       >
+        <NavigationProgress />
         {children}
         <WhatsAppButton />
       </body>
