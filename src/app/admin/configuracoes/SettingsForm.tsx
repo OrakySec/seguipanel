@@ -1,22 +1,23 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Save, 
-  Settings, 
-  Globe, 
-  ShieldCheck, 
-  CreditCard, 
+import {
+  Save,
+  Settings,
+  Globe,
+  ShieldCheck,
+  CreditCard,
   Share2,
   Mail,
   Zap,
   Loader2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Gift
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type Tab = "geral" | "seo" | "pagamentos" | "smtp" | "smm";
+type Tab = "geral" | "seo" | "pagamentos" | "smtp" | "smm" | "config";
 
 export default function SettingsForm({ initialSettings }: { initialSettings: Record<string, string> }) {
   const [settings, setSettings] = useState(initialSettings);
@@ -51,11 +52,12 @@ export default function SettingsForm({ initialSettings }: { initialSettings: Rec
   };
 
   const tabs = [
-    { id: "geral", label: "Geral & Marca", icon: Settings },
-    { id: "seo", label: "SEO & Google", icon: Globe },
-    { id: "pagamentos", label: "Pagamentos (Pix)", icon: CreditCard },
-    { id: "smtp", label: "E-mail (SMTP)", icon: Mail },
-    { id: "smm", label: "Provedor SMM", icon: Zap },
+    { id: "geral",     label: "Geral & Marca",       icon: Settings  },
+    { id: "config",    label: "Configurações Gerais", icon: Gift      },
+    { id: "seo",       label: "SEO & Google",         icon: Globe     },
+    { id: "pagamentos",label: "Pagamentos (Pix)",     icon: CreditCard},
+    { id: "smtp",      label: "E-mail (SMTP)",        icon: Mail      },
+    { id: "smm",       label: "Provedor SMM",         icon: Zap       },
   ];
 
   return (
@@ -118,6 +120,46 @@ export default function SettingsForm({ initialSettings }: { initialSettings: Rec
                 <Field label="E-mail Contato" keyName="site_email" value={settings.site_email} onChange={handleChange} />
                 <Field label="Endereço Site" keyName="site_url" value={settings.site_url} onChange={handleChange} />
                 <Field label="Página de FAQ" keyName="page_faq" value={settings.page_faq} isToggle onChange={handleChange} />
+              </>
+            )}
+
+            {activeTab === "config" && (
+              <>
+                {/* Card explicativo */}
+                <div className="md:col-span-2 p-5 bg-primary/5 rounded-2xl border border-primary/20 flex gap-4 mb-2">
+                  <Gift size={22} className="text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-black text-foreground mb-1">Over-delivery (Bônus automático)</p>
+                    <p className="text-[12px] text-muted font-medium leading-relaxed">
+                      Defina um percentual extra que será entregue além do que o cliente comprou.
+                      Exemplo: cliente compra <strong>1.000 seguidores</strong> com <strong>10%</strong> configurado → recebe <strong>1.100</strong>.
+                      Deixe em <strong>0</strong> para desativar.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2 max-w-xs">
+                  <label className="text-xs font-extrabold text-muted uppercase tracking-widest px-1 mb-2 block">
+                    Percentual de Bônus (%)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={settings.overdelivery_percentage || "0"}
+                      onChange={(e) => handleChange("overdelivery_percentage", e.target.value)}
+                      className="w-full px-4 pr-10 h-12 bg-surface rounded-2xl text-sm font-bold border border-transparent focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-muted">%</span>
+                  </div>
+                  <p className="text-[11px] text-muted font-medium mt-2 px-1">
+                    {Number(settings.overdelivery_percentage) > 0
+                      ? `✓ Clientes receberão ${settings.overdelivery_percentage}% a mais do que compraram.`
+                      : "Over-delivery desativado."}
+                  </p>
+                </div>
               </>
             )}
 

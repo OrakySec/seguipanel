@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getSetting } from "@/lib/settings";
 import { sendOrderConfirmedEmail } from "@/lib/email";
 import { sendEvolutionFlow } from "@/lib/evolution";
 
@@ -47,6 +48,13 @@ export async function processConfirmedPayment(pushinpayTransactionId: string): P
     return { orderId: null, alreadyProcessed: false };
   }
 
+  // Calcular quantidade com over-delivery
+  const baseQty = Number(quantity ?? service.quantity ?? 0);
+  const overdeliveryPct = Number(await getSetting("overdelivery_percentage", "0"));
+  const finalQty = overdeliveryPct > 0
+    ? Math.round(baseQty * (1 + overdeliveryPct / 100))
+    : baseQty;
+
   const order = await prisma.order.create({
     data: {
       userId:       transaction.userId,
@@ -57,7 +65,7 @@ export async function processConfirmedPayment(pushinpayTransactionId: string): P
       apiProviderId: service.apiProviderId ?? undefined,
       apiServiceId:  service.apiServiceId  ?? undefined,
       link,
-      quantity: quantity ?? String(service.quantity),
+      quantity: String(finalQty || baseQty),
       charge:   transaction.amount,
       status:   "pending",
     },
