@@ -1,8 +1,14 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiResponse, apiError } from "@/lib/utils";
+import { getSessionFromCookies } from "@/lib/auth";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSessionFromCookies();
+  if (!session || session.role !== "ADMIN") {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
   const { id } = await params;
   const orderId = Number(id);
   if (isNaN(orderId)) return apiError("ID inválido", 400);

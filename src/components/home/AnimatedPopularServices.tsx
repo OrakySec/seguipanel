@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { SocialIcon } from "@/components/ui/SocialIcon";
+import { stripHtml } from "@/lib/utils";
 
 // Gera um número de vendas "dessa semana" pseudo-aleatório mas estável por serviço
 function weeklySales(seed: number) {
@@ -74,7 +75,7 @@ export function AnimatedPopularServices({ services }: { services: any[] }) {
                   <h3 className="font-bold text-gray-900 leading-tight mb-3 text-base tracking-tight">{s.name}</h3>
                   <div
                     className="text-xs text-gray-400 leading-relaxed flex-1 font-medium italic prose prose-sm prose-p:my-0"
-                    dangerouslySetInnerHTML={{ __html: `"${s.description}"` }}
+                    dangerouslySetInnerHTML={{ __html: `"${stripHtml(s.description)}"` }}
                   />
 
                   <div className="flex flex-wrap gap-2 mt-4 mb-5">

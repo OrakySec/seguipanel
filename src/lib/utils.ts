@@ -69,6 +69,15 @@ export function apiResponse<T>(
   );
 }
 
+/**
+ * Remove todas as tags HTML de uma string, retornando texto puro.
+ * Usado antes de dangerouslySetInnerHTML para evitar XSS.
+ */
+export function stripHtml(html: string): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
 export function apiError(message: string, status = 400): Response {
   return Response.json(
     {

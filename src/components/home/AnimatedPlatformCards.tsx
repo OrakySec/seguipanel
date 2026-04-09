@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { SocialIcon } from "@/components/ui/SocialIcon";
+import { stripHtml } from "@/lib/utils";
 
 export function AnimatedPlatformCards({ platforms }: { platforms: any[] }) {
   if (platforms.length === 0) return null;
@@ -47,7 +48,7 @@ export function AnimatedPlatformCards({ platforms }: { platforms: any[] }) {
                   <h3 className="font-bold text-gray-900 mb-1.5 text-base">{p.name}</h3>
                   <div 
                     className="text-[11px] text-gray-500 leading-relaxed flex-1 font-medium prose prose-sm prose-p:my-0"
-                    dangerouslySetInnerHTML={{ __html: p.description || "Planos reais e seguros." }}
+                    dangerouslySetInnerHTML={{ __html: stripHtml(p.description || "Planos reais e seguros.") }}
                   />
                   <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">A partir de</span>

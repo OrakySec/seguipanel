@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionFromCookies } from "@/lib/auth";
 
 // Rota one-time para recalcular originalPrice de todos os serviços
 // originalPrice = price / (1 - discount/100)
 export async function POST() {
+  const session = await getSessionFromCookies();
+  if (!session || session.role !== "ADMIN") {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
   try {
     const services = await prisma.service.findMany({
       select: { id: true, price: true, discount: true },

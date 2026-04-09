@@ -94,6 +94,6 @@ export async function GET(
   return apiResponse({
     status: transaction.status,
     orderId: transaction.orderId,
-    _debug,
+    ...(process.env.NODE_ENV !== "production" && { _debug }),
   });
 }

@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("Erro ao salvar settings:", error);
     return NextResponse.json(
-      { error: "Erro interno ao salvar configurações", details: error.message },
+      { error: "Erro interno ao salvar configurações" },
       { status: 500 }
     );
   }
