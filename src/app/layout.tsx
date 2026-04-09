@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Plus_Jakarta_Sans, Pacifico } from "next/font/google";
 import "./globals.css";
+import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -138,6 +139,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        <WhatsAppButton />
       </body>
     </html>
   );
