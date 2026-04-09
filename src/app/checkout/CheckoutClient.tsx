@@ -389,44 +389,6 @@ export default function CheckoutClient() {
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="lg:col-span-3 flex flex-col gap-6">
 
-            {/* Dados pessoais */}
-            <section className="bg-white rounded-2xl border border-border shadow-card p-5">
-              <h2 className="font-semibold text-gray-900 mb-4">Seus dados</h2>
-              <div className="flex flex-col gap-4">
-                <Field label="E-mail *" error={errors.email}>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="seu@email.com"
-                    className={inputClass(!!errors.email)}
-                    autoComplete="email"
-                  />
-                </Field>
-                <Field label="WhatsApp *" hint="Digite os 11 dígitos (DDD + Número)" error={errors.whatsapp}>
-                  <input
-                    type="tel"
-                    value={whatsapp}
-                    onChange={(e) => {
-                      let v = e.target.value.replace(/\D/g, "");
-                      if (v.length > 11) v = v.slice(0, 11);
-                      let f = v;
-                      if (v.length > 2) f = `(${v.slice(0, 2)}) ${v.slice(2)}`;
-                      if (v.length > 7) {
-                        if (v.length <= 10) f = `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
-                        else f = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
-                      }
-                      setWhatsapp(f);
-                    }}
-                    placeholder="(11) 99999-9999"
-                    className={inputClass(!!errors.whatsapp)}
-                    autoComplete="tel"
-                    maxLength={15}
-                  />
-                </Field>
-              </div>
-            </section>
-
             {/* Link / @ do perfil */}
             <section className="bg-white rounded-2xl border border-border shadow-card p-5">
               <h2 className="font-semibold text-gray-900 mb-1">{requiredFieldRaw} ({service.platform})</h2>
@@ -470,6 +432,44 @@ export default function CheckoutClient() {
                   </a>
                 </div>
               )}
+            </section>
+
+            {/* Dados pessoais */}
+            <section className="bg-white rounded-2xl border border-border shadow-card p-5">
+              <h2 className="font-semibold text-gray-900 mb-4">Seus dados</h2>
+              <div className="flex flex-col gap-4">
+                <Field label="E-mail *" error={errors.email}>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="seu@email.com"
+                    className={inputClass(!!errors.email)}
+                    autoComplete="email"
+                  />
+                </Field>
+                <Field label="WhatsApp *" hint="Digite os 11 dígitos (DDD + Número)" error={errors.whatsapp}>
+                  <input
+                    type="tel"
+                    value={whatsapp}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/\D/g, "");
+                      if (v.length > 11) v = v.slice(0, 11);
+                      let f = v;
+                      if (v.length > 2) f = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+                      if (v.length > 7) {
+                        if (v.length <= 10) f = `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+                        else f = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+                      }
+                      setWhatsapp(f);
+                    }}
+                    placeholder="(11) 99999-9999"
+                    className={inputClass(!!errors.whatsapp)}
+                    autoComplete="tel"
+                    maxLength={15}
+                  />
+                </Field>
+              </div>
             </section>
 
             {/* Cupom */}
