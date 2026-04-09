@@ -85,6 +85,27 @@ services:
       restart_policy:
         condition: on-failure
 
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Cron – dispara process-orders (5min) e check-status (3min)
+  # ──────────────────────────────────────────────────────────────────────────────
+  cron:
+    image: alpine:3.19
+    entrypoint:
+      - sh
+      - -c
+      - |
+        apk add --no-cache curl -q
+        printf '*/5 * * * * curl -sf -X POST http://app:3000/api/cron/process-orders -H "Authorization: Bearer '"$$CRON_SECRET"'" -o /dev/null\n*/3 * * * * curl -sf -X POST http://app:3000/api/cron/check-status -H "Authorization: Bearer '"$$CRON_SECRET"'" -o /dev/null\n' > /etc/crontabs/root
+        crond -f -l 6
+    environment:
+      CRON_SECRET: "${CRON_SECRET}"
+    networks:
+      - internal
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
 networks:
   YkaroNET:
     external: true

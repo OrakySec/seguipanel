@@ -20,6 +20,7 @@ export default async function AdminOrdersPage() {
     charge: Number(o.charge),
     createdAt: o.createdAt.toISOString(),
     updatedAt: o.updatedAt.toISOString(),
+    lastStatusCheckAt: o.lastStatusCheckAt ? o.lastStatusCheckAt.toISOString() : null,
   }));
 
   return (

@@ -1,35 +1,184 @@
 "use client";
 
 import React, { useState } from "react";
-import { Trash2, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import { Trash2, Eye, X, RefreshCw, ExternalLink } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { deleteOrder } from "@/app/admin/usuarios/actions";
 import { formatBRL, formatDate } from "@/lib/utils";
 
 const getStatusStyle = (status: string) => {
   switch (status) {
-    case "completed": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+    case "completed":  return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
     case "processing": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
-    case "pending": return "bg-amber-500/10 text-amber-500 border-amber-500/20";
-    case "canceled": return "bg-red-500/10 text-red-500 border-red-500/20";
-    default: return "bg-zinc-500/10 text-zinc-500 border-zinc-500/20";
+    case "pending":    return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+    case "canceled":   return "bg-red-500/10 text-red-500 border-red-500/20";
+    case "inprogress": return "bg-cyan-500/10 text-cyan-500 border-cyan-500/20";
+    case "partial":    return "bg-orange-500/10 text-orange-500 border-orange-500/20";
+    default:           return "bg-zinc-500/10 text-zinc-500 border-zinc-500/20";
   }
 };
 
 const statusMap: Record<string, string> = {
-  pending: "Pendente",
+  pending:    "Pendente",
   processing: "Processando",
   inprogress: "Em Andamento",
-  completed: "Concluído",
-  partial: "Parcial",
-  canceled: "Cancelado",
-  refunded: "Reembolsado"
+  completed:  "Concluído",
+  partial:    "Parcial",
+  canceled:   "Cancelado",
+  refunded:   "Reembolsado",
 };
 
+/* ─────────────────────────────────────────────────────── Modal ── */
+function OrderDetailModal({ order, onClose }: { order: any; onClose: () => void }) {
+  const [apiData, setApiData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [checked, setChecked] = useState(false);
+
+  const checkApi = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/order-api-status/${order.id}`);
+      const data = await res.json();
+      setApiData(data);
+    } catch {
+      setApiData({ message: "Erro ao conectar com a API" });
+    } finally {
+      setLoading(false);
+      setChecked(true);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Card */}
+      <div className="relative bg-card rounded-3xl border border-border shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-border">
+          <div>
+            <h2 className="text-lg font-black text-foreground tracking-tight">Pedido #{order.id}</h2>
+            <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-0.5">{formatDate(order.createdAt)}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(order.status)}`}>
+              {statusMap[order.status] || order.status}
+            </span>
+            <button
+              onClick={onClose}
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface hover:bg-border transition-colors"
+            >
+              <X size={16} className="text-muted" />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="overflow-y-auto flex-1 p-6 space-y-5">
+
+          {/* Cliente */}
+          <Section title="Cliente">
+            <Row label="E-mail"    value={order.user?.email ?? "—"} />
+            <Row label="WhatsApp"  value={order.user?.whatsapp ?? "—"} />
+          </Section>
+
+          {/* Serviço */}
+          <Section title="Serviço">
+            <Row label="Nome"       value={order.service?.name ?? "—"} />
+            <Row label="Rede"       value={order.service?.category?.socialNetwork?.name ?? "—"} />
+            <Row label="Link"       value={order.link ?? "—"} mono />
+            <Row label="Quantidade" value={order.quantity ?? "—"} />
+            <Row label="Valor"      value={formatBRL(Number(order.charge))} />
+          </Section>
+
+          {/* Fornecedor */}
+          <Section title="Fornecedor / API">
+            <Row label="Tipo"           value={order.type ?? "—"} />
+            <Row label="Provider ID"    value={order.apiProviderId ?? "Não definido"} />
+            <Row label="Service ID"     value={order.apiServiceId ?? "Não definido"} />
+            <Row label="Order ID (API)" value={order.apiOrderId === 0 ? "⚠ Ainda não enviado" : String(order.apiOrderId)} highlight={order.apiOrderId === 0} />
+            {order.remains   != null && <Row label="Restam"       value={String(order.remains)} />}
+            {order.startCounter != null && <Row label="Início"    value={String(order.startCounter)} />}
+            {order.lastStatusCheckAt && <Row label="Último check" value={formatDate(order.lastStatusCheckAt)} />}
+          </Section>
+
+          {/* Resposta da API */}
+          <Section title="Resposta do Fornecedor">
+            {!checked ? (
+              <button
+                onClick={checkApi}
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-border text-sm font-bold text-muted hover:text-primary hover:border-primary/30 transition-all"
+              >
+                {loading ? (
+                  <RefreshCw size={15} className="animate-spin" />
+                ) : (
+                  <ExternalLink size={15} />
+                )}
+                {loading ? "Consultando fornecedor…" : "Consultar status na API do fornecedor"}
+              </button>
+            ) : (
+              <div className="space-y-3">
+                {apiData?.message && (
+                  <p className="text-xs text-muted font-medium bg-surface rounded-xl px-4 py-3 border border-border">
+                    {apiData.message}
+                  </p>
+                )}
+                {apiData?.providerName && (
+                  <p className="text-[10px] font-bold text-muted uppercase tracking-widest">
+                    Fornecedor: {apiData.providerName}
+                  </p>
+                )}
+                {apiData?.providerResponse && (
+                  <pre className="text-xs font-mono bg-surface rounded-2xl border border-border px-4 py-3 overflow-x-auto text-foreground whitespace-pre-wrap break-all">
+                    {JSON.stringify(apiData.providerResponse, null, 2)}
+                  </pre>
+                )}
+                <button
+                  onClick={checkApi}
+                  disabled={loading}
+                  className="flex items-center gap-1.5 text-[10px] font-black text-muted hover:text-primary uppercase tracking-widest transition-colors"
+                >
+                  <RefreshCw size={11} className={loading ? "animate-spin" : ""} />
+                  Atualizar
+                </button>
+              </div>
+            )}
+          </Section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-[9px] font-black uppercase tracking-widest text-muted mb-2">{title}</p>
+      <div className="bg-surface rounded-2xl border border-border divide-y divide-border overflow-hidden">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value, mono, highlight }: { label: string; value: string; mono?: boolean; highlight?: boolean }) {
+  return (
+    <div className="flex items-start justify-between gap-4 px-4 py-2.5">
+      <span className="text-[10px] font-bold text-muted uppercase tracking-wider whitespace-nowrap">{label}</span>
+      <span className={`text-xs font-semibold text-right break-all ${mono ? "font-mono" : ""} ${highlight ? "text-amber-500" : "text-foreground"}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────── Table ── */
 export default function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
   const { toast } = useToast();
   const [orders, setOrders] = useState(initialOrders);
+  const [selected, setSelected] = useState<any>(null);
 
   const handleDelete = async (id: number) => {
     if (!confirm(`Excluir permanentemente o pedido #${id}?`)) return;
@@ -99,16 +248,25 @@ export default function OrdersClient({ initialOrders }: { initialOrders: any[] }
               >
                 <Trash2 size={16} />
               </button>
-              <Link
-                href={`/admin/pedidos/${order.id}`}
+              <button
+                onClick={() => setSelected(order)}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border text-muted hover:text-primary hover:bg-card transition-all shadow-sm group-hover:scale-105"
+                title="Ver detalhes"
               >
-                <ArrowUpRight size={18} />
-              </Link>
+                <Eye size={18} />
+              </button>
             </div>
           </td>
         </tr>
       ))}
+
+      {selected && (
+        <tr>
+          <td>
+            <OrderDetailModal order={selected} onClose={() => setSelected(null)} />
+          </td>
+        </tr>
+      )}
     </>
   );
 }
