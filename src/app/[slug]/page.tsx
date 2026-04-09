@@ -127,9 +127,14 @@ export default async function PlatformPage({ params }: Props) {
                   )}
                   
                   <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 mb-4 text-base md:text-lg leading-tight">
+                    <h3 className="font-bold text-gray-900 mb-2 text-base md:text-lg leading-tight">
                       {service.name}
                     </h3>
+                    {service.quantity && (
+                      <p className="text-xs font-semibold text-primary mb-3">
+                        {Number(service.quantity).toLocaleString("pt-BR")} entregues
+                      </p>
+                    )}
                   </div>
 
                   <div className="pt-6 border-t border-gray-50">
