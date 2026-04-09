@@ -18,6 +18,7 @@ import {
   Upload,
   MessageCircle,
   X,
+  Gift,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { updateSettings, upsertApiProvider, deleteApiProvider, getProviderBalance, uploadLogo } from "@/app/admin/configuracoes/actions";
@@ -143,13 +144,14 @@ export default function SettingsClient({
   };
 
   const tabs = [
-    { id: "geral", label: "Identidade", icon: Globe, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { id: "pagamentos", label: "Pagamentos", icon: CreditCard, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-    { id: "provedores", label: "Provedores API", icon: Server, color: "text-purple-500", bg: "bg-purple-500/10" },
-    { id: "marketing", label: "Marketing", icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
-    { id: "email", label: "E-mail (SMTP)", icon: Mail, color: "text-amber-500", bg: "bg-amber-500/10" },
-    { id: "social", label: "Social & Links", icon: Share2, color: "text-pink-500", bg: "bg-pink-500/10" },
-    { id: "whatsapp", label: "Respostas Auto.", icon: MessageCircle, color: "text-green-500", bg: "bg-green-500/10" },
+    { id: "geral",    label: "Identidade",          icon: Globe,          color: "text-blue-500",    bg: "bg-blue-500/10"    },
+    { id: "config",   label: "Config. Gerais",       icon: Gift,           color: "text-violet-500",  bg: "bg-violet-500/10"  },
+    { id: "pagamentos",label: "Pagamentos",          icon: CreditCard,     color: "text-emerald-500", bg: "bg-emerald-500/10" },
+    { id: "provedores",label: "Provedores API",      icon: Server,         color: "text-purple-500",  bg: "bg-purple-500/10"  },
+    { id: "marketing", label: "Marketing",           icon: TrendingUp,     color: "text-primary",     bg: "bg-primary/10"     },
+    { id: "email",     label: "E-mail (SMTP)",       icon: Mail,           color: "text-amber-500",   bg: "bg-amber-500/10"   },
+    { id: "social",    label: "Social & Links",      icon: Share2,         color: "text-pink-500",    bg: "bg-pink-500/10"    },
+    { id: "whatsapp",  label: "Respostas Auto.",     icon: MessageCircle,  color: "text-green-500",   bg: "bg-green-500/10"   },
   ];
 
   return (
@@ -399,6 +401,47 @@ export default function SettingsClient({
                         <SettingField label="Instagram" name="social_instagram_link" value={settings.social_instagram_link} onChange={handleChange} full />
                         <SettingField label="WhatsApp Suporte" name="social_whatsapp_link" value={settings.social_whatsapp_link} onChange={handleChange} full />
                     </div>
+                </motion.div>
+              )}
+
+              {activeTab === "config" && (
+                <motion.div key="config" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="p-10 space-y-10">
+                  <TabHeader icon={Gift} title="Configurações Gerais" />
+
+                  {/* Over-delivery */}
+                  <div className="space-y-6">
+                    <div className="p-6 bg-violet-500/5 rounded-2xl border border-violet-500/20 flex gap-4">
+                      <Gift size={22} className="text-violet-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-black text-foreground mb-1">Over-delivery (Bônus automático)</p>
+                        <p className="text-[12px] text-muted font-medium leading-relaxed">
+                          Percentual extra entregue além do que o cliente comprou.<br />
+                          Exemplo: cliente compra <strong>1.000 seguidores</strong> com <strong>10%</strong> → recebe <strong>1.100</strong>. Deixe em <strong>0</strong> para desativar.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="max-w-xs">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Percentual de Bônus (%)</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={settings.overdelivery_percentage || "0"}
+                          onChange={(e) => handleChange("overdelivery_percentage", e.target.value)}
+                          className="w-full h-14 px-6 pr-12 bg-surface rounded-2xl border border-transparent focus:border-primary/20 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-black text-sm"
+                        />
+                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-sm font-black text-muted">%</span>
+                      </div>
+                      <p className="text-[11px] text-muted font-medium mt-2 px-1">
+                        {Number(settings.overdelivery_percentage) > 0
+                          ? `✓ Clientes receberão ${settings.overdelivery_percentage}% a mais do que compraram.`
+                          : "Over-delivery desativado."}
+                      </p>
+                    </div>
+                  </div>
                 </motion.div>
               )}
 

@@ -41,6 +41,7 @@ export default function ServicesClient({
   const [bulkApiServiceId, setBulkApiServiceId] = useState("");
 
   const [isRecalculating, setIsRecalculating] = useState(false);
+  const [isSyncingQty, setIsSyncingQty] = useState(false);
 
   const handleRecalculatePrices = async () => {
     if (!confirm("Recalcular o preço original de todos os serviços com base no preço atual + desconto?")) return;
@@ -194,6 +195,24 @@ export default function ServicesClient({
           >
             <RefreshCw size={16} className={isRecalculating ? "animate-spin" : ""} />
             {isRecalculating ? "Recalculando..." : "Atualizar Preços Cortados"}
+          </button>
+          <button
+            onClick={async () => {
+              if (!confirm("Preencher automaticamente a quantidade dos serviços que ainda não têm quantidade definida, baseado no nome? Ex: '1000 Seguidores' → 1000")) return;
+              setIsSyncingQty(true);
+              try {
+                const res = await fetch("/api/admin/sync-quantities", { method: "POST" });
+                const data = await res.json();
+                if (data.ok) { toast("success", `${data.updated} serviços atualizados!`); window.location.reload(); }
+                else toast("error", "Erro ao sincronizar quantidades");
+              } catch { toast("error", "Erro ao sincronizar quantidades"); }
+              finally { setIsSyncingQty(false); }
+            }}
+            disabled={isSyncingQty}
+            className="flex items-center gap-2 px-5 py-3 bg-white border border-violet-200 text-violet-600 rounded-2xl text-xs font-black shadow-sm hover:bg-violet-50 transition-all active:scale-95 disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={isSyncingQty ? "animate-spin" : ""} />
+            {isSyncingQty ? "Sincronizando..." : "Sincronizar Quantidades"}
           </button>
         </div>
       </div>
