@@ -55,6 +55,7 @@ export default function ServiceForm({
     categoryId: "",
     description: "",
     discount: 0,
+    quantity: "",
     minOrder: 100,
     maxOrder: 10000,
     addType: "MANUAL",
@@ -64,6 +65,7 @@ export default function ServiceForm({
     ...initialData,
     // Se estiver editando, Price e Decimal podem vir como objetos Prisma.Decimal
     price: initialData?.price ? Number(initialData.price) : "",
+    quantity: initialData?.quantity ?? "",
   });
 
   // Preço original calculado automaticamente: preço * (1 + desconto/100)
@@ -98,6 +100,7 @@ export default function ServiceForm({
       price: Number(formData.price),
       originalPrice: computedOriginalPrice ?? null,
       discount: Number(formData.discount),
+      quantity: formData.quantity !== "" ? String(formData.quantity) : null,
       addType: formData.addType,
       apiProviderId: formData.apiProviderId ? Number(formData.apiProviderId) : null,
       apiServiceId: formData.apiServiceId,
@@ -234,6 +237,19 @@ export default function ServiceForm({
                   value={formData.discount}
                   onChange={(e) => setFormData({...formData, discount: e.target.value})}
                 />
+              </div>
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-widest text-muted mb-2 ml-1">Quantidade Entregue</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="1"
+                    className="w-full h-12 px-4 bg-surface rounded-2xl border border-transparent focus:ring-2 focus:ring-primary/20 font-bold text-sm outline-none"
+                    placeholder="Ex: 1000"
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-widest text-muted mb-2 ml-1">Preço S/ Desconto (auto)</label>
