@@ -55,7 +55,6 @@ export default function ServiceForm({
     categoryId: "",
     description: "",
     discount: 0,
-    quantity: "",
     minOrder: 100,
     maxOrder: 10000,
     addType: "MANUAL",
