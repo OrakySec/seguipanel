@@ -140,13 +140,19 @@ export async function deleteService(id: number) {
  * Ajuste de preços em massa (por porcentagem)
  */
 export async function bulkPriceAdjustment(
-  percentage: number, 
-  filters: { socialNetworkId?: number; categoryId?: number }
+  percentage: number,
+  filters: { socialNetworkId?: number; categoryId?: number },
+  serviceIds?: number[]
 ) {
   try {
     const where: any = {};
-    if (filters.socialNetworkId) where.category = { socialNetworkId: filters.socialNetworkId };
-    if (filters.categoryId) where.categoryId = filters.categoryId;
+    // Se vieram IDs selecionados, usa apenas eles — ignora filtro de rede
+    if (serviceIds && serviceIds.length > 0) {
+      where.id = { in: serviceIds };
+    } else {
+      if (filters.socialNetworkId) where.category = { socialNetworkId: filters.socialNetworkId };
+      if (filters.categoryId) where.categoryId = filters.categoryId;
+    }
 
     const services = await prisma.service.findMany({ where });
     

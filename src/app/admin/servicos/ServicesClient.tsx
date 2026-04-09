@@ -104,10 +104,17 @@ export default function ServicesClient({
   const handleBulkAdjustment = async () => {
     if (!bulkPercentage || isNaN(Number(bulkPercentage))) return;
 
-    if (confirm(`Ajustar preços em ${bulkPercentage}% para ${bulkNetworkId === 'all' ? 'todos os serviços' : 'a rede selecionada'}?`)) {
-      const result = await bulkPriceAdjustment(Number(bulkPercentage), {
-        socialNetworkId: bulkNetworkId === 'all' ? undefined : Number(bulkNetworkId)
-      });
+    const hasSelection = isSelectionMode && selectedServices.length > 0;
+    const target = hasSelection
+      ? `${selectedServices.length} serviço(s) selecionado(s)`
+      : bulkNetworkId === 'all' ? 'todos os serviços' : 'a rede selecionada';
+
+    if (confirm(`Ajustar preços em ${bulkPercentage}% para ${target}?`)) {
+      const result = await bulkPriceAdjustment(
+        Number(bulkPercentage),
+        { socialNetworkId: bulkNetworkId === 'all' ? undefined : Number(bulkNetworkId) },
+        hasSelection ? selectedServices : undefined
+      );
       if (result.success) {
         toast("success", `${result.count} serviços atualizados!`);
         window.location.reload();
@@ -237,31 +244,42 @@ export default function ServicesClient({
               <div className="space-y-6">
                 <div>
                   <label className="block text-[11px] font-black uppercase tracking-widest text-muted mb-2 ml-1">Porcentagem (%)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     placeholder="Ex: 10 para aumentar, -5 para baixar"
                     className="w-full h-14 px-6 bg-surface rounded-2xl border border-transparent focus:ring-8 focus:ring-amber-500/5 font-black text-sm outline-none transition-all"
                     value={bulkPercentage}
                     onChange={(e) => setBulkPercentage(e.target.value)}
                   />
                 </div>
-                <div>
-                  <label className="block text-[11px] font-black uppercase tracking-widest text-muted mb-2 ml-1">Filtrar Rede</label>
-                  <CustomSelect 
-                    options={[
-                      { value: "all", label: "Todas as Redes" },
-                      ...socialNetworks.map(sn => ({ value: sn.id, label: sn.name }))
-                    ]}
-                    value={bulkNetworkId}
-                    onChange={(val) => setBulkNetworkId(val)}
-                  />
-                </div>
-                
-                <div className="p-4 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-900/30 flex gap-3">
-                    <AlertCircle size={20} className="text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
-                    <p className="text-[11px] font-medium text-amber-700 dark:text-amber-200/70 leading-relaxed">
-                        Esta ação atualizará o preço de todos os serviços selecionados permanentemente. Use com cautela.
-                    </p>
+
+                {/* Filtro de rede só aparece quando NÃO há seleção manual */}
+                {!(isSelectionMode && selectedServices.length > 0) && (
+                  <div>
+                    <label className="block text-[11px] font-black uppercase tracking-widest text-muted mb-2 ml-1">Filtrar Rede</label>
+                    <CustomSelect
+                      options={[
+                        { value: "all", label: "Todas as Redes" },
+                        ...socialNetworks.map(sn => ({ value: sn.id, label: sn.name }))
+                      ]}
+                      value={bulkNetworkId}
+                      onChange={(val) => setBulkNetworkId(val)}
+                    />
+                  </div>
+                )}
+
+                <div className={`p-4 rounded-2xl border flex gap-3 ${
+                  isSelectionMode && selectedServices.length > 0
+                    ? "bg-primary/5 border-primary/20"
+                    : "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/30"
+                }`}>
+                  <AlertCircle size={20} className={`shrink-0 mt-0.5 ${isSelectionMode && selectedServices.length > 0 ? "text-primary" : "text-amber-600 dark:text-amber-500"}`} />
+                  <p className={`text-[11px] font-medium leading-relaxed ${isSelectionMode && selectedServices.length > 0 ? "text-foreground" : "text-amber-700 dark:text-amber-200/70"}`}>
+                    {isSelectionMode && selectedServices.length > 0
+                      ? <>Será aplicado apenas nos <strong>{selectedServices.length} serviços selecionados</strong>.</>
+                      : "Esta ação atualizará o preço de todos os serviços do filtro permanentemente. Use com cautela."
+                    }
+                  </p>
                 </div>
 
                 <div className="flex gap-4 pt-4">
