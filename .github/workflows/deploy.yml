@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    # Ignora commits feitos pelo próprio CI para evitar loop infinito
+    paths-ignore:
+      - 'docker-compose.yml'
 
 env:
   REGISTRY: ghcr.io
@@ -14,7 +17,7 @@ jobs:
     name: Build e publicar imagem
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     outputs:
       sha_tag: ${{ steps.sha.outputs.tag }}
@@ -22,6 +25,8 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Gerar tag SHA curta
         id: sha
@@ -55,6 +60,15 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Atualizar docker-compose.yml com tag SHA
+        run: |
+          sed -i "s|image: ghcr.io/orakysec/seguipanel:.*|image: ghcr.io/orakysec/seguipanel:${{ steps.sha.outputs.tag }}|" docker-compose.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docker-compose.yml
+          git commit -m "ci: update image tag to ${{ steps.sha.outputs.tag }} [skip ci]"
+          git push
 
   deploy:
     name: Redeploy no VPS via SSH
