@@ -2,13 +2,29 @@ export const dynamic = "force-dynamic";
 
 import React from "react";
 import { prisma } from "@/lib/prisma";
-import { Package, Search, Filter } from "lucide-react";
+import { Package, Filter } from "lucide-react";
 import OrdersClient from "./OrdersClient";
+import SearchBar from "./SearchBar";
 
-export default async function AdminOrdersPage() {
+export default async function AdminOrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const term = q?.trim() ?? "";
+
+  const numId = term !== "" ? parseInt(term) : NaN;
+  const where = term
+    ? !isNaN(numId)
+      ? { id: numId }
+      : { user: { email: { contains: term, mode: "insensitive" as const } } }
+    : {};
+
   const orders = await prisma.order.findMany({
     take: 50,
     orderBy: { createdAt: "desc" },
+    where,
     include: {
       service: { select: { name: true, category: { select: { socialNetwork: { select: { name: true } } } } } },
       user: { select: { email: true, whatsapp: true } }
@@ -35,14 +51,7 @@ export default async function AdminOrdersPage() {
           </p>
         </div>
         <div className="flex gap-3">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-              <input 
-                type="text" 
-                placeholder="Buscar pedido #ID..."
-                className="pl-12 pr-4 h-12 bg-card border border-border rounded-2xl text-sm focus:ring-4 focus:ring-primary/5 outline-none transition-all w-64 font-bold"
-              />
-            </div>
+            <SearchBar />
             <button className="h-12 px-6 bg-card border border-border rounded-2xl text-muted hover:text-foreground transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest shadow-sm">
                <Filter size={16} /> Filtros
             </button>
@@ -71,7 +80,9 @@ export default async function AdminOrdersPage() {
         
         {/* Paginação */}
         <div className="px-10 py-8 bg-surface/30 border-t border-border flex items-center justify-between">
-           <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-60">Exibindo {orders.length} resultados recentes</p>
+           <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-60">
+             {term ? `${orders.length} resultado${orders.length !== 1 ? "s" : ""} para "${term}"` : `Exibindo ${orders.length} resultados recentes`}
+           </p>
            <div className="flex gap-3">
               <button disabled className="h-11 px-6 rounded-2xl border border-border text-[10px] font-black uppercase tracking-widest text-muted opacity-50 cursor-not-allowed">Anterior</button>
               <button className="h-11 px-6 rounded-2xl bg-card border border-border text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-surface transition-all shadow-sm">Próximo</button>
