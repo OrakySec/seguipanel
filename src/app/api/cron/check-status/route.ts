@@ -2,9 +2,9 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSetting } from "@/lib/settings";
 import { apiResponse, apiError } from "@/lib/utils";
-import { sendOrderCompletedEmail, sendOrderFailedEmail } from "@/lib/email";
+import { sendOrderCompletedEmail, sendOrderFailedEmail, sendOrderPartialEmail } from "@/lib/email";
 
-const ACTIVE_STATUSES = ["pending", "processing", "inprogress", "active", "partial"];
+const ACTIVE_STATUSES = ["pending", "processing", "inprogress", "active"];
 const MAX_BATCH       = 100;
 const COOLDOWN_MS     = 3 * 60 * 1000; // 3 minutos
 
@@ -167,6 +167,68 @@ export async function POST(req: NextRequest) {
                 sendOrderFailedEmail(user.email, order).catch((e) =>
                   console.error("[CRON:check-status] email canceled:", e)
                 );
+              }
+            }
+
+            if (newStatus === "partial") {
+              const qty            = Number(order.quantity) || 0;
+              const rem            = Number(entry.remains ?? 0);
+              const delivered      = Math.max(0, qty - rem);
+              const deliveredRatio = qty > 0 ? delivered / qty : 0;
+
+              if (deliveredRatio <= 0.05) {
+                /* ─── ≤ 5% entregue: reembolso total (igual ao cancelamento) ─── */
+                const txLog = await prisma.transactionLog.findFirst({
+                  where: { orderId: order.id },
+                });
+
+                if (txLog) {
+                  const apiToken = await getSetting("api_token_pushinpay");
+                  const baseUrl  = (await getSetting("pushinpay_base_url")) ?? "https://api.pushinpay.com.br";
+
+                  try {
+                    const refundRes = await fetch(
+                      `${baseUrl}/api/transactions/${txLog.transactionId}/refund`,
+                      {
+                        method: "POST",
+                        headers: {
+                          Authorization:  `Bearer ${apiToken}`,
+                          Accept:         "application/json",
+                          "Content-Type": "application/json",
+                        },
+                      }
+                    );
+                    const refundData = await refundRes.json() as Record<string, unknown>;
+
+                    await prisma.transactionLog.update({
+                      where: { id: txLog.id },
+                      data: {
+                        refundStatus:   refundRes.ok ? 1 : 2,
+                        refundDate:     refundRes.ok ? new Date() : undefined,
+                        refundResponse: JSON.stringify(refundData),
+                      },
+                    });
+
+                    console.log(`[CRON:check-status] Partial→full refund order #${order.id} (delivered ${(deliveredRatio * 100).toFixed(1)}% ≤ 5%)`);
+                  } catch (err) {
+                    console.error(`[CRON:check-status] Partial refund order #${order.id}:`, err);
+                  }
+                }
+
+                if (user?.email) {
+                  sendOrderFailedEmail(user.email, order).catch((e) =>
+                    console.error("[CRON:check-status] email partial-refund:", e)
+                  );
+                }
+              } else {
+                /* ─── > 5% entregue: sem reembolso, apenas notificação ─── */
+                console.log(`[CRON:check-status] Partial no-refund order #${order.id} (delivered ${(deliveredRatio * 100).toFixed(1)}% > 5%)`);
+
+                if (user?.email) {
+                  sendOrderPartialEmail(user.email, order).catch((e) =>
+                    console.error("[CRON:check-status] email partial-no-refund:", e)
+                  );
+                }
               }
             }
           }

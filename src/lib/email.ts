@@ -140,6 +140,24 @@ function orderFailedHtml(order: OrderLike, siteName: string) {
   return layout(`Atenção ao seu pedido — ${siteName}`, body, siteName);
 }
 
+/* ─── Template: Pedido parcial (> 5% entregue, sem reembolso) ─── */
+function orderPartialHtml(order: OrderLike, siteName: string) {
+  const body = `
+    <p style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111111;">Pedido entregue parcialmente</p>
+    <p style="margin:0 0 24px;font-size:15px;color:#555555;">
+      Seu pedido <strong>#${order.id}</strong> foi processado parcialmente pelo fornecedor.
+      Uma parte significativa da entrega foi concluída.
+    </p>
+    <p style="margin:0 0 16px;font-size:15px;color:#555555;">
+      Isso pode acontecer quando o perfil está com configurações de privacidade que limitam a entrega.
+      Verifique se o seu perfil está público e entre em contato com nosso suporte se precisar de ajuda.
+    </p>
+    <p style="margin:0;font-size:13px;color:#888888;">
+      Fale conosco via WhatsApp para mais informações.
+    </p>`;
+  return layout(`Pedido #${order.id} — entrega parcial — ${siteName}`, body, siteName);
+}
+
 /* ─── Funções públicas ─── */
 export async function sendOrderConfirmedEmail(
   to: string,
@@ -161,4 +179,10 @@ export async function sendOrderFailedEmail(to: string, order: OrderLike) {
   const siteName = await getSetting("site_name", "SeguiFacil");
   const html = orderFailedHtml(order, siteName);
   await sendEmail(to, `⚠️ Problema no pedido #${order.id} — ${siteName}`, html);
+}
+
+export async function sendOrderPartialEmail(to: string, order: OrderLike) {
+  const siteName = await getSetting("site_name", "SeguiFacil");
+  const html = orderPartialHtml(order, siteName);
+  await sendEmail(to, `⚠️ Pedido #${order.id} entregue parcialmente — ${siteName}`, html);
 }
