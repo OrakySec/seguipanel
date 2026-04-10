@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { Package, Filter } from "lucide-react";
 import OrdersClient from "./OrdersClient";
@@ -51,7 +51,13 @@ export default async function AdminOrdersPage({
           </p>
         </div>
         <div className="flex gap-3">
-            <SearchBar />
+            <Suspense fallback={
+              <div className="relative">
+                <div className="pl-12 pr-4 h-12 bg-card border border-border rounded-2xl w-72" />
+              </div>
+            }>
+              <SearchBar />
+            </Suspense>
             <button className="h-12 px-6 bg-card border border-border rounded-2xl text-muted hover:text-foreground transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest shadow-sm">
                <Filter size={16} /> Filtros
             </button>
