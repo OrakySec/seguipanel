@@ -60,6 +60,7 @@ export default function SettingsClient({
     parseFlow(initialSettings.evolution_msg_order_confirmed)
   );
   const [isFlowModalOpen, setIsFlowModalOpen] = useState(false);
+  const [emailModal, setEmailModal] = useState<string | null>(null);
 
   // Estados para Modal de Provedor
   const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
@@ -391,6 +392,41 @@ export default function SettingsClient({
                         <SettingField label="Username" name="smtp_username" value={settings.smtp_username} onChange={handleChange} />
                         <SettingField label="Security Key" name="smtp_password" type="password" value={settings.smtp_password} onChange={handleChange} />
                     </div>
+
+                    {/* Templates de E-mail */}
+                    <div className="space-y-4 pt-6 border-t border-border/50">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted">Templates de E-mail</p>
+                      <p className="text-xs text-muted font-medium -mt-2">Personalize o assunto e o corpo HTML de cada e-mail automático. Se deixar em branco, o template padrão é usado.</p>
+                      <div className="space-y-3">
+                        {EMAIL_TEMPLATES.map((tpl) => {
+                          const hasCustom = !!(settings[`email_${tpl.key}_body`] || settings[`email_${tpl.key}_subject`]);
+                          return (
+                            <button
+                              key={tpl.key}
+                              type="button"
+                              onClick={() => setEmailModal(tpl.key)}
+                              className="w-full flex items-center justify-between p-6 bg-surface rounded-[2rem] border border-border hover:bg-surface/70 hover:border-amber-500/30 transition-all group text-left"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 text-lg group-hover:scale-110 transition-transform">
+                                  {tpl.icon}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-black text-foreground">{tpl.label}</p>
+                                  <p className="text-[10px] font-bold text-muted uppercase tracking-widest mt-0.5">{tpl.description}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${hasCustom ? "bg-amber-500/10 text-amber-500" : "bg-surface text-muted border border-border"}`}>
+                                  {hasCustom ? "Personalizado" : "Padrão"}
+                                </span>
+                                <Edit size={15} className="text-muted group-hover:text-foreground transition-colors" />
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                 </motion.div>
               )}
 
@@ -657,9 +693,124 @@ export default function SettingsClient({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Modal — Template de E-mail */}
+      <AnimatePresence>
+        {emailModal && (() => {
+          const tpl = EMAIL_TEMPLATES.find(t => t.key === emailModal)!;
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEmailModal(null)} className="absolute inset-0 bg-background/80 backdrop-blur-md" />
+              <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-3xl bg-card rounded-[2.5rem] p-10 shadow-2xl border border-border max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-2xl flex items-center justify-center">{tpl.icon}</div>
+                    <div>
+                      <h2 className="text-xl font-black text-foreground tracking-tighter">{tpl.label}</h2>
+                      <p className="text-[10px] font-bold text-muted uppercase tracking-widest">{tpl.description}</p>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => setEmailModal(null)} className="p-3 rounded-2xl text-muted hover:text-foreground hover:bg-surface transition-all">
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Assunto */}
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Assunto (título do e-mail)</label>
+                    <input
+                      type="text"
+                      placeholder={tpl.defaultSubject}
+                      value={settings[`email_${tpl.key}_subject`] || ""}
+                      onChange={(e) => handleChange(`email_${tpl.key}_subject`, e.target.value)}
+                      className="w-full h-14 px-6 bg-surface rounded-2xl border border-transparent focus:border-primary/20 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-bold text-sm"
+                    />
+                  </div>
+
+                  {/* Corpo HTML */}
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Corpo do e-mail (HTML completo)</label>
+                    <textarea
+                      rows={16}
+                      placeholder={`<!DOCTYPE html>\n<html>\n<body>\n  <h1>Pedido #{{orderId}} confirmado!</h1>\n  <p>Obrigado, {{siteName}}.</p>\n</body>\n</html>`}
+                      value={settings[`email_${tpl.key}_body`] || ""}
+                      onChange={(e) => handleChange(`email_${tpl.key}_body`, e.target.value)}
+                      className="w-full px-5 py-4 bg-surface rounded-2xl border border-transparent focus:border-primary/20 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-mono text-xs resize-y"
+                    />
+                    <p className="text-[10px] text-muted mt-2 ml-1">Aceita HTML completo. Se deixar em branco, o template padrão do sistema é usado.</p>
+                  </div>
+
+                  {/* Variáveis */}
+                  <div className="p-5 bg-surface rounded-2xl border border-border/50">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-3">Variáveis disponíveis</p>
+                    <div className="flex flex-wrap gap-2">
+                      {tpl.vars.map((v) => (
+                        <code key={v} className="px-3 py-1 bg-card rounded-lg text-[11px] font-bold text-primary border border-border">{`{{${v}}}`}</code>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Limpar / Confirmar */}
+                  <div className="flex items-center justify-between pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleChange(`email_${tpl.key}_subject`, "");
+                        handleChange(`email_${tpl.key}_body`, "");
+                      }}
+                      className="px-5 py-3 text-[10px] font-black uppercase text-red-400 hover:text-red-500 transition-colors"
+                    >
+                      Limpar (usar padrão)
+                    </button>
+                    <button type="button" onClick={() => setEmailModal(null)} className="px-10 py-4 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-brand hover:opacity-90 transition-opacity">
+                      Confirmar
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }
+
+const EMAIL_TEMPLATES = [
+  {
+    key: "confirmed",
+    icon: "✅",
+    label: "Pedido Confirmado",
+    description: "Enviado após o pagamento ser aprovado",
+    defaultSubject: "✅ Pedido #{{orderId}} confirmado — {{siteName}}",
+    vars: ["orderId", "email", "link", "valor", "servico", "siteName"],
+  },
+  {
+    key: "completed",
+    icon: "🎉",
+    label: "Pedido Concluído",
+    description: "Enviado quando a entrega é finalizada com sucesso",
+    defaultSubject: "🎉 Pedido #{{orderId}} entregue — {{siteName}}",
+    vars: ["orderId", "link", "quantidade", "siteName"],
+  },
+  {
+    key: "failed",
+    icon: "⚠️",
+    label: "Problema na Entrega",
+    description: "Enviado quando o pedido é cancelado pelo fornecedor",
+    defaultSubject: "⚠️ Problema no pedido #{{orderId}} — {{siteName}}",
+    vars: ["orderId", "siteName"],
+  },
+  {
+    key: "partial",
+    icon: "📦",
+    label: "Entrega Parcial",
+    description: "Enviado quando o fornecedor entrega apenas parte do pedido",
+    defaultSubject: "⚠️ Pedido #{{orderId}} entregue parcialmente — {{siteName}}",
+    vars: ["orderId", "siteName"],
+  },
+];
 
 const TabHeader = ({ icon: Icon, title }: any) => (
     <div className="flex items-center gap-4">

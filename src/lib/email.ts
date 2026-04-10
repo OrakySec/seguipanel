@@ -158,31 +158,98 @@ function orderPartialHtml(order: OrderLike, siteName: string) {
   return layout(`Pedido #${order.id} — entrega parcial — ${siteName}`, body, siteName);
 }
 
+/* ─── Substituição de variáveis ─── */
+function applyVars(text: string, vars: Record<string, string>): string {
+  return text.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? `{{${k}}}`);
+}
+
 /* ─── Funções públicas ─── */
 export async function sendOrderConfirmedEmail(
   to: string,
   order: any,
   serviceName: string
 ) {
-  const siteName = await getSetting("site_name", "SeguiFacil");
-  const html = orderConfirmedHtml(order, serviceName, siteName);
-  await sendEmail(to, `✅ Pedido #${order.id} confirmado — ${siteName}`, html);
+  const siteName      = await getSetting("site_name", "SeguiFacil");
+  const customSubject = await getSetting("email_confirmed_subject", "");
+  const customBody    = await getSetting("email_confirmed_body", "");
+
+  const vars: Record<string, string> = {
+    orderId:  String(order.id),
+    email:    to,
+    link:     order.link ?? "",
+    valor:    `R$ ${Number(order.charge).toFixed(2).replace(".", ",")}`,
+    servico:  serviceName,
+    siteName,
+  };
+
+  const subject = customSubject
+    ? applyVars(customSubject, vars)
+    : `✅ Pedido #${order.id} confirmado — ${siteName}`;
+  const html = customBody
+    ? applyVars(customBody, vars)
+    : orderConfirmedHtml(order, serviceName, siteName);
+
+  await sendEmail(to, subject, html);
 }
 
 export async function sendOrderCompletedEmail(to: string, order: OrderLike) {
-  const siteName = await getSetting("site_name", "SeguiFacil");
-  const html = orderCompletedHtml(order, siteName);
-  await sendEmail(to, `🎉 Pedido #${order.id} entregue — ${siteName}`, html);
+  const siteName      = await getSetting("site_name", "SeguiFacil");
+  const customSubject = await getSetting("email_completed_subject", "");
+  const customBody    = await getSetting("email_completed_body", "");
+
+  const vars: Record<string, string> = {
+    orderId:    String(order.id),
+    link:       order.link ?? "",
+    quantidade: order.quantity ?? "",
+    siteName,
+  };
+
+  const subject = customSubject
+    ? applyVars(customSubject, vars)
+    : `🎉 Pedido #${order.id} entregue — ${siteName}`;
+  const html = customBody
+    ? applyVars(customBody, vars)
+    : orderCompletedHtml(order, siteName);
+
+  await sendEmail(to, subject, html);
 }
 
 export async function sendOrderFailedEmail(to: string, order: OrderLike) {
-  const siteName = await getSetting("site_name", "SeguiFacil");
-  const html = orderFailedHtml(order, siteName);
-  await sendEmail(to, `⚠️ Problema no pedido #${order.id} — ${siteName}`, html);
+  const siteName      = await getSetting("site_name", "SeguiFacil");
+  const customSubject = await getSetting("email_failed_subject", "");
+  const customBody    = await getSetting("email_failed_body", "");
+
+  const vars: Record<string, string> = {
+    orderId: String(order.id),
+    siteName,
+  };
+
+  const subject = customSubject
+    ? applyVars(customSubject, vars)
+    : `⚠️ Problema no pedido #${order.id} — ${siteName}`;
+  const html = customBody
+    ? applyVars(customBody, vars)
+    : orderFailedHtml(order, siteName);
+
+  await sendEmail(to, subject, html);
 }
 
 export async function sendOrderPartialEmail(to: string, order: OrderLike) {
-  const siteName = await getSetting("site_name", "SeguiFacil");
-  const html = orderPartialHtml(order, siteName);
-  await sendEmail(to, `⚠️ Pedido #${order.id} entregue parcialmente — ${siteName}`, html);
+  const siteName      = await getSetting("site_name", "SeguiFacil");
+  const customSubject = await getSetting("email_partial_subject", "");
+  const customBody    = await getSetting("email_partial_body", "");
+
+  const vars: Record<string, string> = {
+    orderId: String(order.id),
+    siteName,
+  };
+
+  const subject = customSubject
+    ? applyVars(customSubject, vars)
+    : `⚠️ Pedido #${order.id} entregue parcialmente — ${siteName}`;
+  const html = customBody
+    ? applyVars(customBody, vars)
+    : orderPartialHtml(order, siteName);
+
+  await sendEmail(to, subject, html);
 }
