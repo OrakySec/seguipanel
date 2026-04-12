@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Link from "next/link";
 import CheckoutClient from "./CheckoutClient";
 import { getSetting } from "@/lib/settings";
@@ -32,13 +31,7 @@ export default async function CheckoutPage() {
       </header>
 
       <main className="flex-1 flex flex-col">
-        <Suspense fallback={
-          <div className="flex-1 flex items-center justify-center py-24">
-            <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          </div>
-        }>
-          <CheckoutClient />
-        </Suspense>
+        <CheckoutClient />
       </main>
     </div>
   );
