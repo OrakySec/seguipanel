@@ -135,7 +135,25 @@ export default async function TrackOrderPage({
         {/* Resultado Detalhado */}
         {orders && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between mb-8">
+            {/* Banner de suporte — topo dos resultados */}
+            <div className="bg-primary-light border border-primary/20 p-6 rounded-3xl flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm font-bold text-xl">?</div>
+                <div>
+                  <p className="text-sm font-bold text-primary">Alguma dúvida sobre seus pedidos?</p>
+                  <p className="text-xs text-primary/70 font-medium">Fale agora mesmo com nosso suporte VIP.</p>
+                </div>
+              </div>
+              <Link
+                href={`https://wa.me/${whatsapp}?text=Olá! Preciso de ajuda com os meus pedidos do email ${email}`}
+                target="_blank"
+                className="bg-primary text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg hover:scale-105 transition-all w-max shrink-0 text-center"
+              >
+                Suporte WhatsApp
+              </Link>
+            </div>
+
+            <div className="flex items-center justify-between">
               <h2 className="text-xl font-jakarta font-extrabold text-foreground">
                 Foram encontrados {orders.length} pedido(s)
               </h2>
@@ -192,22 +210,6 @@ export default async function TrackOrderPage({
               </div>
             ))}
 
-            <div className="bg-primary-light border border-primary/20 p-6 rounded-3xl flex items-center justify-between gap-4 mt-8">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm font-bold text-xl">?</div>
-                <div>
-                   <p className="text-sm font-bold text-primary">Alguma dúvida sobre seus pedidos?</p>
-                   <p className="text-xs text-primary/70 font-medium">Fale agora mesmo com nosso suporte VIP.</p>
-                </div>
-              </div>
-              <Link 
-                href={`https://wa.me/${whatsapp}?text=Olá! Preciso de ajuda com os meus pedidos do email ${email}`}
-                target="_blank"
-                className="bg-primary text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg hover:scale-105 transition-all w-max shrink-0 text-center"
-              >
-                Suporte WhatsApp
-              </Link>
-            </div>
           </div>
         )}
       </main>
