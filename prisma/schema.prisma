@@ -221,6 +221,7 @@ model Order {
   remains           String?          @default("0")
   note              String?
   lastStatusCheckAt DateTime?
+  refillRequestedAt DateTime?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   service         Service          @relation(fields: [serviceId], references: [id])
