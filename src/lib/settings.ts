@@ -1,8 +1,12 @@
 import { prisma } from "./prisma";
 
 export async function getSetting(key: string, fallback = ""): Promise<string> {
-  const setting = await prisma.setting.findUnique({ where: { key } });
-  return setting?.value ?? fallback;
+  try {
+    const setting = await prisma.setting.findUnique({ where: { key } });
+    return setting?.value ?? fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 export async function getSettingBool(key: string, fallback = false): Promise<boolean> {
