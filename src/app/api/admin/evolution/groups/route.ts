@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminToken } from "@/lib/auth";
+import { getSessionFromCookies } from "@/lib/auth";
 import { getSetting } from "@/lib/settings";
 
 export async function GET(req: NextRequest) {
-  const admin = await verifyAdminToken(req);
-  if (!admin) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  const session = await getSessionFromCookies();
+  if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const [url, token, instance] = await Promise.all([
     getSetting("evolution_api_url"),
