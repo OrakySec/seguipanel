@@ -1,5 +1,28 @@
 import { getSetting, getSettingBool } from "@/lib/settings";
 
+/**
+ * Envia uma mensagem de texto para um grupo do WhatsApp via Evolution API.
+ * Usa as mesmas credenciais globais (evolution_api_url/token/instance).
+ */
+export async function sendEvolutionGroupMessage(groupJid: string, text: string) {
+  const [url, token, instance] = await Promise.all([
+    getSetting("evolution_api_url"),
+    getSetting("evolution_api_token"),
+    getSetting("evolution_instance"),
+  ]);
+
+  if (!url || !token || !instance) {
+    console.warn("[Evolution] Configuração incompleta para envio ao grupo");
+    return;
+  }
+
+  await fetch(`${url}/message/sendText/${instance}`, {
+    method: "POST",
+    headers: { apikey: token, "Content-Type": "application/json" },
+    body: JSON.stringify({ number: groupJid, text }),
+  }).catch((e) => console.error("[Evolution] Erro ao enviar para grupo:", e));
+}
+
 export type MsgStep = { text: string; delayAfter: number };
 export type MsgFlow = { active?: boolean; initialDelay: number; messages: MsgStep[] };
 

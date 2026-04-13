@@ -66,6 +66,22 @@ export default function SettingsClient({
   const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
   const [editingProvider, setEditingProvider] = useState<Partial<ApiProvider> | null>(null);
   const [providerBalances, setProviderBalances] = useState<Record<number, string>>({});
+  const [evolutionGroups, setEvolutionGroups] = useState<{ id: string; subject: string }[]>([]);
+  const [loadingGroups, setLoadingGroups] = useState(false);
+
+  const handleFetchGroups = async () => {
+    setLoadingGroups(true);
+    try {
+      const res = await fetch("/api/admin/evolution/groups");
+      const data = await res.json();
+      if (data.groups) setEvolutionGroups(data.groups);
+      else toast("error", "Erro ao buscar grupos", data.error);
+    } catch {
+      toast("error", "Erro de conexão com Evolution API");
+    } finally {
+      setLoadingGroups(false);
+    }
+  };
 
   const handleChange = (key: string, value: string) => {
     setSettings(prev => ({ ...prev, [key]: value }));
@@ -153,6 +169,7 @@ export default function SettingsClient({
     { id: "email",     label: "E-mail (SMTP)",       icon: Mail,           color: "text-amber-500",   bg: "bg-amber-500/10"   },
     { id: "social",    label: "Social & Links",      icon: Share2,         color: "text-pink-500",    bg: "bg-pink-500/10"    },
     { id: "whatsapp",  label: "Respostas Auto.",     icon: MessageCircle,  color: "text-green-500",   bg: "bg-green-500/10"   },
+    { id: "reposicoes", label: "Reposições",         icon: RefreshCw,      color: "text-teal-500",    bg: "bg-teal-500/10"    },
   ];
 
   return (
@@ -533,6 +550,83 @@ export default function SettingsClient({
                         <Edit size={16} className="text-muted group-hover:text-foreground transition-colors" />
                       </div>
                     </button>
+                  </div>
+                </motion.div>
+              )}
+              {activeTab === "reposicoes" && (
+                <motion.div key="reposicoes" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="p-10 space-y-10">
+                  <TabHeader icon={RefreshCw} title="Reposições Automáticas" />
+
+                  <div className="p-6 bg-teal-500/5 rounded-2xl border border-teal-500/20 flex gap-4">
+                    <RefreshCw size={22} className="text-teal-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-black text-foreground mb-1">Como funciona</p>
+                      <p className="text-[12px] text-muted leading-relaxed">
+                        Quando o cliente clicar em "Solicitar Reposição" em /meus-pedidos, uma mensagem é enviada automaticamente para o grupo do fornecedor via Evolution API com o ID do pedido.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Status */}
+                    <div className="col-span-full flex items-center justify-between p-6 bg-surface rounded-2xl border border-border">
+                      <div>
+                        <p className="text-sm font-black text-foreground">Reposições Ativas</p>
+                        <p className="text-[10px] text-muted uppercase tracking-widest mt-1">Exibe o botão em /meus-pedidos</p>
+                      </div>
+                      <CustomSelect
+                        options={[{ value: "1", label: "Ativado" }, { value: "0", label: "Desativado" }]}
+                        value={settings.refill_active || "0"}
+                        onChange={(val) => handleChange("refill_active", val)}
+                      />
+                    </div>
+
+                    {/* Intervalo e prazo */}
+                    <SettingField label="Intervalo mínimo entre reposições (dias)" name="refill_interval_days" value={settings.refill_interval_days || "7"} onChange={handleChange} />
+                    <SettingField label="Prazo máximo após o pedido (dias)" name="refill_max_days" value={settings.refill_max_days || "30"} onChange={handleChange} />
+
+                    {/* Grupo do fornecedor */}
+                    <div className="col-span-full space-y-3">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-muted">Grupo do Fornecedor (WhatsApp)</label>
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={handleFetchGroups}
+                          disabled={loadingGroups}
+                          className="px-5 py-3 bg-surface border border-border rounded-2xl text-xs font-black text-muted hover:text-foreground transition-all flex items-center gap-2 shrink-0 disabled:opacity-50"
+                        >
+                          <RefreshCw size={14} className={loadingGroups ? "animate-spin" : ""} />
+                          Buscar Grupos
+                        </button>
+                        {evolutionGroups.length > 0 ? (
+                          <CustomSelect
+                            options={evolutionGroups.map(g => ({ value: g.id, label: g.subject }))}
+                            value={settings.refill_group_jid || ""}
+                            onChange={(val) => handleChange("refill_group_jid", val)}
+                          />
+                        ) : (
+                          <input
+                            value={settings.refill_group_jid || ""}
+                            onChange={(e) => handleChange("refill_group_jid", e.target.value)}
+                            placeholder="Clique em Buscar Grupos ou cole o JID manualmente"
+                            className="flex-1 h-14 px-6 bg-surface rounded-2xl border border-transparent focus:border-primary/20 text-sm font-medium outline-none transition-all"
+                          />
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted ml-1">O JID do grupo tem formato: 120363XXXXXXXX@g.us</p>
+                    </div>
+
+                    {/* Template da mensagem */}
+                    <div className="col-span-full space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-muted">Mensagem para o Fornecedor</label>
+                      <textarea
+                        rows={4}
+                        value={settings.refill_message_template || "♻️ *REPOSIÇÃO SOLICITADA*\n\nOrder ID: {{orderId}}\nServiço: {{servico}}\nLink: {{link}}"}
+                        onChange={(e) => handleChange("refill_message_template", e.target.value)}
+                        className="w-full px-6 py-4 bg-surface rounded-2xl border border-transparent focus:border-primary/20 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-medium text-sm resize-none"
+                      />
+                      <p className="text-[10px] text-muted ml-1">Variáveis: {`{{orderId}}`} = ID no provedor, {`{{servico}}`} = nome do serviço, {`{{link}}`} = link do perfil</p>
+                    </div>
                   </div>
                 </motion.div>
               )}

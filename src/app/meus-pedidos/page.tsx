@@ -15,6 +15,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { getSetting } from "@/lib/settings";
 import { formatBRL, formatDate } from "@/lib/utils";
+import { RefillButton } from "./RefillButton";
 
 interface SearchParams {
   email?: string;
@@ -28,6 +29,9 @@ export default async function TrackOrderPage({
   const { email } = await searchParams;
   const siteName = await getSetting("site_name", "SeguiFacil");
   const whatsapp = await getSetting("whatsapp_number", "5511999999999");
+  const refillActive = (await getSetting("refill_active", "0")) === "1";
+  const intervalDays = Number(await getSetting("refill_interval_days", "7"));
+  const maxDays = Number(await getSetting("refill_max_days", "30"));
 
   let orders: any[] | null = null;
   let error = null;
@@ -46,6 +50,18 @@ export default async function TrackOrderPage({
       orders = null;
     }
   }
+
+  const isRefillEligible = (order: any) => {
+    if (!refillActive) return false;
+    if (!["partial", "completed"].includes(order.status)) return false;
+    if (order.type !== "api" || !order.apiOrderId || order.apiOrderId === 0) return false;
+    const now = Date.now();
+    const daysSinceCreation = (now - new Date(order.createdAt).getTime()) / 86400000;
+    const daysSinceLastRefill = order.refillRequestedAt
+      ? (now - new Date(order.refillRequestedAt).getTime()) / 86400000
+      : Infinity;
+    return daysSinceCreation <= maxDays && daysSinceLastRefill >= intervalDays;
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -165,10 +181,13 @@ export default async function TrackOrderPage({
                     </div>
                  </div>
 
-                 <div className="mt-8 pt-2 flex items-center gap-4">
+                 <div className="mt-8 pt-2 flex items-center gap-4 flex-wrap">
                     <div className="flex items-center gap-2 text-sm text-muted font-medium">
                        <Clock size={16} /> Atualizado em real-time
                     </div>
+                    {isRefillEligible(order) && (
+                      <RefillButton orderId={order.id} email={email!} />
+                    )}
                  </div>
               </div>
             ))}
