@@ -183,10 +183,12 @@ export default function SettingsForm({ initialSettings }: { initialSettings: Rec
 
             {activeTab === "smtp" && (
               <>
-                <Field label="Servidor SMTP" keyName="smtp_host" value={settings.smtp_host} onChange={handleChange} />
-                <Field label="Porta SMTP" keyName="smtp_port" value={settings.smtp_port} onChange={handleChange} />
-                <Field label="E-mail Autenticador" keyName="smtp_user" value={settings.smtp_user} onChange={handleChange} />
+                <Field label="Servidor SMTP" keyName="smtp_host" value={settings.smtp_host} tip="Ex: smtp.hostinger.com" onChange={handleChange} />
+                <Field label="Porta SMTP" keyName="smtp_port" value={settings.smtp_port} tip="465 (SSL) ou 587 (TLS)" onChange={handleChange} />
+                <Field label="Usuário SMTP" keyName="smtp_user" value={settings.smtp_user} tip="Seu e-mail completo (ex: contato@seusite.com)" onChange={handleChange} />
                 <Field label="Senha SMTP" keyName="smtp_password" value={settings.smtp_password} isPassword onChange={handleChange} />
+                <Field label="E-mail Remetente (From)" keyName="smtp_from_email" value={settings.smtp_from_email} tip="Deve ser igual ao Usuário SMTP na Hostinger" onChange={handleChange} />
+                <Field label="Nome Remetente" keyName="smtp_from_name" value={settings.smtp_from_name} tip="Ex: SeguiFacil" onChange={handleChange} />
               </>
             )}
 
