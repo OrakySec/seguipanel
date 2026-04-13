@@ -51,16 +51,13 @@ export default async function TrackOrderPage({
     }
   }
 
+  // Mostra o botão (em qualquer estado) se o pedido é elegível para reposição
   const isRefillEligible = (order: any) => {
     if (!refillActive) return false;
     if (order.status !== "completed") return false;
     if (order.type !== "api" || !order.apiOrderId || order.apiOrderId === 0) return false;
-    const now = Date.now();
-    const daysSinceCreation = (now - new Date(order.createdAt).getTime()) / 86400000;
-    const daysSinceLastRefill = order.refillRequestedAt
-      ? (now - new Date(order.refillRequestedAt).getTime()) / 86400000
-      : Infinity;
-    return daysSinceCreation <= maxDays && daysSinceLastRefill >= intervalDays;
+    const daysSinceCreation = (Date.now() - new Date(order.createdAt).getTime()) / 86400000;
+    return daysSinceCreation <= maxDays;
   };
 
   const getStatusColor = (status: string) => {
@@ -204,7 +201,13 @@ export default async function TrackOrderPage({
                        <Clock size={16} /> Atualizado em real-time
                     </div>
                     {isRefillEligible(order) && (
-                      <RefillButton orderId={order.id} email={email!} createdAt={order.createdAt.toISOString()} />
+                      <RefillButton
+                        orderId={order.id}
+                        email={email!}
+                        createdAt={order.createdAt.toISOString()}
+                        refillRequestedAt={order.refillRequestedAt ? order.refillRequestedAt.toISOString() : null}
+                        intervalDays={intervalDays}
+                      />
                     )}
                  </div>
               </div>

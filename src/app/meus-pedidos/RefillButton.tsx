@@ -14,6 +14,20 @@ function formatCountdown(ms: number) {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+function useCountdown(targetMs: number) {
+  const [remaining, setRemaining] = useState(() => Math.max(0, targetMs - Date.now()));
+  useEffect(() => {
+    if (remaining <= 0) return;
+    const t = setInterval(() => {
+      const left = Math.max(0, targetMs - Date.now());
+      setRemaining(left);
+      if (left === 0) clearInterval(t);
+    }, 1000);
+    return () => clearInterval(t);
+  }, [targetMs]);
+  return remaining;
+}
+
 function RefillSuccessModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -57,33 +71,32 @@ export function RefillButton({
   orderId,
   email,
   createdAt,
+  refillRequestedAt,
+  intervalDays,
 }: {
   orderId: number;
   email: string;
   createdAt: string;
+  refillRequestedAt: string | null;
+  intervalDays: number;
 }) {
-  const [remaining, setRemaining] = useState(() => {
-    const elapsed = Date.now() - new Date(createdAt).getTime();
-    return Math.max(0, LOCK_MS - elapsed);
-  });
+  // Countdown do lock de 24h após criação
+  const lockUnlocksAt = new Date(createdAt).getTime() + LOCK_MS;
+  const lockRemaining = useCountdown(lockUnlocksAt);
 
-  const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  // Countdown do intervalo entre reposições
+  const intervalMs = intervalDays * 86400 * 1000;
+  const intervalUnlocksAt = refillRequestedAt
+    ? new Date(refillRequestedAt).getTime() + intervalMs
+    : 0;
+  const intervalRemaining = useCountdown(intervalUnlocksAt);
+
+  const [requestState, setRequestState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    if (remaining <= 0) return;
-    const t = setInterval(() => {
-      const elapsed = Date.now() - new Date(createdAt).getTime();
-      const left = Math.max(0, LOCK_MS - elapsed);
-      setRemaining(left);
-      if (left === 0) clearInterval(t);
-    }, 1000);
-    return () => clearInterval(t);
-  }, [createdAt, remaining]);
-
   const handleClick = async () => {
-    setState("loading");
+    setRequestState("loading");
     try {
       const res = await fetch(`/api/orders/${orderId}/refill`, {
         method: "POST",
@@ -92,32 +105,54 @@ export function RefillButton({
       });
       const data = await res.json();
       if (res.ok) {
-        setState("success");
+        setRequestState("success");
         setShowModal(true);
       } else {
-        setState("error");
+        setRequestState("error");
         setErrorMsg(data.error || "Erro ao solicitar reposição.");
       }
     } catch {
-      setState("error");
+      setRequestState("error");
       setErrorMsg("Erro de conexão.");
     }
   };
 
-  // Locked — countdown ativo
-  if (remaining > 0) {
+  // 1. Lock de 24h inicial
+  if (lockRemaining > 0) {
     return (
       <div
-        title={`Disponível em ${formatCountdown(remaining)}`}
+        title={`Disponível em ${formatCountdown(lockRemaining)}`}
         className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 rounded-xl text-xs font-bold cursor-not-allowed select-none"
       >
         <Lock size={13} />
-        Reposição em {formatCountdown(remaining)}
+        Reposição em {formatCountdown(lockRemaining)}
       </div>
     );
   }
 
-  if (state === "error") {
+  // 2. Intervalo entre reposições ainda ativo (persiste após reload)
+  if (intervalRemaining > 0 || requestState === "success") {
+    const timeLeft = requestState === "success" ? intervalRemaining : intervalRemaining;
+    return (
+      <>
+        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-xl text-xs font-bold select-none">
+          <CheckCircle2 size={13} className="shrink-0" />
+          <span>
+            Reposição solicitada
+            {timeLeft > 0 && (
+              <span className="text-green-500 font-medium ml-1">
+                · próxima em {formatCountdown(timeLeft)}
+              </span>
+            )}
+          </span>
+        </div>
+        {showModal && <RefillSuccessModal onClose={() => setShowModal(false)} />}
+      </>
+    );
+  }
+
+  // 3. Erro
+  if (requestState === "error") {
     return (
       <div className="flex items-center gap-2 text-red-500 text-sm font-bold">
         <AlertCircle size={16} /> {errorMsg}
@@ -125,25 +160,15 @@ export function RefillButton({
     );
   }
 
-  if (state === "success") {
-    return (
-      <>
-        <div className="flex items-center gap-2 text-green-600 text-sm font-bold">
-          <CheckCircle2 size={16} /> Reposição solicitada!
-        </div>
-        {showModal && <RefillSuccessModal onClose={() => setShowModal(false)} />}
-      </>
-    );
-  }
-
+  // 4. Botão normal
   return (
     <>
       <button
         onClick={handleClick}
-        disabled={state === "loading"}
+        disabled={requestState === "loading"}
         className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-xl text-xs font-bold hover:bg-primary/20 transition-all disabled:opacity-50"
       >
-        {state === "loading"
+        {requestState === "loading"
           ? <Loader2 size={14} className="animate-spin" />
           : <RefreshCw size={14} />}
         Solicitar Reposição
