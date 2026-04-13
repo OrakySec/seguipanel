@@ -1,14 +1,6 @@
 import Link from "next/link";
 import { getSetting } from "@/lib/settings";
-
-const platformLinks = [
-  { name: "Seguidores Instagram", href: "/comprar-seguidores-instagram" },
-  { name: "Curtidas Instagram",   href: "/comprar-curtidas-instagram" },
-  { name: "Seguidores TikTok",    href: "/comprar-seguidores-tiktok" },
-  { name: "Seguidores Kwai",      href: "/comprar-seguidores-kwai" },
-  { name: "Seguidores YouTube",   href: "/comprar-seguidores-youtube" },
-  { name: "Seguidores Facebook",  href: "/comprar-seguidores-facebook" },
-];
+import { getActiveSocialNetworks } from "@/lib/catalog";
 
 const staticHelpLinks: { name: string; href: string; external?: boolean }[] = [
   { name: "Como Funciona",        href: "/como-funciona" },
@@ -19,11 +11,27 @@ const staticHelpLinks: { name: string; href: string; external?: boolean }[] = [
 ];
 
 export default async function Footer() {
-  const logoType = await getSetting("logo_type", "text");
-  const logoUrl = await getSetting("logo_url", "");
-  const websiteName = await getSetting("website_name", "SeguiFacil");
-  const logoText = await getSetting("website_logo_text", websiteName);
-  const whatsappNumber = await getSetting("whatsapp_number", "558193886173");
+  const [logoType, logoUrl, websiteName, logoText, whatsappNumber, networks] = await Promise.all([
+    getSetting("logo_type", "text"),
+    getSetting("logo_url", ""),
+    getSetting("website_name", "SeguiFacil"),
+    getSetting("website_logo_text", "SeguiFacil"),
+    getSetting("whatsapp_number", "558193886173"),
+    getActiveSocialNetworks(),
+  ]);
+
+  const platformLinks = networks.length > 0
+    ? networks.map(n => ({
+        name: `Seguidores ${n.name}`,
+        href: `/comprar-seguidores-${n.urlSlug || n.name.toLowerCase()}`,
+      }))
+    : [
+        { name: "Seguidores Instagram", href: "/comprar-seguidores-instagram" },
+        { name: "Seguidores TikTok",    href: "/comprar-seguidores-tiktok" },
+        { name: "Seguidores Kwai",      href: "/comprar-seguidores-kwai" },
+        { name: "Seguidores YouTube",   href: "/comprar-seguidores-youtube" },
+        { name: "Seguidores Facebook",  href: "/comprar-seguidores-facebook" },
+      ];
 
   const helpLinks = [
     ...staticHelpLinks,
