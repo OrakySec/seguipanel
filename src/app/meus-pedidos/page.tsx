@@ -186,10 +186,6 @@ export default async function TrackOrderPage({
                     </div>
                     <div className="space-y-4">
                        <div>
-                          <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Quantidade</p>
-                          <p className="font-bold text-foreground">{order.quantity} unidades</p>
-                       </div>
-                       <div>
                           <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Data da Compra</p>
                           <p className="font-bold text-foreground italic">{formatDate(order.createdAt)}</p>
                        </div>
