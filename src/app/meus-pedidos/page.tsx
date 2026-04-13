@@ -28,7 +28,7 @@ export default async function TrackOrderPage({
 }) {
   const { email } = await searchParams;
   const siteName = await getSetting("site_name", "SeguiFacil");
-  const whatsapp = await getSetting("whatsapp_number", "5511999999999");
+  const whatsapp = await getSetting("whatsapp_number", "558193886173");
   const refillActive = (await getSetting("refill_active", "0")) === "1";
   const intervalDays = Number(await getSetting("refill_interval_days", "7"));
   const maxDays = Number(await getSetting("refill_max_days", "30"));
