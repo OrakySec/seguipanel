@@ -53,7 +53,7 @@ export default async function TrackOrderPage({
 
   const isRefillEligible = (order: any) => {
     if (!refillActive) return false;
-    if (!["partial", "completed"].includes(order.status)) return false;
+    if (order.status !== "completed") return false;
     if (order.type !== "api" || !order.apiOrderId || order.apiOrderId === 0) return false;
     const now = Date.now();
     const daysSinceCreation = (now - new Date(order.createdAt).getTime()) / 86400000;
@@ -186,7 +186,7 @@ export default async function TrackOrderPage({
                        <Clock size={16} /> Atualizado em real-time
                     </div>
                     {isRefillEligible(order) && (
-                      <RefillButton orderId={order.id} email={email!} />
+                      <RefillButton orderId={order.id} email={email!} createdAt={order.createdAt.toISOString()} />
                     )}
                  </div>
               </div>
