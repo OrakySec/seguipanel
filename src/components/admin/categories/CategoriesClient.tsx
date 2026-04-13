@@ -30,6 +30,7 @@ interface Category {
   id: number;
   name: string;
   description: string | null;
+  deliveryTime: string | null;
   sortOrder: number;
   status: number;
   _count: { services: number };
@@ -218,6 +219,11 @@ export default function CategoriesClient({
                                         <p className="text-xs font-bold text-muted uppercase tracking-widest flex items-center gap-2">
                                             <Activity size={10} className="text-primary" /> {cat._count.services} Serviços Vinculados
                                         </p>
+                                        {cat.deliveryTime && (
+                                          <p className="text-xs font-bold text-primary/70 mt-1 flex items-center gap-1">
+                                            <Hash size={10} /> Entrega: {cat.deliveryTime}
+                                          </p>
+                                        )}
                                         <div className="mt-6 flex items-center justify-between">
                                             <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
                                                 cat.status === 1 ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'
@@ -342,6 +348,15 @@ export default function CategoriesClient({
                          value={editingCategory?.description || ""}
                          onChange={(e) => setEditingCategory({...editingCategory, description: e.target.value})}
                          placeholder="Descrição opcional da categoria..."
+                       />
+                   </div>
+                   <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-muted ml-1">Tempo de Entrega</label>
+                       <input
+                         className="w-full h-14 px-6 bg-surface rounded-2xl border border-transparent focus:ring-8 focus:ring-primary/5 outline-none transition-all font-medium"
+                         value={(editingCategory as any)?.deliveryTime || ""}
+                         onChange={(e) => setEditingCategory({...editingCategory, deliveryTime: e.target.value} as any)}
+                         placeholder="Ex: 0 a 8 horas, 1 a 3 dias..."
                        />
                    </div>
                    <div className="grid grid-cols-2 gap-6">

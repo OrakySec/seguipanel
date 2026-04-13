@@ -86,6 +86,7 @@ export async function upsertCategory(id: number | null, socialNetworkId: number,
         data: {
           name: data.name,
           description: data.description,
+          deliveryTime: data.deliveryTime || null,
           sortOrder: Number(data.sortOrder ?? 0),
           status: Number(data.status ?? 1)
         }
@@ -96,6 +97,7 @@ export async function upsertCategory(id: number | null, socialNetworkId: number,
           socialNetworkId,
           name: data.name,
           description: data.description,
+          deliveryTime: data.deliveryTime || null,
           sortOrder: Number(data.sortOrder ?? 0),
           status: Number(data.status ?? 1)
         }

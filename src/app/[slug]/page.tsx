@@ -145,7 +145,7 @@ export default async function PlatformPage({ params }: Props) {
                     </div>
                     
                     <Link
-                      href={`/checkout?service=${service.id}&name=${encodeURIComponent(service.name)}&platform=${encodeURIComponent(network.name)}&price=${service.price}&qty=${service.quantity || ""}&requiredField=${encodeURIComponent(category.requiredField || "Link do Perfil")}`}
+                      href={`/checkout?service=${service.id}&name=${encodeURIComponent(service.name)}&platform=${encodeURIComponent(network.name)}&price=${service.price}&qty=${service.quantity || ""}&requiredField=${encodeURIComponent(category.requiredField || "Link do Perfil")}&deliveryTime=${encodeURIComponent((category as any).deliveryTime || "")}`}
                       className="w-full py-3.5 text-xs font-bold text-white rounded-2xl bg-brand-gradient hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-brand"
                     >
                       <Zap size={14} /> Selecionar Plano

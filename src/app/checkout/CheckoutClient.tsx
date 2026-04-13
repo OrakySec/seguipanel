@@ -17,6 +17,7 @@ interface ServiceInfo {
   originalPrice?: number;
   quantity?: string;
   platformGradient: string;
+  deliveryTime?: string;
 }
 
 interface PixData {
@@ -269,6 +270,7 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
     platformGradient:
       GRADIENTS[params.get("platform") ?? MOCK_SERVICE.platform] ??
       MOCK_SERVICE.platformGradient,
+    deliveryTime: params.get("deliveryTime") || undefined,
   };
 
   let requiredFieldRaw = params.get("requiredField") || "Link do Perfil";
@@ -730,10 +732,12 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
             <span className="text-gray-500">Valor pago</span>
             <span className="font-bold text-gray-900">{formatBRL(pix?.amount ?? total)}</span>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Entrega estimada</span>
-            <span className="font-semibold text-success">0 a 8 horas</span>
-          </div>
+          {service.deliveryTime && (
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Tempo de entrega estimado</span>
+              <span className="font-semibold text-success">{service.deliveryTime}</span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-3">

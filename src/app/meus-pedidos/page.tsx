@@ -40,7 +40,7 @@ export default async function TrackOrderPage({
     orders = await prisma.order.findMany({
       where: { user: { email } },
       include: {
-        service: true,
+        service: { include: { category: true } },
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -185,6 +185,12 @@ export default async function TrackOrderPage({
                        </div>
                     </div>
                     <div className="space-y-4">
+                       {order.service.category?.deliveryTime && (
+                         <div>
+                           <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Tempo de Entrega Estimado</p>
+                           <p className="font-bold text-success">{order.service.category.deliveryTime}</p>
+                         </div>
+                       )}
                        <div>
                           <p className="text-[10px] font-extrabold text-muted uppercase tracking-widest mb-1">Data da Compra</p>
                           <p className="font-bold text-foreground italic">{formatDate(order.createdAt)}</p>
