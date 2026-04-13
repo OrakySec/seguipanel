@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 
 export default async function CheckoutPage() {
   const siteName = await getSetting("site_name", "SeguiFacil");
+  const whatsappNumber = await getSetting("whatsapp_number", "558193886173");
 
   return (
     <div className="min-h-dvh bg-surface flex flex-col">
@@ -31,7 +32,7 @@ export default async function CheckoutPage() {
       </header>
 
       <main className="flex-1 flex flex-col">
-        <CheckoutClient />
+        <CheckoutClient whatsappNumber={whatsappNumber} />
       </main>
     </div>
   );

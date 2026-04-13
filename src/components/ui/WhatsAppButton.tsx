@@ -1,7 +1,10 @@
-export function WhatsAppButton() {
+import { getSetting } from "@/lib/settings";
+
+export async function WhatsAppButton() {
+  const number = await getSetting("whatsapp_number", "558193886173");
   return (
     <a
-      href="https://wa.me/558193886173"
+      href={`https://wa.me/${number}`}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-5 right-5 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform"

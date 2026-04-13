@@ -10,11 +10,10 @@ const platformLinks = [
   { name: "Seguidores Facebook",  href: "/comprar-seguidores-facebook" },
 ];
 
-const helpLinks = [
+const staticHelpLinks: { name: string; href: string; external?: boolean }[] = [
   { name: "Como Funciona",        href: "/como-funciona" },
   { name: "Meus Pedidos",         href: "/meus-pedidos" },
   { name: "Perguntas Frequentes", href: "/#faq" },
-  { name: "Suporte via WhatsApp", href: "https://wa.me/5551980107363", external: true },
   { name: "Termos de Uso",        href: "/termos" },
   { name: "Política de Privacidade", href: "/privacidade" },
 ];
@@ -24,6 +23,12 @@ export default async function Footer() {
   const logoUrl = await getSetting("logo_url", "");
   const websiteName = await getSetting("website_name", "SeguiFacil");
   const logoText = await getSetting("website_logo_text", websiteName);
+  const whatsappNumber = await getSetting("whatsapp_number", "558193886173");
+
+  const helpLinks = [
+    ...staticHelpLinks,
+    { name: "Suporte via WhatsApp", href: `https://wa.me/${whatsappNumber}`, external: true },
+  ];
 
   return (
     <footer className="bg-surface border-t border-brand mt-auto">
