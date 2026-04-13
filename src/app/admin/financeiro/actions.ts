@@ -18,28 +18,31 @@ export async function getFinanceStats() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-  // Faturamento Hoje (Apenas Pago - status: 1)
+  // Faturamento Hoje (Apenas Pago - status: 1, excluindo cancelados/parciais)
   const todaySales = await prisma.transactionLog.aggregate({
     where: {
       status: 1,
-      createdAt: { gte: todayStart, lte: todayEnd }
+      createdAt: { gte: todayStart, lte: todayEnd },
+      NOT: { order: { status: { in: ["canceled", "partial"] } } }
     },
     _sum: { amount: true }
   });
 
-  // Faturamento Mês (Apenas Pago - status: 1)
+  // Faturamento Mês (Apenas Pago - status: 1, excluindo cancelados/parciais)
   const monthSales = await prisma.transactionLog.aggregate({
     where: {
       status: 1,
-      createdAt: { gte: monthStart, lte: monthEnd }
+      createdAt: { gte: monthStart, lte: monthEnd },
+      NOT: { order: { status: { in: ["canceled", "partial"] } } }
     },
     _sum: { amount: true }
   });
 
-  // Faturamento Total (Apenas Pago - status: 1)
+  // Faturamento Total (Apenas Pago - status: 1, excluindo cancelados/parciais)
   const totalSales = await prisma.transactionLog.aggregate({
     where: {
-      status: 1
+      status: 1,
+      NOT: { order: { status: { in: ["canceled", "partial"] } } }
     },
     _sum: { amount: true }
   });

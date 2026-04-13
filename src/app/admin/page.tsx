@@ -29,19 +29,19 @@ export default async function AdminDashboard() {
     pendingOrdersCount,
     latestOrders
   ] = await Promise.all([
-    // Vendas hoje
+    // Vendas hoje (excluindo cancelados/parciais)
     prisma.transactionLog.aggregate({
-      where: { status: 1, createdAt: { gte: startOfToday } },
+      where: { status: 1, createdAt: { gte: startOfToday }, NOT: { order: { status: { in: ["canceled", "partial"] } } } },
       _sum: { amount: true }
     }),
-    // Vendas mês
+    // Vendas mês (excluindo cancelados/parciais)
     prisma.transactionLog.aggregate({
-      where: { status: 1, createdAt: { gte: startOfMonth } },
+      where: { status: 1, createdAt: { gte: startOfMonth }, NOT: { order: { status: { in: ["canceled", "partial"] } } } },
       _sum: { amount: true }
     }),
-    // Vendas totais
+    // Vendas totais (excluindo cancelados/parciais)
     prisma.transactionLog.aggregate({
-      where: { status: 1 },
+      where: { status: 1, NOT: { order: { status: { in: ["canceled", "partial"] } } } },
       _sum: { amount: true }
     }),
     // Pedidos pendentes
