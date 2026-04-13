@@ -670,23 +670,12 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
             </div>
 
             {/* Recarregar / Polling */}
-            {expired ? (
+            {expired && (
               <button
                 onClick={() => setStep("form")}
                 className="w-full mt-3 py-3.5 text-sm font-semibold text-primary border border-primary rounded-xl hover:bg-primary-light transition-colors flex items-center justify-center gap-2"
               >
                 <ArrowLeft size={15} /> Voltar e tentar novamente
-              </button>
-            ) : (
-              <button
-                onClick={() => checkPayment(pix.pollToken)}
-                disabled={polling}
-                className="w-full mt-3 py-3.5 text-sm font-semibold text-gray-600 border border-border rounded-xl hover:bg-surface transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {polling
-                  ? <><Loader2 size={14} className="animate-spin" /> Verificando…</>
-                  : <><RefreshCw size={14} /> Já paguei, verificar agora</>
-                }
               </button>
             )}
           </div>

@@ -8,11 +8,21 @@ import { SocialIcon } from "@/components/ui/SocialIcon";
 import { Zap, ShieldCheck, RefreshCw, Headphones, Eye, Star, X } from "lucide-react";
 
 function useViewerCount() {
-  const [count, setCount] = useState(247);
+  const [count, setCount] = useState(() => Math.floor(Math.random() * (310 - 190 + 1)) + 190);
   useEffect(() => {
-    const update = () => setCount(Math.floor(Math.random() * (320 - 180 + 1)) + 180);
-    const t = setInterval(update, 30_000);
-    return () => clearInterval(t);
+    let timer: ReturnType<typeof setTimeout>;
+    const scheduleNext = () => {
+      const delay = Math.floor(Math.random() * (12_000 - 5_000 + 1)) + 5_000;
+      timer = setTimeout(() => {
+        setCount(prev => {
+          const delta = Math.floor(Math.random() * 7) - 3;
+          return Math.min(320, Math.max(180, prev + delta));
+        });
+        scheduleNext();
+      }, delay);
+    };
+    scheduleNext();
+    return () => clearTimeout(timer);
   }, []);
   return count;
 }
