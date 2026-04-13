@@ -387,10 +387,12 @@ export default function SettingsClient({
                 <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="p-10 space-y-10">
                     <TabHeader icon={Mail} title="Servidor SMTP" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <SettingField label="Servidor Host" name="smtp_server" value={settings.smtp_server} onChange={handleChange} />
-                        <SettingField label="Porta" name="smtp_port" value={settings.smtp_port} onChange={handleChange} />
-                        <SettingField label="Username" name="smtp_username" value={settings.smtp_username} onChange={handleChange} />
-                        <SettingField label="Security Key" name="smtp_password" type="password" value={settings.smtp_password} onChange={handleChange} />
+                        <SettingField label="Servidor Host" name="smtp_host" tip="Ex: smtp.hostinger.com" value={settings.smtp_host} onChange={handleChange} />
+                        <SettingField label="Porta" name="smtp_port" tip="465 (SSL) ou 587 (TLS)" value={settings.smtp_port} onChange={handleChange} />
+                        <SettingField label="Usuário SMTP" name="smtp_user" tip="Seu e-mail completo" value={settings.smtp_user} onChange={handleChange} />
+                        <SettingField label="Senha SMTP" name="smtp_password" type="password" value={settings.smtp_password} onChange={handleChange} />
+                        <SettingField label="E-mail Remetente (From)" name="smtp_from_email" tip="Deve ser igual ao Usuário SMTP" value={settings.smtp_from_email} onChange={handleChange} />
+                        <SettingField label="Nome Remetente" name="smtp_from_name" tip="Ex: SeguiFacil" value={settings.smtp_from_name} onChange={handleChange} />
                     </div>
 
                     {/* Templates de E-mail */}
