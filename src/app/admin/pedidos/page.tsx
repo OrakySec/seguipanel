@@ -2,24 +2,41 @@ export const dynamic = "force-dynamic";
 
 import React, { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
-import { Package, Filter } from "lucide-react";
+import { Package } from "lucide-react";
 import OrdersClient from "./OrdersClient";
 import SearchBar from "./SearchBar";
+
+const statusLabels: Record<string, string> = {
+  pending:    "Pendente",
+  processing: "Processando",
+  inprogress: "Em Andamento",
+  completed:  "Concluído",
+  partial:    "Parcial",
+  canceled:   "Cancelado",
+  refunded:   "Reembolsado",
+};
 
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; status?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, status } = await searchParams;
   const term = q?.trim() ?? "";
 
   const numId = term !== "" ? parseInt(term) : NaN;
-  const where = term
-    ? !isNaN(numId)
-      ? { id: numId }
-      : { user: { email: { contains: term, mode: "insensitive" as const } } }
-    : {};
+
+  const where: any = {};
+  if (term) {
+    if (!isNaN(numId)) {
+      where.id = numId;
+    } else {
+      where.user = { email: { contains: term, mode: "insensitive" as const } };
+    }
+  }
+  if (status && statusLabels[status]) {
+    where.status = status;
+  }
 
   const orders = await prisma.order.findMany({
     take: 50,
@@ -50,18 +67,13 @@ export default async function AdminOrdersPage({
             Acompanhamento de entregas em tempo real
           </p>
         </div>
-        <div className="flex gap-3">
-            <Suspense fallback={
-              <div className="relative">
-                <div className="pl-12 pr-4 h-12 bg-card border border-border rounded-2xl w-72" />
-              </div>
-            }>
-              <SearchBar />
-            </Suspense>
-            <button className="h-12 px-6 bg-card border border-border rounded-2xl text-muted hover:text-foreground transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest shadow-sm">
-               <Filter size={16} /> Filtros
-            </button>
-        </div>
+        <Suspense fallback={
+          <div className="flex gap-3">
+            <div className="pl-12 pr-4 h-12 bg-card border border-border rounded-2xl w-72" />
+          </div>
+        }>
+          <SearchBar activeStatus={status} />
+        </Suspense>
       </header>
 
       {/* Tabela de Pedidos */}
@@ -87,7 +99,9 @@ export default async function AdminOrdersPage({
         {/* Paginação */}
         <div className="px-10 py-8 bg-surface/30 border-t border-border flex items-center justify-between">
            <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-60">
-             {term ? `${orders.length} resultado${orders.length !== 1 ? "s" : ""} para "${term}"` : `Exibindo ${orders.length} resultados recentes`}
+             {orders.length} resultado{orders.length !== 1 ? "s" : ""}
+             {status && statusLabels[status] ? ` · ${statusLabels[status]}` : ""}
+             {term ? ` · "${term}"` : ""}
            </p>
            <div className="flex gap-3">
               <button disabled className="h-11 px-6 rounded-2xl border border-border text-[10px] font-black uppercase tracking-widest text-muted opacity-50 cursor-not-allowed">Anterior</button>
