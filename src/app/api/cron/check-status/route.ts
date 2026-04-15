@@ -204,8 +204,8 @@ export async function POST(req: NextRequest) {
               const delivered      = qty > 0 ? Math.max(0, qty - rem) : 0;
               const deliveredRatio = (qty > 0 && remainsKnown) ? delivered / qty : 0;
 
-              if (deliveredRatio <= 0.05) {
-                /* ─── ≤ 5% entregue (ou incalculável): reembolso total ─── */
+              if (deliveredRatio <= 0.10) {
+                /* ─── ≤ 10% entregue (ou incalculável): reembolso total ─── */
                 const ok = await issueRefund(order.id);
                 console.log(`[CRON:check-status] Partial→full refund order #${order.id} `
                   + `(delivered ${(deliveredRatio * 100).toFixed(1)}%`
@@ -218,9 +218,9 @@ export async function POST(req: NextRequest) {
                   );
                 }
               } else {
-                /* ─── > 5% entregue: sem reembolso, apenas notificação ─── */
+                /* ─── > 10% entregue: sem reembolso, apenas notificação ─── */
                 console.log(`[CRON:check-status] Partial no-refund order #${order.id} `
-                  + `(delivered ${(deliveredRatio * 100).toFixed(1)}% > 5%)`);
+                  + `(delivered ${(deliveredRatio * 100).toFixed(1)}% > 10%)`);
 
                 if (user?.email) {
                   sendOrderPartialEmail(user.email, order).catch((e) =>
