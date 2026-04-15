@@ -279,6 +279,16 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
   }
   const isProfileField = requiredFieldRaw.toLowerCase().includes("perfil") || requiredFieldRaw.toLowerCase().includes("usuário") || requiredFieldRaw.toLowerCase().includes("@");
 
+  /* Warning modal */
+  const [showWarningModal, setShowWarningModal] = useState(true);
+  const [warningCountdown, setWarningCountdown] = useState(10);
+
+  useEffect(() => {
+    if (!showWarningModal || warningCountdown <= 0) return;
+    const t = setInterval(() => setWarningCountdown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [showWarningModal, warningCountdown]);
+
   /* Steps */
   const [step, setStep] = useState<Step>("form");
   const [showBonusModal, setShowBonusModal] = useState(false);
@@ -426,6 +436,44 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
   if (step === "form") {
     return (
       <div className="max-w-5xl mx-auto w-full px-4 pt-8 pb-20">
+
+        {/* ── Modal de aviso: perfil público ── */}
+        {showWarningModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div className="relative bg-white rounded-[32px] shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center">
+              {/* Ícone */}
+              <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-amber-500 mb-2">Atenção</p>
+              <h2 className="text-xl font-jakarta font-extrabold text-foreground mb-4 leading-snug">
+                Seu perfil precisa estar <span className="text-amber-500">PÚBLICO</span>
+              </h2>
+              <p className="text-sm text-muted font-medium leading-relaxed mb-8">
+                Para receber o seu pedido, seu perfil precisa estar <strong className="text-foreground">público</strong> no momento da entrega. Caso contrário, o pedido será <strong className="text-red-500">cancelado automaticamente</strong>.
+              </p>
+
+              <button
+                onClick={() => warningCountdown <= 0 && setShowWarningModal(false)}
+                disabled={warningCountdown > 0}
+                className={`w-full py-3.5 rounded-2xl font-extrabold text-sm transition-all ${
+                  warningCountdown > 0
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-brand-gradient text-white shadow-brand hover:scale-[1.02]"
+                }`}
+              >
+                {warningCountdown > 0 ? `Entendi (${warningCountdown}s)` : "Entendi, meu perfil está público"}
+              </button>
+            </div>
+          </div>
+        )}
+
         <StepIndicator step="form" />
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
