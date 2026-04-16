@@ -29,6 +29,14 @@ interface PixData {
   productName: string;
 }
 
+interface SavedCheckout extends PixData {
+  expiresAt: number;
+  email: string;
+  serviceId: number;
+}
+
+const CHECKOUT_STORAGE_KEY = "seguifacil_checkout";
+
 interface CouponState {
   code: string;
   status: "idle" | "loading" | "valid" | "invalid";
@@ -279,8 +287,8 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
   }
   const isProfileField = requiredFieldRaw.toLowerCase().includes("perfil") || requiredFieldRaw.toLowerCase().includes("usuário") || requiredFieldRaw.toLowerCase().includes("@");
 
-  /* Warning modal */
-  const [showWarningModal, setShowWarningModal] = useState(true);
+  /* Warning modal — só aparece em checkout orgânico (não restaurado) */
+  const [showWarningModal, setShowWarningModal] = useState(false);
   const [warningCountdown, setWarningCountdown] = useState(10);
 
   useEffect(() => {
@@ -314,10 +322,67 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
   const pollingRef    = useRef<ReturnType<typeof setInterval> | null>(null);
   const submittingRef = useRef(false);
 
+  /* Restaurar checkout salvo no localStorage ao carregar a página */
+  useEffect(() => {
+    const raw = localStorage.getItem(CHECKOUT_STORAGE_KEY);
+    if (!raw) {
+      // Nenhum checkout salvo: mostrar warning modal normalmente
+      setShowWarningModal(true);
+      return;
+    }
+    try {
+      const saved: SavedCheckout = JSON.parse(raw);
+      // Expirado: limpar e mostrar formulário com warning modal
+      if (Date.now() > saved.expiresAt) {
+        localStorage.removeItem(CHECKOUT_STORAGE_KEY);
+        setShowWarningModal(true);
+        return;
+      }
+      // Verificar se já foi pago
+      fetch(`/api/checkout/status/${saved.pollToken}`)
+        .then((r) => r.json())
+        .then((json) => {
+          if (json.data?.status === 1) {
+            // Já pago: ir direto para sucesso
+            setPix(saved);
+            setStep("success");
+            localStorage.removeItem(CHECKOUT_STORAGE_KEY);
+            setTimeout(() => setShowBonusModal(true), 500);
+          } else {
+            // Não pago: restaurar tela do PIX com tempo restante
+            const remainingMs = saved.expiresAt - Date.now();
+            setPix(saved);
+            setCountdown(Math.floor(remainingMs / 1000));
+            setEmail(saved.email);
+            setStep("pix");
+          }
+        })
+        .catch(() => {
+          // Erro na API: restaurar PIX visualmente
+          const remainingMs = saved.expiresAt - Date.now();
+          if (remainingMs > 0) {
+            setPix(saved);
+            setCountdown(Math.floor(remainingMs / 1000));
+            setEmail(saved.email);
+            setStep("pix");
+          } else {
+            localStorage.removeItem(CHECKOUT_STORAGE_KEY);
+            setShowWarningModal(true);
+          }
+        });
+    } catch {
+      localStorage.removeItem(CHECKOUT_STORAGE_KEY);
+      setShowWarningModal(true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   /* Countdown */
   useEffect(() => {
     if (step !== "pix") return;
-    if (countdown <= 0) return;
+    if (countdown <= 0) {
+      localStorage.removeItem(CHECKOUT_STORAGE_KEY);
+      return;
+    }
     const t = setInterval(() => setCountdown((c) => c - 1), 1000);
     return () => clearInterval(t);
   }, [step, countdown]);
@@ -329,6 +394,7 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
       const json = await res.json();
       if (json.data?.status === 1) {
         clearInterval(pollingRef.current!);
+        localStorage.removeItem(CHECKOUT_STORAGE_KEY);
         setStep("success");
         setTimeout(() => setShowBonusModal(true), 1200);
       }
@@ -409,6 +475,14 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
       }
       setPix(json.data);
       setCountdown(PIX_DURATION);
+      // Salvar no localStorage para recuperar se o usuário sair da página
+      const savedCheckout: SavedCheckout = {
+        ...json.data,
+        expiresAt: Date.now() + PIX_DURATION * 1000,
+        email,
+        serviceId: service.id,
+      };
+      localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(savedCheckout));
       setStep("pix");
     } catch {
       setSubmitError("Erro de conexão. Tente novamente.");
@@ -722,7 +796,12 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
             {/* Recarregar / Polling */}
             {expired && (
               <button
-                onClick={() => setStep("form")}
+                onClick={() => {
+                  localStorage.removeItem(CHECKOUT_STORAGE_KEY);
+                  setShowWarningModal(true);
+                  setWarningCountdown(10);
+                  setStep("form");
+                }}
                 className="w-full mt-3 py-3.5 text-sm font-semibold text-primary border border-primary rounded-xl hover:bg-primary-light transition-colors flex items-center justify-center gap-2"
               >
                 <ArrowLeft size={15} /> Voltar e tentar novamente
