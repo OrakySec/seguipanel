@@ -16,6 +16,7 @@ import { prisma } from "@/lib/prisma";
 import { getSetting } from "@/lib/settings";
 import { formatBRL, formatDate } from "@/lib/utils";
 import { RefillButton } from "./RefillButton";
+import { SpeedButton } from "./SpeedButton";
 
 interface SearchParams {
   email?: string;
@@ -29,9 +30,14 @@ export default async function TrackOrderPage({
   const { email } = await searchParams;
   const siteName = await getSetting("site_name", "SeguiFacil");
   const whatsapp = await getSetting("whatsapp_number", "558193886173");
-  const refillActive = (await getSetting("refill_active", "0")) === "1";
-  const intervalDays = Number(await getSetting("refill_interval_days", "7"));
-  const maxDays = Number(await getSetting("refill_max_days", "30"));
+  const refillActive      = (await getSetting("refill_active", "0")) === "1";
+  const intervalDays      = Number(await getSetting("refill_interval_days", "7"));
+  const maxDays           = Number(await getSetting("refill_max_days", "30"));
+  const refillLockHours   = Number(await getSetting("refill_lock_hours", "24"));
+  const speedActive       = (await getSetting("speed_active", "0")) === "1";
+  const speedIntervalDays = Number(await getSetting("speed_interval_days", "7"));
+  const speedMaxDays      = Number(await getSetting("speed_max_days", "30"));
+  const speedLockHours    = Number(await getSetting("speed_lock_hours", "24"));
 
   let orders: any[] | null = null;
   let error = null;
@@ -51,13 +57,23 @@ export default async function TrackOrderPage({
     }
   }
 
-  // Mostra o botão (em qualquer estado) se o pedido é elegível para reposição
+  const daysSince = (date: Date) => (Date.now() - new Date(date).getTime()) / 86400000;
+
+  // Elegível para reposição (pedidos concluídos)
   const isRefillEligible = (order: any) => {
     if (!refillActive) return false;
     if (order.status !== "completed") return false;
     if (order.type !== "api" || !order.apiOrderId || order.apiOrderId === 0) return false;
-    const daysSinceCreation = (Date.now() - new Date(order.createdAt).getTime()) / 86400000;
-    return daysSinceCreation <= maxDays;
+    return daysSince(order.createdAt) <= maxDays;
+  };
+
+  // Elegível para agilidade (pedidos ativos/travados)
+  const SPEED_ACTIVE_STATUSES = ["pending", "processing", "inprogress", "active"];
+  const isSpeedEligible = (order: any) => {
+    if (!speedActive) return false;
+    if (!SPEED_ACTIVE_STATUSES.includes(order.status)) return false;
+    if (order.type !== "api" || !order.apiOrderId || order.apiOrderId === 0) return false;
+    return daysSince(order.createdAt) <= speedMaxDays;
   };
 
   const getStatusColor = (status: string) => {
@@ -209,6 +225,17 @@ export default async function TrackOrderPage({
                         createdAt={order.createdAt.toISOString()}
                         refillRequestedAt={order.refillRequestedAt ? order.refillRequestedAt.toISOString() : null}
                         intervalDays={intervalDays}
+                        lockHours={refillLockHours}
+                      />
+                    )}
+                    {isSpeedEligible(order) && (
+                      <SpeedButton
+                        orderId={order.id}
+                        email={email!}
+                        createdAt={order.createdAt.toISOString()}
+                        speedRequestedAt={order.speedRequestedAt ? order.speedRequestedAt.toISOString() : null}
+                        intervalDays={speedIntervalDays}
+                        lockHours={speedLockHours}
                       />
                     )}
                  </div>

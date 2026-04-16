@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { RefreshCw, AlertCircle, Loader2, CheckCircle2, Clock, Lock, X } from "lucide-react";
+import { Zap, AlertCircle, Loader2, CheckCircle2, Clock, Lock, X } from "lucide-react";
 
 function formatCountdown(ms: number) {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -25,7 +25,7 @@ function useCountdown(targetMs: number) {
   return remaining;
 }
 
-function RefillSuccessModal({ onClose }: { onClose: () => void }) {
+function SpeedSuccessModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
@@ -37,25 +37,25 @@ function RefillSuccessModal({ onClose }: { onClose: () => void }) {
         >
           <X size={18} />
         </button>
-        <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mb-5">
-          <CheckCircle2 size={32} className="text-green-500" />
+        <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mb-5">
+          <Zap size={32} className="text-amber-500" />
         </div>
         <h2 className="text-xl font-jakarta font-extrabold text-foreground mb-2">
-          Solicitação Enviada!
+          Agilidade Solicitada!
         </h2>
         <p className="text-sm text-muted font-medium leading-relaxed mb-6">
-          Recebemos sua solicitação de reposição. Nossa equipe irá processar e repor os itens em até:
+          Recebemos sua solicitação de agilidade. Nossa equipe irá acelerar a entrega do seu pedido em até:
         </p>
-        <div className="w-full bg-primary/5 border border-primary/20 rounded-2xl px-6 py-4 flex items-center justify-center gap-3 mb-6">
-          <Clock size={20} className="text-primary shrink-0" />
-          <span className="text-2xl font-jakarta font-extrabold text-primary">72 horas</span>
+        <div className="w-full bg-amber-500/5 border border-amber-500/20 rounded-2xl px-6 py-4 flex items-center justify-center gap-3 mb-6">
+          <Clock size={20} className="text-amber-600 shrink-0" />
+          <span className="text-2xl font-jakarta font-extrabold text-amber-600">24 horas</span>
         </div>
         <p className="text-xs text-muted font-medium mb-6">
           Você pode acompanhar o status do pedido a qualquer momento nesta página.
         </p>
         <button
           onClick={onClose}
-          className="w-full py-3 bg-brand-gradient text-white font-extrabold rounded-2xl shadow-brand hover:scale-[1.02] transition-transform"
+          className="w-full py-3 bg-amber-500 text-white font-extrabold rounded-2xl shadow-md hover:scale-[1.02] transition-transform"
         >
           Entendido
         </button>
@@ -64,30 +64,30 @@ function RefillSuccessModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function RefillButton({
+export function SpeedButton({
   orderId,
   email,
   createdAt,
-  refillRequestedAt,
+  speedRequestedAt,
   intervalDays,
-  lockHours = 24,
+  lockHours,
 }: {
   orderId: number;
   email: string;
   createdAt: string;
-  refillRequestedAt: string | null;
+  speedRequestedAt: string | null;
   intervalDays: number;
-  lockHours?: number;
+  lockHours: number;
 }) {
   // Countdown do lock inicial após criação
   const lockMs = lockHours * 3600 * 1000;
   const lockUnlocksAt = new Date(createdAt).getTime() + lockMs;
   const lockRemaining = useCountdown(lockUnlocksAt);
 
-  // Countdown do intervalo entre reposições
+  // Countdown do intervalo entre solicitações
   const intervalMs = intervalDays * 86400 * 1000;
-  const intervalUnlocksAt = refillRequestedAt
-    ? new Date(refillRequestedAt).getTime() + intervalMs
+  const intervalUnlocksAt = speedRequestedAt
+    ? new Date(speedRequestedAt).getTime() + intervalMs
     : 0;
   const intervalRemaining = useCountdown(intervalUnlocksAt);
 
@@ -98,7 +98,7 @@ export function RefillButton({
   const handleClick = async () => {
     setRequestState("loading");
     try {
-      const res = await fetch(`/api/orders/${orderId}/refill`, {
+      const res = await fetch(`/api/orders/${orderId}/speed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -109,7 +109,7 @@ export function RefillButton({
         setShowModal(true);
       } else {
         setRequestState("error");
-        setErrorMsg(data.error || "Erro ao solicitar reposição.");
+        setErrorMsg(data.error || "Erro ao solicitar agilidade.");
       }
     } catch {
       setRequestState("error");
@@ -117,7 +117,7 @@ export function RefillButton({
     }
   };
 
-  // 1. Lock de 24h inicial
+  // 1. Lock inicial
   if (lockRemaining > 0) {
     return (
       <div
@@ -125,28 +125,28 @@ export function RefillButton({
         className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 rounded-xl text-xs font-bold cursor-not-allowed select-none"
       >
         <Lock size={13} />
-        Reposição em {formatCountdown(lockRemaining)}
+        Agilidade em {formatCountdown(lockRemaining)}
       </div>
     );
   }
 
-  // 2. Intervalo entre reposições ainda ativo (persiste após reload)
+  // 2. Intervalo entre solicitações ainda ativo
   if (intervalRemaining > 0 || requestState === "success") {
-    const timeLeft = requestState === "success" ? intervalRemaining : intervalRemaining;
+    const timeLeft = intervalRemaining;
     return (
       <>
-        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-xl text-xs font-bold select-none">
+        <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl text-xs font-bold select-none">
           <CheckCircle2 size={13} className="shrink-0" />
           <span>
-            Reposição solicitada
+            Agilidade solicitada
             {timeLeft > 0 && (
-              <span className="text-green-500 font-medium ml-1">
+              <span className="text-amber-500 font-medium ml-1">
                 · próxima em {formatCountdown(timeLeft)}
               </span>
             )}
           </span>
         </div>
-        {showModal && <RefillSuccessModal onClose={() => setShowModal(false)} />}
+        {showModal && <SpeedSuccessModal onClose={() => setShowModal(false)} />}
       </>
     );
   }
@@ -166,14 +166,14 @@ export function RefillButton({
       <button
         onClick={handleClick}
         disabled={requestState === "loading"}
-        className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-xl text-xs font-bold hover:bg-primary/20 transition-all disabled:opacity-50"
+        className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 rounded-xl text-xs font-bold hover:bg-amber-500/20 transition-all disabled:opacity-50"
       >
         {requestState === "loading"
           ? <Loader2 size={14} className="animate-spin" />
-          : <RefreshCw size={14} />}
-        Solicitar Reposição
+          : <Zap size={14} />}
+        Solicitar Agilidade
       </button>
-      {showModal && <RefillSuccessModal onClose={() => setShowModal(false)} />}
+      {showModal && <SpeedSuccessModal onClose={() => setShowModal(false)} />}
     </>
   );
 }

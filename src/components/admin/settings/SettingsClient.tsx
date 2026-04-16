@@ -19,6 +19,7 @@ import {
   MessageCircle,
   X,
   Gift,
+  Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { updateSettings, upsertApiProvider, deleteApiProvider, getProviderBalance, uploadLogo } from "@/app/admin/configuracoes/actions";
@@ -169,7 +170,7 @@ export default function SettingsClient({
     { id: "email",     label: "E-mail (SMTP)",       icon: Mail,           color: "text-amber-500",   bg: "bg-amber-500/10"   },
     { id: "social",    label: "Social & Links",      icon: Share2,         color: "text-pink-500",    bg: "bg-pink-500/10"    },
     { id: "whatsapp",  label: "Respostas Auto.",     icon: MessageCircle,  color: "text-green-500",   bg: "bg-green-500/10"   },
-    { id: "reposicoes", label: "Reposições",         icon: RefreshCw,      color: "text-teal-500",    bg: "bg-teal-500/10"    },
+    { id: "reposicoes", label: "Reposições & Agilidade", icon: RefreshCw,   color: "text-teal-500",    bg: "bg-teal-500/10"    },
   ];
 
   return (
@@ -582,6 +583,7 @@ export default function SettingsClient({
                     </div>
 
                     {/* Intervalo e prazo */}
+                    <SettingField label="Horas de espera inicial (1ª reposição)" name="refill_lock_hours" value={settings.refill_lock_hours || "24"} onChange={handleChange} />
                     <SettingField label="Intervalo mínimo entre reposições (dias)" name="refill_interval_days" value={settings.refill_interval_days || "7"} onChange={handleChange} />
                     <SettingField label="Prazo máximo após o pedido (dias)" name="refill_max_days" value={settings.refill_max_days || "30"} onChange={handleChange} />
 
@@ -623,6 +625,59 @@ export default function SettingsClient({
                         rows={4}
                         value={settings.refill_message_template || "♻️ *REPOSIÇÃO SOLICITADA*\n\nOrder ID: {{orderId}}\nServiço: {{servico}}\nLink: {{link}}"}
                         onChange={(e) => handleChange("refill_message_template", e.target.value)}
+                        className="w-full px-6 py-4 bg-surface rounded-2xl border border-transparent focus:border-primary/20 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-medium text-sm resize-none"
+                      />
+                      <p className="text-[10px] text-muted ml-1">Variáveis: {`{{orderId}}`} = ID no provedor, {`{{servico}}`} = nome do serviço, {`{{link}}`} = link do perfil</p>
+                    </div>
+
+                    {/* ─── Separador Agilidade ─── */}
+                    <div className="col-span-full border-t border-border pt-8">
+                      <TabHeader icon={Zap} title="Agilidade" />
+                    </div>
+
+                    {/* Info Agilidade */}
+                    <div className="col-span-full p-6 bg-amber-500/5 rounded-2xl border border-amber-500/20 flex gap-4">
+                      <Zap size={22} className="text-amber-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-black text-foreground mb-1">Como funciona</p>
+                        <p className="text-[12px] text-muted leading-relaxed">
+                          Quando o cliente clicar em "Solicitar Agilidade" em /meus-pedidos, uma mensagem é enviada para o mesmo grupo do fornecedor acima para acelerar a entrega do pedido.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Toggle speed_active */}
+                    <div className="col-span-full flex items-center justify-between p-6 bg-surface rounded-2xl border border-border">
+                      <div>
+                        <p className="text-sm font-black text-foreground">Agilidade Ativa</p>
+                        <p className="text-[10px] text-muted uppercase tracking-widest mt-1">Exibe o botão em /meus-pedidos</p>
+                      </div>
+                      <CustomSelect
+                        options={[{ value: "1", label: "Ativado" }, { value: "0", label: "Desativado" }]}
+                        value={settings.speed_active || "0"}
+                        onChange={(val) => handleChange("speed_active", val)}
+                      />
+                    </div>
+
+                    {/* Campos numéricos Agilidade */}
+                    <SettingField label="Horas de espera inicial (1ª agilidade)" name="speed_lock_hours" value={settings.speed_lock_hours || "24"} onChange={handleChange} />
+                    <SettingField label="Intervalo mínimo entre solicitações (dias)" name="speed_interval_days" value={settings.speed_interval_days || "7"} onChange={handleChange} />
+                    <SettingField label="Prazo máximo após o pedido (dias)" name="speed_max_days" value={settings.speed_max_days || "30"} onChange={handleChange} />
+
+                    {/* Nota sobre grupo compartilhado */}
+                    <div className="col-span-full p-4 bg-surface rounded-2xl border border-border">
+                      <p className="text-[11px] text-muted">
+                        ℹ️ O grupo do fornecedor para Agilidade é o mesmo configurado em Reposições acima.
+                      </p>
+                    </div>
+
+                    {/* Template da mensagem de Agilidade */}
+                    <div className="col-span-full space-y-2">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-muted">Mensagem para o Fornecedor (Agilidade)</label>
+                      <textarea
+                        rows={4}
+                        value={settings.speed_message_template || "⚡ *AGILIDADE SOLICITADA*\n\nOrder ID: {{orderId}}\nServiço: {{servico}}\nLink: {{link}}"}
+                        onChange={(e) => handleChange("speed_message_template", e.target.value)}
                         className="w-full px-6 py-4 bg-surface rounded-2xl border border-transparent focus:border-primary/20 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-medium text-sm resize-none"
                       />
                       <p className="text-[10px] text-muted ml-1">Variáveis: {`{{orderId}}`} = ID no provedor, {`{{servico}}`} = nome do serviço, {`{{link}}`} = link do perfil</p>
