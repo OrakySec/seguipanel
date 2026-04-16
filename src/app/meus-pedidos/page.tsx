@@ -43,13 +43,37 @@ export default async function TrackOrderPage({
   let error = null;
 
   if (email) {
-    orders = await prisma.order.findMany({
-      where: { user: { email } },
-      include: {
-        service: { include: { category: true } },
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    try {
+      orders = await prisma.order.findMany({
+        where: { user: { email } },
+        include: {
+          service: { include: { category: true } },
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (e: any) {
+      // Fallback: se Prisma client desatualizado não conhece speedRequestedAt,
+      // busca sem esse campo usando select explícito
+      if (e?.code === 'P2022' && e?.meta?.column?.includes('speedRequestedAt')) {
+        orders = await (prisma.order as any).findMany({
+          where: { user: { email } },
+          select: {
+            id: true, userId: true, type: true, categoryId: true,
+            serviceId: true, serviceType: true, apiProviderId: true,
+            apiServiceId: true, apiOrderId: true, status: true,
+            charge: true, link: true, quantity: true, startCounter: true,
+            remains: true, note: true, lastStatusCheckAt: true,
+            refillRequestedAt: true, createdAt: true, updatedAt: true,
+            service: { include: { category: true } },
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        // Garante que speedRequestedAt existe como null
+        orders = orders.map((o: any) => ({ ...o, speedRequestedAt: null }));
+      } else {
+        throw e;
+      }
+    }
 
     if (!orders || orders.length === 0) {
       error = "Nenhum pedido encontrado para o e-mail informado.";

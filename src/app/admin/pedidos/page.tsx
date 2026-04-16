@@ -38,15 +38,38 @@ export default async function AdminOrdersPage({
     where.status = status;
   }
 
-  const orders = await prisma.order.findMany({
-    take: 50,
-    orderBy: { createdAt: "desc" },
-    where,
-    include: {
-      service: { select: { name: true, category: { select: { socialNetwork: { select: { name: true } } } } } },
-      user: { select: { email: true, whatsapp: true } }
+  let orders: any[];
+  try {
+    orders = await prisma.order.findMany({
+      take: 50,
+      orderBy: { createdAt: "desc" },
+      where,
+      include: {
+        service: { select: { name: true, category: { select: { socialNetwork: { select: { name: true } } } } } },
+        user: { select: { email: true, whatsapp: true } }
+      }
+    });
+  } catch (e: any) {
+    if (e?.code === 'P2022' && e?.meta?.column?.includes('speedRequestedAt')) {
+      orders = await (prisma.order as any).findMany({
+        take: 50,
+        orderBy: { createdAt: "desc" },
+        where,
+        select: {
+          id: true, userId: true, type: true, categoryId: true,
+          serviceId: true, serviceType: true, apiProviderId: true,
+          apiServiceId: true, apiOrderId: true, status: true,
+          charge: true, link: true, quantity: true, startCounter: true,
+          remains: true, note: true, lastStatusCheckAt: true,
+          refillRequestedAt: true, createdAt: true, updatedAt: true,
+          service: { select: { name: true, category: { select: { socialNetwork: { select: { name: true } } } } } },
+          user: { select: { email: true, whatsapp: true } }
+        }
+      });
+    } else {
+      throw e;
     }
-  });
+  }
 
   const serialized = orders.map((o: any) => ({
     ...o,
