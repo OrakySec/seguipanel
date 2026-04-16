@@ -69,7 +69,7 @@ export default async function TrackOrderPage({
           orderBy: { createdAt: 'desc' }
         });
         // Garante que speedRequestedAt existe como null
-        orders = orders.map((o: any) => ({ ...o, speedRequestedAt: null }));
+        orders = (orders as any[]).map((o: any) => ({ ...o, speedRequestedAt: null }));
       } else {
         throw e;
       }
