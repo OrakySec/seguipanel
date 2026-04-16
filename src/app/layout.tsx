@@ -126,6 +126,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Impede que browsers com dark mode do sistema apliquem cores escuras automaticamente */}
+        <meta name="color-scheme" content="light" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}

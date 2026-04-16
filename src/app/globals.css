@@ -32,6 +32,7 @@
 /* ───────────────────────────────────────── */
 
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #0f172a;
   --card: #ffffff;
@@ -68,13 +69,16 @@
 /* ─── Estilos Base ─── */
 /* ───────────────────────────────────────── */
 
+html {
+  background-color: #ffffff; /* fallback antes das CSS variables carregarem */
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-x: hidden;
 }
 
