@@ -149,12 +149,7 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
 
   return (
     <>
-      <motion.div
-        className="max-w-4xl mx-auto relative z-10"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      >
+      <div className="hero-entrance max-w-4xl mx-auto relative z-10">
         {/* Badge social proof */}
         {/* Badge social proof premium (ESTILO FORÇADO VIA INLINE PARA PRECISÃO) */}
         <div 
@@ -252,8 +247,8 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
           {platforms.filter((p) => p.urlSlug).map((p, i) => (
             <motion.div
               key={p.name}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
               transition={{ delay: 0.2 + 0.05 * i, ease: [0.16, 1, 0.3, 1] }}
             >
               <Link
@@ -298,7 +293,7 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
             </span>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Modal de seleção de plataforma */}
       {modalOpen && (

@@ -27,9 +27,8 @@ export function AnimatedPopularServices({ services }: { services: any[] }) {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={{
-            hidden: { opacity: 0 },
+            hidden: {},
             visible: {
-              opacity: 1,
               transition: { staggerChildren: 0.15 },
             },
           }}
@@ -45,8 +44,8 @@ export function AnimatedPopularServices({ services }: { services: any[] }) {
               <motion.article
                 key={i}
                 variants={{
-                  hidden: { opacity: 0, y: 30 },
-                  visible: { opacity: 1, y: 0 },
+                  hidden: { y: 30 },
+                  visible: { y: 0 },
                 }}
                 className="glass-card-2026 flex flex-col rounded-[2.5rem] p-3 shadow-premium group"
               >

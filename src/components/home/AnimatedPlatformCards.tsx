@@ -21,9 +21,8 @@ export function AnimatedPlatformCards({ platforms }: { platforms: any[] }) {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={{
-            hidden: { opacity: 0 },
+            hidden: {},
             visible: {
-              opacity: 1,
               transition: { staggerChildren: 0.1 }
             }
           }}
@@ -32,8 +31,8 @@ export function AnimatedPlatformCards({ platforms }: { platforms: any[] }) {
             <motion.div
               key={p.name}
               variants={{
-                hidden: { opacity: 0, y: 15 },
-                visible: { opacity: 1, y: 0 }
+                hidden: { y: 15 },
+                visible: { y: 0 }
               }}
             >
               <Link 
