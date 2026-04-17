@@ -82,9 +82,6 @@ function BonusModal({ whatsappNumber, onClose }: { whatsappNumber: string; onClo
           </svg>
           Quero meu bônus de +30%
         </a>
-        <button onClick={onClose} className="mt-3 w-full py-2.5 text-sm text-gray-400 hover:text-gray-600 transition-colors">
-          Agora não
-        </button>
       </div>
     </div>
   );
