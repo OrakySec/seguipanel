@@ -51,14 +51,11 @@ type Step = "form" | "pix" | "success";
 function BonusModal({ whatsappNumber, onClose }: { whatsappNumber: string; onClose: () => void }) {
   const msg = encodeURIComponent("Quero receber meu bônus de +30%!");
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div
         className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-7 text-center animate-in fade-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition-colors text-xl leading-none">✕</button>
-
         {/* Badge +30% */}
         <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm font-black px-4 py-1.5 rounded-full mb-4 shadow-lg">
           🎁 <span>+30% DE BÔNUS</span>
