@@ -30,7 +30,7 @@ const EMPTY_FORM = {
 };
 
 export default function CouponsClient({ initialCoupons }: { initialCoupons: Coupon[] }) {
-  const { showToast } = useToast();
+  const { toast } = useToast();
   const [coupons, setCoupons] = useState<Coupon[]>(initialCoupons);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -106,14 +106,14 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
       }
 
       setModalOpen(false);
-      showToast(form.id ? "Cupom atualizado!" : "Cupom criado!", "success");
+      toast("success", form.id ? "Cupom atualizado!" : "Cupom criado!");
     });
   }
 
   function handleToggle(id: number, current: boolean) {
     startTransition(async () => {
       const res = await toggleCouponStatus(id, current);
-      if (!res.success) { showToast(res.error || "Erro", "error"); return; }
+      if (!res.success) { toast("error", res.error || "Erro"); return; }
       setCoupons((prev) => prev.map((c) => (c.id === id ? { ...c, isActive: !current } : c)));
     });
   }
@@ -122,9 +122,9 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
     if (!confirm("Excluir este cupom? Esta ação não pode ser desfeita.")) return;
     startTransition(async () => {
       const res = await deleteCoupon(id);
-      if (!res.success) { showToast(res.error || "Erro", "error"); return; }
+      if (!res.success) { toast("error", res.error || "Erro"); return; }
       setCoupons((prev) => prev.filter((c) => c.id !== id));
-      showToast("Cupom excluído.", "success");
+      toast("success", "Cupom excluído.");
     });
   }
 
