@@ -3,6 +3,7 @@ import { getSetting } from "@/lib/settings";
 import { getActiveSocialNetworks } from "@/lib/catalog";
 
 const staticHelpLinks: { name: string; href: string; external?: boolean }[] = [
+  { name: "Blog",                 href: "/blog" },
   { name: "Como Funciona",        href: "/como-funciona" },
   { name: "Meus Pedidos",         href: "/meus-pedidos" },
   { name: "Perguntas Frequentes", href: "/#faq" },

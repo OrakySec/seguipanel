@@ -1,10 +1,17 @@
 import type { MetadataRoute } from "next";
 import { getActiveSocialNetworks } from "@/lib/catalog";
+import { prisma } from "@/lib/prisma";
 
 const BASE_URL = "https://seguifacil.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const platforms = await getActiveSocialNetworks().catch(() => []);
+  const [platforms, blogPosts] = await Promise.all([
+    getActiveSocialNetworks().catch(() => []),
+    prisma.blog.findMany({
+      where: { status: 1, publishedAt: { lte: new Date() } },
+      select: { urlSlug: true, updatedAt: true },
+    }).catch(() => []),
+  ]);
 
   const platformPages: MetadataRoute.Sitemap = platforms
     .filter((p) => p.urlSlug != null)
@@ -15,12 +22,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     }));
 
+  const blogPostPages: MetadataRoute.Sitemap = blogPosts.map((p) => ({
+    url: `${BASE_URL}/blog/${p.urlSlug}`,
+    lastModified: p.updatedAt,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
   return [
     {
       url: BASE_URL,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1.0,
+    },
+    {
+      url: `${BASE_URL}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
     {
       url: `${BASE_URL}/servicos`,
@@ -41,5 +61,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     },
     ...platformPages,
+    ...blogPostPages,
   ];
 }

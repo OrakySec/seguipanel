@@ -57,6 +57,12 @@ export default function HeaderClient({
           {/* Ações desktop */}
           <div className="hidden sm:flex items-center gap-4">
             <Link
+              href="/blog"
+              className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-primary transition-all"
+            >
+              Blog
+            </Link>
+            <Link
               href="/meus-pedidos"
               className="btn-tactile inline-flex items-center gap-2 px-6 py-3 text-xs font-black uppercase tracking-widest text-white bg-brand-gradient rounded-2xl shadow-xl hover:-translate-y-0.5 transition-all"
             >
@@ -102,6 +108,13 @@ export default function HeaderClient({
             ))}
           </div>
           <div className="flex gap-2">
+            <Link
+              href="/blog"
+              onClick={() => setMobileOpen(false)}
+              className="flex-shrink-0 inline-flex items-center justify-center gap-2 py-4 px-5 text-xs font-black uppercase tracking-widest text-primary bg-primary/10 rounded-2xl"
+            >
+              Blog
+            </Link>
             <Link
               href="/meus-pedidos"
               onClick={() => setMobileOpen(false)}
