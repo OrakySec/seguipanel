@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Smartphone,
-  FolderTree
+  FolderTree,
+  Tag
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -27,6 +28,7 @@ const navItems = [
   { icon: ShoppingCart, label: "Pedidos", href: "/admin/pedidos" },
   { icon: FolderTree, label: "Categorias", href: "/admin/categorias" },
   { icon: Smartphone, label: "Serviços", href: "/admin/servicos" },
+  { icon: Tag, label: "Cupons", href: "/admin/cupons" },
   { icon: Users, label: "Usuários", href: "/admin/usuarios" },
   { icon: CreditCard, label: "Financeiro", href: "/admin/financeiro" },
   { icon: Settings, label: "Configurações", href: "/admin/configuracoes" },
