@@ -10,7 +10,8 @@ import {
   Clock,
   ExternalLink,
   ShieldCheck,
-  Zap
+  Zap,
+  RotateCcw
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatBRL } from "@/lib/utils";
@@ -23,9 +24,10 @@ export default async function AdminDashboard() {
 
   // ─── Estatísticas de Vendas ───
   const [
-    salesTodayRaw, 
-    salesMonthRaw, 
+    salesTodayRaw,
+    salesMonthRaw,
     salesTotalRaw,
+    refundedTotalRaw,
     pendingOrdersCount,
     latestOrders
   ] = await Promise.all([
@@ -42,6 +44,11 @@ export default async function AdminDashboard() {
     // Vendas totais (excluindo cancelados/parciais)
     prisma.transactionLog.aggregate({
       where: { status: 1, NOT: { order: { status: { in: ["canceled", "partial"] } } } },
+      _sum: { amount: true }
+    }),
+    // Total reembolsado (pedidos cancelados + parciais)
+    prisma.transactionLog.aggregate({
+      where: { status: 1, order: { status: { in: ["canceled", "partial"] } } },
       _sum: { amount: true }
     }),
     // Pedidos pendentes
@@ -94,7 +101,7 @@ export default async function AdminDashboard() {
             className="bg-card p-8 rounded-[2.5rem] border border-border shadow-card hover:border-primary/20 transition-all group relative overflow-hidden"
           >
             <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-50`} />
-            
+
             <div className="flex justify-between items-start mb-6 relative">
               <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center ${stat.color} shadow-sm group-hover:scale-110 transition-transform`}>
                 <stat.icon className="w-6 h-6" />
@@ -107,6 +114,25 @@ export default async function AdminDashboard() {
             <h3 className="text-2xl font-black text-foreground tracking-tighter">{stat.value}</h3>
           </div>
         ))}
+      </div>
+
+      {/* Card Reembolsos */}
+      <div className="bg-card p-8 rounded-[2.5rem] border border-rose-200 shadow-card relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-rose-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-60" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative">
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 shadow-sm shrink-0">
+              <RotateCcw className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-rose-400 mb-1">Reembolsos Totais</p>
+              <p className="text-xs text-muted font-bold">Pedidos com status <span className="text-rose-400">Cancelado</span> ou <span className="text-amber-500">Parcial</span></p>
+            </div>
+          </div>
+          <h3 className="text-3xl font-black text-rose-500 tracking-tighter">
+            {formatBRL(refundedTotalRaw._sum.amount || 0)}
+          </h3>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
