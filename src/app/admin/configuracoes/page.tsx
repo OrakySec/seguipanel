@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import React from "react";
-import { getSettings, getApiProviders } from "./actions";
+import { getSettings, getApiProviders, getWhatsAppActions } from "./actions";
 import SettingsClient from "@/components/admin/settings/SettingsClient";
 
 export const metadata = {
@@ -11,16 +11,18 @@ export const metadata = {
 
 export default async function AdminSettingsPage() {
   // Busca inicial de configurações e provedores no servidor (SSR)
-  const [settings, providers] = await Promise.all([
+  const [settings, providers, initialActions] = await Promise.all([
     getSettings(),
-    getApiProviders()
+    getApiProviders(),
+    getWhatsAppActions(),
   ]);
 
   return (
     <div className="bg-surface/50 min-h-screen">
-      <SettingsClient 
+      <SettingsClient
         initialSettings={settings}
         initialProviders={providers}
+        initialActions={initialActions}
       />
     </div>
   );

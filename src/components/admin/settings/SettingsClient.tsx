@@ -20,11 +20,13 @@ import {
   X,
   Gift,
   Zap,
+  MessageSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { updateSettings, upsertApiProvider, deleteApiProvider, getProviderBalance, uploadLogo } from "@/app/admin/configuracoes/actions";
 import CustomSelect from "@/components/ui/CustomSelect";
 import { useToast } from "@/components/ui/Toast";
+import { WhatsAppActionsTab, type WhatsAppActionRow } from "@/components/admin/settings/WhatsAppActionsTab";
 
 interface ApiProvider {
   id: number;
@@ -44,17 +46,20 @@ function parseFlow(json: string | undefined): MsgFlow {
   try { return JSON.parse(json) as MsgFlow; } catch { return DEFAULT_FLOW; }
 }
 
-export default function SettingsClient({ 
-  initialSettings, 
-  initialProviders 
-}: { 
-  initialSettings: Record<string, string>,
-  initialProviders: ApiProvider[]
+export default function SettingsClient({
+  initialSettings,
+  initialProviders,
+  initialActions = [],
+}: {
+  initialSettings: Record<string, string>;
+  initialProviders: ApiProvider[];
+  initialActions?: WhatsAppActionRow[];
 }) {
   const [activeTab, setActiveTab] = useState("geral");
   const { toast } = useToast();
   const [settings, setSettings] = useState(initialSettings);
   const [providers, setProviders] = useState<ApiProvider[]>(initialProviders);
+  const [whatsappActions, setWhatsappActions] = useState<WhatsAppActionRow[]>(initialActions);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [orderConfirmedFlow, setOrderConfirmedFlow] = useState<MsgFlow>(() =>
@@ -170,7 +175,8 @@ export default function SettingsClient({
     { id: "email",     label: "E-mail (SMTP)",       icon: Mail,           color: "text-amber-500",   bg: "bg-amber-500/10"   },
     { id: "social",    label: "Social & Links",      icon: Share2,         color: "text-pink-500",    bg: "bg-pink-500/10"    },
     { id: "whatsapp",  label: "Respostas Auto.",     icon: MessageCircle,  color: "text-green-500",   bg: "bg-green-500/10"   },
-    { id: "reposicoes", label: "Reposições & Agilidade", icon: RefreshCw,   color: "text-teal-500",    bg: "bg-teal-500/10"    },
+    { id: "reposicoes",    label: "Reposições & Agilidade", icon: RefreshCw,      color: "text-teal-500",   bg: "bg-teal-500/10"   },
+    { id: "acoes-whatsapp", label: "Ações WhatsApp",        icon: MessageSquare,  color: "text-green-600",  bg: "bg-green-600/10"  },
   ];
 
   return (
@@ -181,7 +187,7 @@ export default function SettingsClient({
           <h1 className="text-3xl font-black text-foreground tracking-tighter mb-1">Configurações</h1>
           <p className="text-[10px] font-black text-muted uppercase tracking-widest">Ajustes globais do ecossistema SeguiFacil</p>
         </div>
-        {activeTab !== "provedores" && (
+        {activeTab !== "provedores" && activeTab !== "acoes-whatsapp" && (
             <button 
                 onClick={handleSaveSettings}
                 disabled={isSaving}
@@ -683,6 +689,15 @@ export default function SettingsClient({
                       <p className="text-[10px] text-muted ml-1">Variáveis: {`{{orderId}}`} = ID no provedor, {`{{servico}}`} = nome do serviço, {`{{link}}`} = link do perfil</p>
                     </div>
                   </div>
+                </motion.div>
+              )}
+
+              {activeTab === "acoes-whatsapp" && (
+                <motion.div key="acoes-whatsapp" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
+                  <WhatsAppActionsTab
+                    actions={whatsappActions}
+                    onUpdate={setWhatsappActions}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>

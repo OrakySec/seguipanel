@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Trash2, Eye, X, RefreshCw, ExternalLink } from "lucide-react";
+import { Trash2, Eye, X, RefreshCw, ExternalLink, MessageSquare } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { deleteOrder } from "@/app/admin/usuarios/actions";
 import { formatBRL, formatDate } from "@/lib/utils";
@@ -174,11 +174,60 @@ function Row({ label, value, mono, highlight }: { label: string; value: string; 
   );
 }
 
+type WaAction = { id: number; name: string; type: string; messageTemplate: string };
+
 /* ─────────────────────────────────────────────────────── Table ── */
-export default function OrdersClient({ initialOrders }: { initialOrders: any[] }) {
+export default function OrdersClient({
+  initialOrders,
+  actions = [],
+}: {
+  initialOrders: any[];
+  actions?: WaAction[];
+}) {
   const { toast } = useToast();
-  const [orders, setOrders] = useState(initialOrders);
-  const [selected, setSelected] = useState<any>(null);
+  const [orders, setOrders]           = useState(initialOrders);
+  const [selected, setSelected]       = useState<any>(null);
+  const [actionMenuId, setActionMenuId]   = useState<number | null>(null);
+  const [pendingAction, setPendingAction] = useState<{
+    orderId: number; actionId: number; actionName: string;
+    actionType: string; preview: string;
+  } | null>(null);
+  const [sending, setSending]         = useState(false);
+
+  const handleSelectAction = (order: any, action: WaAction) => {
+    const preview = action.messageTemplate
+      .replace(/\{\{orderId\}\}/g, String(order.id))
+      .replace(/\{\{servico\}\}/g, order.service?.name ?? "")
+      .replace(/\{\{link\}\}/g,    order.link ?? "");
+    setPendingAction({
+      orderId: order.id, actionId: action.id,
+      actionName: action.name, actionType: action.type, preview,
+    });
+    setActionMenuId(null);
+  };
+
+  const handleSendAction = async () => {
+    if (!pendingAction) return;
+    setSending(true);
+    try {
+      const res  = await fetch(`/api/admin/orders/${pendingAction.orderId}/send-action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actionId: pendingAction.actionId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast("success", "Mensagem enviada com sucesso!");
+      } else {
+        toast("error", "Erro ao enviar mensagem", data.error);
+      }
+    } catch {
+      toast("error", "Erro ao enviar mensagem");
+    } finally {
+      setSending(false);
+      setPendingAction(null);
+    }
+  };
 
   const handleDelete = async (id: number) => {
     if (!confirm(`Excluir permanentemente o pedido #${id}?`)) return;
@@ -242,6 +291,44 @@ export default function OrdersClient({ initialOrders }: { initialOrders: any[] }
           </td>
           <td className="px-8 py-6 text-right">
             <div className="flex items-center justify-end gap-2">
+              {/* Botão de ações WhatsApp */}
+              {actions.length > 0 && (
+                <div className="relative">
+                  <button
+                    onClick={() => setActionMenuId(prev => prev === order.id ? null : order.id)}
+                    className="h-11 w-11 flex items-center justify-center rounded-2xl border border-border
+                               text-muted hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30
+                               transition-all shadow-sm opacity-0 group-hover:opacity-100"
+                    title="Enviar mensagem WhatsApp"
+                  >
+                    <MessageSquare size={16} />
+                  </button>
+
+                  {actionMenuId === order.id && (
+                    <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border
+                                    rounded-2xl shadow-xl w-56 py-2 overflow-hidden">
+                      {actions.map((action) => (
+                        <button
+                          key={action.id}
+                          onClick={() => handleSelectAction(order, action)}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm
+                                     hover:bg-surface text-left transition-colors"
+                        >
+                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full shrink-0 ${
+                            action.type === "supplier"
+                              ? "bg-purple-100 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400"
+                              : "bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+                          }`}>
+                            {action.type === "supplier" ? "Fornecedor" : "Cliente"}
+                          </span>
+                          <span className="font-bold text-foreground truncate">{action.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <button
                 onClick={() => handleDelete(order.id)}
                 className="h-11 w-11 flex items-center justify-center rounded-2xl border border-border text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all shadow-sm opacity-0 group-hover:opacity-100"
@@ -259,6 +346,62 @@ export default function OrdersClient({ initialOrders }: { initialOrders: any[] }
           </td>
         </tr>
       ))}
+
+      {/* Modal de confirmação de envio WhatsApp */}
+      {pendingAction && (
+        <tr>
+          <td>
+            <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4">
+              <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={() => !sending && setPendingAction(null)}
+              />
+              <div className="relative bg-card rounded-3xl border border-border shadow-2xl w-full max-w-md p-6 space-y-5">
+                {/* Header */}
+                <div>
+                  <h3 className="text-lg font-black text-foreground">Confirmar envio</h3>
+                  <p className="text-sm text-muted mt-1">
+                    {pendingAction.actionType === "supplier" ? "📣 Grupo do Fornecedor" : "📱 WhatsApp do Cliente"}
+                    {" · "}
+                    <strong className="text-foreground">{pendingAction.actionName}</strong>
+                  </p>
+                </div>
+
+                {/* Preview da mensagem interpolada */}
+                <pre className="bg-surface border border-border rounded-2xl px-4 py-4 text-sm
+                                whitespace-pre-wrap break-words font-mono text-foreground leading-relaxed">
+                  {pendingAction.preview}
+                </pre>
+
+                {/* Botões */}
+                <div className="flex gap-3 pt-1">
+                  <button
+                    onClick={() => setPendingAction(null)}
+                    disabled={sending}
+                    className="flex-1 h-12 rounded-2xl border border-border text-sm font-black
+                               text-muted hover:bg-surface transition-all disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSendAction}
+                    disabled={sending}
+                    className="flex-1 h-12 rounded-2xl bg-brand-gradient text-sm font-black
+                               text-white shadow-lg hover:opacity-90 transition-all disabled:opacity-50"
+                  >
+                    {sending ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Enviando…
+                      </span>
+                    ) : "Enviar Mensagem"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
 
       {selected && (
         <tr>

@@ -23,6 +23,32 @@ export async function sendEvolutionGroupMessage(groupJid: string, text: string) 
   }).catch((e) => console.error("[Evolution] Erro ao enviar para grupo:", e));
 }
 
+/**
+ * Envia uma mensagem de texto diretamente para um número de WhatsApp (cliente).
+ * Normaliza o número adicionando o código do Brasil (55) se necessário.
+ */
+export async function sendEvolutionMessage(phone: string, text: string) {
+  const [url, token, instance] = await Promise.all([
+    getSetting("evolution_api_url"),
+    getSetting("evolution_api_token"),
+    getSetting("evolution_instance"),
+  ]);
+
+  if (!url || !token || !instance) {
+    console.warn("[Evolution] Configuração incompleta para envio ao usuário");
+    return;
+  }
+
+  const digits     = phone.replace(/\D/g, "");
+  const normalized = /^55\d{10,11}$/.test(digits) ? digits : `55${digits}`;
+
+  await fetch(`${url}/message/sendText/${instance}`, {
+    method: "POST",
+    headers: { apikey: token, "Content-Type": "application/json" },
+    body: JSON.stringify({ number: normalized, text }),
+  }).catch((e) => console.error("[Evolution] Erro ao enviar para usuário:", e));
+}
+
 export type MsgStep = { text: string; delayAfter: number };
 export type MsgFlow = { active?: boolean; initialDelay: number; messages: MsgStep[] };
 

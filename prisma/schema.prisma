@@ -279,6 +279,19 @@ model CustomPage {
   @@map("custom_pages")
 }
 
+model WhatsAppAction {
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(255)
+  type            String   @db.VarChar(20)
+  messageTemplate String   @db.Text
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("whatsapp_actions")
+}
+
 enum UserRole {
   ADMIN
   SUPPORTER

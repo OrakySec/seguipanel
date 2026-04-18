@@ -144,6 +144,59 @@ export async function deleteApiProvider(id: number) {
   }
 }
 
+/* ──────────────────────────────────────── WhatsApp Actions ── */
+
+export async function getWhatsAppActions() {
+  return prisma.whatsAppAction.findMany({
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+  });
+}
+
+export async function upsertWhatsAppAction(data: {
+  id?: number;
+  name: string;
+  type: string;
+  messageTemplate: string;
+  isActive: boolean;
+  sortOrder: number;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { id, ...rest } = data;
+    if (id) {
+      await prisma.whatsAppAction.update({ where: { id }, data: rest });
+    } else {
+      await prisma.whatsAppAction.create({ data: rest });
+    }
+    revalidatePath("/admin/configuracoes");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Erro ao salvar ação." };
+  }
+}
+
+export async function deleteWhatsAppAction(id: number): Promise<{ success: boolean; error?: string }> {
+  try {
+    await prisma.whatsAppAction.delete({ where: { id } });
+    revalidatePath("/admin/configuracoes");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Erro ao excluir ação." };
+  }
+}
+
+export async function toggleWhatsAppAction(
+  id: number,
+  current: boolean
+): Promise<{ success: boolean }> {
+  try {
+    await prisma.whatsAppAction.update({ where: { id }, data: { isActive: !current } });
+    revalidatePath("/admin/configuracoes");
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+}
+
 /**
  * Busca o saldo real no provedor (Consulta externa)
  */

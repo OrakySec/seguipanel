@@ -38,6 +38,12 @@ export default async function AdminOrdersPage({
     where.status = status;
   }
 
+  const whatsappActions = await prisma.whatsAppAction.findMany({
+    where: { isActive: true },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    select: { id: true, name: true, type: true, messageTemplate: true },
+  }).catch(() => []);
+
   let orders: any[];
   try {
     orders = await prisma.order.findMany({
@@ -114,7 +120,7 @@ export default async function AdminOrdersPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              <OrdersClient initialOrders={serialized} />
+              <OrdersClient initialOrders={serialized} actions={whatsappActions} />
             </tbody>
           </table>
         </div>
