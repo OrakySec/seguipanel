@@ -196,7 +196,7 @@ export default function OrdersClient({
 
   const handleSelectAction = (order: any, action: WaAction) => {
     const preview = action.messageTemplate
-      .replace(/\{\{orderId\}\}/g, String(order.id))
+      .replace(/\{\{orderId\}\}/g, String(order.apiOrderId ?? order.id))
       .replace(/\{\{servico\}\}/g, order.service?.name ?? "")
       .replace(/\{\{link\}\}/g,    order.link ?? "");
     setPendingAction({
