@@ -35,10 +35,13 @@ COPY --from=builder /app/.next/static                  ./.next/static
 
 # Schema e binários do Prisma
 COPY --from=builder /app/prisma                        ./prisma
+COPY --from=builder /app/prisma.config.ts              ./prisma.config.ts
 COPY --from=builder /app/node_modules/.prisma          ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma          ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma           ./node_modules/prisma
 COPY --from=builder /app/node_modules/.bin/prisma*     ./node_modules/.bin/
+# dotenv é necessário para o prisma.config.ts carregar no entrypoint
+COPY --from=builder /app/node_modules/dotenv           ./node_modules/dotenv
 
 # Script de inicialização
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
