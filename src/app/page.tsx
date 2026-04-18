@@ -440,6 +440,18 @@ function Testimonials() {
               itemScope
               itemType="https://schema.org/Review"
             >
+              {/* itemReviewed obrigatório pelo Google */}
+              <span itemProp="itemReviewed" itemScope itemType="https://schema.org/Organization" className="sr-only">
+                <meta itemProp="name" content="SeguiFacil" />
+                <meta itemProp="url" content="https://seguifacil.com" />
+              </span>
+              {/* reviewRating com valores semânticos */}
+              <span itemProp="reviewRating" itemScope itemType="https://schema.org/Rating" className="sr-only">
+                <meta itemProp="ratingValue" content={String(t.stars)} />
+                <meta itemProp="bestRating" content="5" />
+                <meta itemProp="worstRating" content="1" />
+              </span>
+
               <div className="flex gap-0.5 mb-3" aria-label={`${t.stars} de 5 estrelas`}>
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <span key={idx} className="text-star" style={{ fontSize: 14 }} aria-hidden>★</span>
@@ -457,7 +469,10 @@ function Testimonials() {
                   {t.initial}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900" itemProp="author">{t.name}</p>
+                  {/* author como objeto Person (resolve o aviso de tipo inválido) */}
+                  <p className="text-sm font-semibold text-gray-900" itemProp="author" itemScope itemType="https://schema.org/Person">
+                    <span itemProp="name">{t.name}</span>
+                  </p>
                   <p className="text-xs text-gray-400">{t.role} · {t.city} · {t.platform}</p>
                 </div>
               </figcaption>
