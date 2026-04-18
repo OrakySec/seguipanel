@@ -347,56 +347,71 @@ export default function OrdersClient({
         </tr>
       ))}
 
-      {/* Modal de confirmação de envio WhatsApp */}
+      {/* Painel de confirmação — fixo no canto inferior direito */}
       {pendingAction && (
-        <tr>
+        <tr aria-hidden>
           <td>
-            <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4">
-              <div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                onClick={() => !sending && setPendingAction(null)}
-              />
-              <div className="relative bg-card rounded-3xl border border-border shadow-2xl w-full max-w-md p-6 space-y-5">
-                {/* Header */}
-                <div>
-                  <h3 className="text-lg font-black text-foreground">Confirmar envio</h3>
-                  <p className="text-sm text-muted mt-1">
-                    {pendingAction.actionType === "supplier" ? "📣 Grupo do Fornecedor" : "📱 WhatsApp do Cliente"}
-                    {" · "}
-                    <strong className="text-foreground">{pendingAction.actionName}</strong>
+            <div className="fixed bottom-6 right-6 z-[99999] w-[22rem] bg-card border border-border
+                            rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full shrink-0 ${
+                      pendingAction.actionType === "supplier"
+                        ? "bg-purple-100 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400"
+                        : "bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+                    }`}>
+                      {pendingAction.actionType === "supplier" ? "📣 Fornecedor" : "📱 Cliente"}
+                    </span>
+                    <span className="text-sm font-black text-foreground truncate">{pendingAction.actionName}</span>
+                  </div>
+                  <p className="text-[10px] font-bold text-muted mt-1 uppercase tracking-widest">
+                    Confirmar envio da mensagem
                   </p>
                 </div>
+                <button
+                  onClick={() => !sending && setPendingAction(null)}
+                  disabled={sending}
+                  className="shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-surface
+                             hover:bg-border transition-colors disabled:opacity-40"
+                >
+                  <X size={14} className="text-muted" />
+                </button>
+              </div>
 
-                {/* Preview da mensagem interpolada */}
-                <pre className="bg-surface border border-border rounded-2xl px-4 py-4 text-sm
-                                whitespace-pre-wrap break-words font-mono text-foreground leading-relaxed">
+              {/* Preview da mensagem */}
+              <div className="px-5 pb-4">
+                <pre className="bg-surface border border-border rounded-2xl px-3 py-3 text-xs
+                                whitespace-pre-wrap break-words font-mono text-foreground leading-relaxed
+                                max-h-36 overflow-y-auto">
                   {pendingAction.preview}
                 </pre>
+              </div>
 
-                {/* Botões */}
-                <div className="flex gap-3 pt-1">
-                  <button
-                    onClick={() => setPendingAction(null)}
-                    disabled={sending}
-                    className="flex-1 h-12 rounded-2xl border border-border text-sm font-black
-                               text-muted hover:bg-surface transition-all disabled:opacity-50"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleSendAction}
-                    disabled={sending}
-                    className="flex-1 h-12 rounded-2xl bg-brand-gradient text-sm font-black
-                               text-white shadow-lg hover:opacity-90 transition-all disabled:opacity-50"
-                  >
-                    {sending ? (
-                      <span className="inline-flex items-center gap-2">
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Enviando…
-                      </span>
-                    ) : "Enviar Mensagem"}
-                  </button>
-                </div>
+              {/* Botões */}
+              <div className="flex gap-2 px-5 pb-5">
+                <button
+                  onClick={() => setPendingAction(null)}
+                  disabled={sending}
+                  className="flex-1 h-11 rounded-2xl border border-border text-sm font-black
+                             text-muted hover:bg-surface transition-all disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSendAction}
+                  disabled={sending}
+                  className="flex-1 h-11 rounded-2xl bg-brand-gradient text-sm font-black
+                             text-white shadow-lg hover:opacity-90 transition-all disabled:opacity-50"
+                >
+                  {sending ? (
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Enviando…
+                    </span>
+                  ) : "Enviar"}
+                </button>
               </div>
             </div>
           </td>
