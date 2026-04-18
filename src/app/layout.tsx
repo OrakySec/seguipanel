@@ -3,6 +3,7 @@ import { Geist, Plus_Jakarta_Sans, Pacifico } from "next/font/google";
 import "./globals.css";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { NavigationProgress } from "@/components/ui/NavigationProgress";
+import { getSetting } from "@/lib/settings";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -22,63 +23,71 @@ const pacifico = Pacifico({
 
 const BASE_URL = "https://seguifacil.com";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
-  title: {
-    default: "SeguiFacil – Comprar Seguidores e Curtidas | A partir de R$2,50",
-    template: "%s | SeguiFacil",
-  },
-  description: "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017.",
-  keywords: [
-    "comprar seguidores instagram",
-    "comprar curtidas instagram",
-    "comprar seguidores tiktok",
-    "comprar seguidores brasileiros",
-    "comprar curtidas brasileiras",
-    "comprar seguidores kwai",
-    "comprar seguidores youtube",
-    "comprar seguidores facebook",
-    "aumentar seguidores instagram",
-    "smm panel brasil",
-    "seguifacil",
-  ],
-  authors: [{ name: "SeguiFacil", url: BASE_URL }],
-  creator: "SeguiFacil",
-  publisher: "SeguiFacil",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteTitle, siteDesc, siteName] = await Promise.all([
+    getSetting("website_title", "SeguiFacil – Comprar Seguidores e Curtidas | A partir de R$2,50"),
+    getSetting("website_desc", "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017."),
+    getSetting("website_name", "SeguiFacil"),
+  ]);
+
+  return {
+    metadataBase: new URL(BASE_URL),
+    title: {
+      default: siteTitle,
+      template: `%s | ${siteName}`,
+    },
+    description: siteDesc,
+    keywords: [
+      "comprar seguidores instagram",
+      "comprar curtidas instagram",
+      "comprar seguidores tiktok",
+      "comprar seguidores brasileiros",
+      "comprar curtidas brasileiras",
+      "comprar seguidores kwai",
+      "comprar seguidores youtube",
+      "comprar seguidores facebook",
+      "aumentar seguidores instagram",
+      "smm panel brasil",
+      "seguifacil",
+    ],
+    authors: [{ name: siteName, url: BASE_URL }],
+    creator: siteName,
+    publisher: siteName,
+    robots: {
       index: true,
       follow: true,
-    },
-  },
-  openGraph: {
-    type: "website",
-    locale: "pt_BR",
-    url: BASE_URL,
-    siteName: "SeguiFacil",
-    title: "SeguiFacil – Comprar Seguidores e Curtidas a partir de R$2,50",
-    description: "Seguidores e curtidas reais para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega rápida, segura e com garantia de reposição.",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "SeguiFacil – Comprar Seguidores e Curtidas",
+      googleBot: {
+        index: true,
+        follow: true,
       },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "SeguiFacil – Comprar Seguidores a partir de R$2,50",
-    description: "Seguidores e curtidas reais para Instagram, TikTok, Kwai e mais. Entrega em minutos.",
-    images: ["/og-image.jpg"],
-  },
-  alternates: {
-    canonical: BASE_URL,
-  },
-};
+    },
+    openGraph: {
+      type: "website",
+      locale: "pt_BR",
+      url: BASE_URL,
+      siteName,
+      title: siteTitle,
+      description: siteDesc,
+      images: [
+        {
+          url: "/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${siteName} – Comprar Seguidores e Curtidas`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteTitle,
+      description: siteDesc,
+      images: ["/og-image.jpg"],
+    },
+    alternates: {
+      canonical: BASE_URL,
+    },
+  };
+}
 
 const organizationSchema = {
   "@context": "https://schema.org",

@@ -8,23 +8,27 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Calendar, Clock, ArrowRight, BookOpen } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Blog SeguiFacil — Dicas para Crescer nas Redes Sociais",
-  description:
-    "Aprenda estratégias para crescer no Instagram, TikTok, YouTube, Kwai e Facebook. Dicas exclusivas, tutoriais e guias completos do maior SMM do Brasil.",
-  keywords: [
-    "blog smm", "dicas instagram", "como crescer tiktok", "comprar seguidores",
-    "marketing digital redes sociais", "crescer no instagram 2026",
-  ],
-  openGraph: {
-    title: "Blog SeguiFacil — Dicas para Crescer nas Redes Sociais",
-    description: "Estratégias, tutoriais e guias para crescer no Instagram, TikTok, YouTube e mais.",
-    type: "website",
-    url: "https://seguifacil.com/blog",
-    locale: "pt_BR",
-  },
-  alternates: { canonical: "https://seguifacil.com/blog" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteName = await getSetting("website_name", "SeguiFacil");
+  const title = `Blog ${siteName} — Dicas para Crescer nas Redes Sociais`;
+  const description = `Aprenda estratégias para crescer no Instagram, TikTok, YouTube, Kwai e Facebook. Dicas exclusivas, tutoriais e guias completos do maior SMM do Brasil.`;
+  return {
+    title,
+    description,
+    keywords: [
+      "blog smm", "dicas instagram", "como crescer tiktok", "comprar seguidores",
+      "marketing digital redes sociais", "crescer no instagram 2026",
+    ],
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: "https://seguifacil.com/blog",
+      locale: "pt_BR",
+    },
+    alternates: { canonical: "https://seguifacil.com/blog" },
+  };
+}
 
 const CATEGORIES = ["Todos", "Dicas", "Instagram", "TikTok", "YouTube", "Kwai", "Facebook", "Marketing Digital", "Comprar Seguidores"];
 

@@ -25,14 +25,20 @@ import { AestheticHero } from "@/components/home/AestheticHero";
 import { AnimatedPlatformCards } from "@/components/home/AnimatedPlatformCards";
 import { AnimatedPopularServices } from "@/components/home/AnimatedPopularServices";
 import { LiveActivityFeedClient } from "@/components/home/LiveActivityFeedClient";
+import { getSetting } from "@/lib/settings";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Comprar Seguidores Brasileiros e Curtidas Reais | A partir de R$2,50",
-  description: "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017.",
-  alternates: {
-    canonical: "https://seguifacil.com",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const [title, description] = await Promise.all([
+    getSetting("website_title", "Comprar Seguidores Brasileiros e Curtidas Reais | A partir de R$2,50"),
+    getSetting("website_desc", "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017."),
+  ]);
+  return {
+    title,
+    description,
+    alternates: { canonical: "https://seguifacil.com" },
+  };
+}
 
 const testimonials = [
   {
