@@ -14,7 +14,7 @@ export default async function AdminSettingsPage() {
   const [settings, providers, initialActions] = await Promise.all([
     getSettings(),
     getApiProviders(),
-    getWhatsAppActions(),
+    getWhatsAppActions().catch(() => []),
   ]);
 
   return (
