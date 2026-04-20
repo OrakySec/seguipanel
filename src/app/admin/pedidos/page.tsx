@@ -38,11 +38,16 @@ export default async function AdminOrdersPage({
     where.status = status;
   }
 
-  const whatsappActions = await prisma.whatsAppAction.findMany({
-    where: { isActive: true },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    select: { id: true, name: true, type: true, messageTemplate: true },
-  }).catch(() => []);
+  const [whatsappActions, pendingCount] = await Promise.all([
+    prisma.whatsAppAction.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, type: true, messageTemplate: true },
+    }).catch(() => []),
+    prisma.order.count({
+      where: { type: "api", apiOrderId: 0, status: "pending" },
+    }).catch(() => 0),
+  ]);
 
   let orders: any[];
   try {
@@ -120,7 +125,7 @@ export default async function AdminOrdersPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              <OrdersClient initialOrders={serialized} actions={whatsappActions} />
+              <OrdersClient initialOrders={serialized} actions={whatsappActions} pendingCount={pendingCount} />
             </tbody>
           </table>
         </div>

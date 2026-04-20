@@ -30,9 +30,30 @@ const statusMap: Record<string, string> = {
 
 /* ─────────────────────────────────────────────────────── Modal ── */
 function OrderDetailModal({ order, onClose }: { order: any; onClose: () => void }) {
-  const [apiData, setApiData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const { toast } = useToast();
+  const [apiData, setApiData]     = useState<any>(null);
+  const [loading, setLoading]     = useState(false);
+  const [checked, setChecked]     = useState(false);
+  const [retrying, setRetrying]   = useState(false);
+  const [retriedId, setRetriedId] = useState<number | null>(null);
+
+  const handleRetrySupplier = async () => {
+    setRetrying(true);
+    try {
+      const res  = await fetch(`/api/admin/orders/${order.id}/retry-supplier`, { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setRetriedId(data.apiOrderId);
+        toast("success", `Pedido enviado! Order ID: ${data.apiOrderId}`);
+      } else {
+        toast("error", "Erro ao reenviar", data.error);
+      }
+    } catch {
+      toast("error", "Erro ao reenviar pedido");
+    } finally {
+      setRetrying(false);
+    }
+  };
 
   const checkApi = async () => {
     setLoading(true);
@@ -97,10 +118,26 @@ function OrderDetailModal({ order, onClose }: { order: any; onClose: () => void 
             <Row label="Tipo"           value={order.type ?? "—"} />
             <Row label="Provider ID"    value={order.apiProviderId ?? "Não definido"} />
             <Row label="Service ID"     value={order.apiServiceId ?? "Não definido"} />
-            <Row label="Order ID (API)" value={order.apiOrderId === 0 ? "⚠ Ainda não enviado" : String(order.apiOrderId)} highlight={order.apiOrderId === 0} />
+            <Row label="Order ID (API)" value={retriedId ? String(retriedId) : (order.apiOrderId === 0 ? "⚠ Ainda não enviado" : String(order.apiOrderId))} highlight={!retriedId && order.apiOrderId === 0} />
             {order.remains   != null && <Row label="Restam"       value={String(order.remains)} />}
             {order.startCounter != null && <Row label="Início"    value={String(order.startCounter)} />}
             {order.lastStatusCheckAt && <Row label="Último check" value={formatDate(order.lastStatusCheckAt)} />}
+
+            {/* Botão de reenvio — aparece só quando ainda não foi enviado */}
+            {order.type === "api" && !retriedId && order.apiOrderId === 0 && (
+              <div className="px-4 py-3 border-t border-border">
+                <button
+                  onClick={handleRetrySupplier}
+                  disabled={retrying}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl
+                             border border-amber-400/40 bg-amber-500/10 text-amber-600
+                             text-sm font-bold hover:bg-amber-500/20 transition-all disabled:opacity-50"
+                >
+                  <RefreshCw size={14} className={retrying ? "animate-spin" : ""} />
+                  {retrying ? "Enviando ao fornecedor…" : "Reenviar ao Fornecedor"}
+                </button>
+              </div>
+            )}
           </Section>
 
           {/* Resposta da API */}
@@ -180,9 +217,11 @@ type WaAction = { id: number; name: string; type: string; messageTemplate: strin
 export default function OrdersClient({
   initialOrders,
   actions = [],
+  pendingCount: initialPendingCount = 0,
 }: {
   initialOrders: any[];
   actions?: WaAction[];
+  pendingCount?: number;
 }) {
   const { toast } = useToast();
   const [orders, setOrders]           = useState(initialOrders);
@@ -193,6 +232,8 @@ export default function OrdersClient({
     actionType: string; preview: string;
   } | null>(null);
   const [sending, setSending]         = useState(false);
+  const [pendingCount, setPendingCount] = useState(initialPendingCount);
+  const [bulkSending, setBulkSending]   = useState(false);
 
   const handleSelectAction = (order: any, action: WaAction) => {
     const preview = action.messageTemplate
@@ -229,6 +270,30 @@ export default function OrdersClient({
     }
   };
 
+  const handleRetryAll = async () => {
+    setBulkSending(true);
+    try {
+      const res  = await fetch("/api/admin/orders/retry-pending", { method: "POST" });
+      const data = await res.json();
+      if (data.processed > 0) {
+        toast("success", `${data.processed} pedido${data.processed > 1 ? "s" : ""} enviado${data.processed > 1 ? "s" : ""} com sucesso!`);
+        setPendingCount(0);
+      } else if (data.errors > 0) {
+        toast("error", "Nenhum pedido enviado", "Verifique os logs do servidor");
+      } else {
+        toast("success", "Nenhum pedido pendente encontrado");
+        setPendingCount(0);
+      }
+      if (data.errors > 0 && data.processed > 0) {
+        toast("error", `${data.errors} pedido${data.errors > 1 ? "s" : ""} falharam`);
+      }
+    } catch {
+      toast("error", "Erro ao reenviar pedidos");
+    } finally {
+      setBulkSending(false);
+    }
+  };
+
   const handleDelete = async (id: number) => {
     if (!confirm(`Excluir permanentemente o pedido #${id}?`)) return;
     const result = await deleteOrder(id);
@@ -254,6 +319,26 @@ export default function OrdersClient({
 
   return (
     <>
+      {/* Banner de pedidos travados */}
+      {pendingCount > 0 && (
+        <tr>
+          <td colSpan={6} className="px-8 pt-6 pb-2">
+            <button
+              onClick={handleRetryAll}
+              disabled={bulkSending}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl
+                         border border-amber-400/30 bg-amber-500/10 text-amber-600
+                         text-sm font-bold hover:bg-amber-500/20 transition-all disabled:opacity-50"
+            >
+              <RefreshCw size={14} className={bulkSending ? "animate-spin" : ""} />
+              {bulkSending
+                ? "Reenviando pedidos ao fornecedor…"
+                : `⚠ ${pendingCount} pedido${pendingCount > 1 ? "s" : ""} pendente${pendingCount > 1 ? "s" : ""} não enviado${pendingCount > 1 ? "s" : ""} — clique para reenviar`}
+            </button>
+          </td>
+        </tr>
+      )}
+
       {orders.map((order: any) => (
         <tr key={order.id} className="hover:bg-surface/40 transition-colors group">
           <td className="px-8 py-6">
