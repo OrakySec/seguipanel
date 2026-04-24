@@ -452,6 +452,10 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
+    if (!termsAccepted) {
+      setSubmitError("Você precisa aceitar os Termos de Uso para continuar.");
+      return;
+    }
 
     submittingRef.current = true;
     setSubmitting(true);
@@ -694,20 +698,19 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
 
             {/* Aceite dos Termos */}
             <label className="flex items-start gap-3 cursor-pointer select-none">
-              <div className="relative mt-0.5 shrink-0">
-                <input
-                  type="checkbox"
-                  checked={termsAccepted}
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-5 h-5 rounded-md border-2 border-border bg-white peer-checked:bg-brand peer-checked:border-brand transition-colors flex items-center justify-center">
-                  {termsAccepted && (
-                    <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-                      <path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  )}
-                </div>
+              <div
+                onClick={() => setTermsAccepted(v => !v)}
+                className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 transition-colors flex items-center justify-center
+                  ${termsAccepted
+                    ? "bg-green-500 border-green-500"
+                    : "bg-white border-gray-300"
+                  }`}
+              >
+                {termsAccepted && (
+                  <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                    <path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
               </div>
               <span className="text-sm text-muted leading-snug">
                 Li e aceito os{" "}
@@ -719,14 +722,14 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
                 >
                   Termos de Uso
                 </a>
-                , incluindo a política de prazos de entrega gradual de até 15 dias.
+                .
               </span>
             </label>
 
             {/* Submit */}
             <button
               type="submit"
-              disabled={submitting || !termsAccepted}
+              disabled={submitting}
               className="w-full py-4 text-base font-bold text-white rounded-2xl bg-brand-gradient hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 shadow-brand min-h-[52px]"
             >
               {submitting ? (
