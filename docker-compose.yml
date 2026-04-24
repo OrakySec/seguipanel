@@ -3,7 +3,7 @@ services:
   # Aplicação Next.js
   # ──────────────────────────────────────────────────────────────────────────────
   app:
-    image: ghcr.io/orakysec/seguipanel:sha-39752fb
+    image: ghcr.io/orakysec/seguipanel:sha-4ee018e
     environment:
       DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/smm_app"
       JWT_SECRET: "${JWT_SECRET}"
