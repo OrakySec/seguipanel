@@ -309,6 +309,7 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
   const [errors, setErrors]     = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   /* Cupom */
   const [coupon, setCoupon] = useState<CouponState>({
@@ -691,10 +692,41 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
               </div>
             )}
 
+            {/* Aceite dos Termos */}
+            <label className="flex items-start gap-3 cursor-pointer select-none">
+              <div className="relative mt-0.5 shrink-0">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-5 h-5 rounded-md border-2 border-border bg-white peer-checked:bg-brand peer-checked:border-brand transition-colors flex items-center justify-center">
+                  {termsAccepted && (
+                    <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                      <path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-sm text-muted leading-snug">
+                Li e aceito os{" "}
+                <a
+                  href="/termos"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-brand underline underline-offset-2 hover:opacity-80"
+                >
+                  Termos de Uso
+                </a>
+                , incluindo a política de prazos de entrega gradual de até 15 dias.
+              </span>
+            </label>
+
             {/* Submit */}
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !termsAccepted}
               className="w-full py-4 text-base font-bold text-white rounded-2xl bg-brand-gradient hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 shadow-brand min-h-[52px]"
             >
               {submitting ? (
