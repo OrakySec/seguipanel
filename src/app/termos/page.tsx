@@ -26,7 +26,7 @@ export default async function TermosPage() {
     },
     {
       title: "5. Prazo de Entrega",
-      content: `Os prazos de entrega são estimados e podem variar conforme a disponibilidade dos serviços e a quantidade solicitada. Em geral, a entrega inicia em poucos minutos após a confirmação do pagamento. Pedidos de grande volume podem levar até 72 horas para conclusão.`,
+      content: `Os prazos de entrega são estimados e podem variar conforme o pacote escolhido e a disponibilidade dos serviços. O início da entrega pode ocorrer em minutos ou levar até 4 dias após a confirmação do pagamento, dependendo do pacote selecionado. Após o início, a entrega total do pacote pode levar até 15 dias corridos, pois é realizada de forma gradual para garantir a naturalidade e a segurança do processo. Certifique-se de que seu perfil permaneça público durante todo o período de entrega.`,
     },
     {
       title: "6. Política de Reposição",
