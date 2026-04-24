@@ -24,13 +24,25 @@ export default async function AdminOrdersPage({
   const { q, status } = await searchParams;
   const term = q?.trim() ?? "";
 
-  const numId = term !== "" ? parseInt(term) : NaN;
+  const numId   = term !== "" ? parseInt(term) : NaN;
+  const uuidReg = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   const where: any = {};
   if (term) {
     if (!isNaN(numId)) {
+      // Busca por ID do pedido
       where.id = numId;
+    } else if (uuidReg.test(term)) {
+      // Busca por ID de transação (PushinPay UUID)
+      const txLog = await prisma.transactionLog.findFirst({
+        where: { transactionId: { equals: term, mode: "insensitive" as const } },
+        select: { orderId: true },
+      });
+      // Se encontrou o log mas o orderId ainda é null (pagamento não processado)
+      // ou não encontrou nada → força resultado vazio com id impossível
+      where.id = txLog?.orderId ?? -1;
     } else {
+      // Busca por e-mail do cliente
       where.user = { email: { contains: term, mode: "insensitive" as const } };
     }
   }
