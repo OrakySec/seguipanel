@@ -43,8 +43,9 @@ export async function upsertBlog(data: {
     revalidatePath("/blog");
     return { success: true };
   } catch (error: any) {
+    console.error("[upsertBlog]", error);
     if (error?.code === "P2002") return { success: false, error: "Já existe um post com esse slug." };
-    return { success: false, error: "Falha ao salvar post." };
+    return { success: false, error: error?.message ?? "Falha ao salvar post." };
   }
 }
 
