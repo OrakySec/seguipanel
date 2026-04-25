@@ -399,7 +399,7 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
       const gtag = (window as any).gtag;
       if (typeof gtag !== "function") return;
       gtag("event", "conversion", {
-        send_to: "AW-17638838744/FHOeCN6n-bEbENij7dpB",
+        send_to: "AW-17638838744/vudACOab1aIcENij7dpB",
         value: amount,
         currency: "BRL",
         transaction_id: String(transactionId),
