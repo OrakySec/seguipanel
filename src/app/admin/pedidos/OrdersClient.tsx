@@ -130,9 +130,9 @@ function OrderDetailModal({ order, onClose }: { order: any; onClose: () => void 
                 <input
                   value={editServiceId}
                   onChange={(e) => setEditServiceId(e.target.value)}
-                  className="text-xs font-semibold text-right bg-amber-50 border border-amber-300 rounded-xl
-                             px-3 py-1.5 w-40 outline-none focus:ring-2 focus:ring-amber-400/40
-                             focus:border-amber-400 transition-all font-mono text-foreground"
+                  className="text-xs font-semibold text-right bg-surface border border-amber-400 rounded-xl
+                             px-3 py-1.5 w-40 outline-none focus:ring-2 focus:ring-amber-400/30
+                             transition-all font-mono text-foreground"
                   placeholder="Service ID"
                 />
               </div>
