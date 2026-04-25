@@ -389,6 +389,26 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
     return () => clearInterval(t);
   }, [step, countdown]);
 
+  /* Google Ads — disparar conversão uma única vez ao confirmar pagamento */
+  const conversionFiredRef = useRef(false);
+  function fireGadsConversion(amount: number, transactionId: string | number) {
+    if (conversionFiredRef.current) return;
+    conversionFiredRef.current = true;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const gtag = (window as any).gtag;
+      if (typeof gtag !== "function") return;
+      gtag("event", "conversion", {
+        send_to: "AW-17638838744/FHOeCN6n-bEbENij7dpB",
+        value: amount,
+        currency: "BRL",
+        transaction_id: String(transactionId),
+      });
+    } catch (e) {
+      console.error("[GADS] conversion error:", e);
+    }
+  }
+
   /* Polling de pagamento */
   const checkPayment = useCallback(async (pollToken: string) => {
     try {
@@ -408,6 +428,13 @@ export default function CheckoutClient({ whatsappNumber = "558193886173" }: { wh
     pollingRef.current = setInterval(() => checkPayment(pix.pollToken), 3000);
     return () => clearInterval(pollingRef.current!);
   }, [step, pix, checkPayment]);
+
+  /* Disparar conversão Google Ads assim que o step virar "success" */
+  useEffect(() => {
+    if (step !== "success" || !pix) return;
+    fireGadsConversion(pix.amount, pix.transactionId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   /* ─── Validação do formulário ─── */
   function validate() {
