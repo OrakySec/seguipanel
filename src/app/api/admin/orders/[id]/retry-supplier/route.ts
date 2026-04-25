@@ -3,7 +3,7 @@ import { getSessionFromCookies } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSessionFromCookies();
@@ -17,8 +17,17 @@ export async function POST(
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
 
+  // Ler service ID override do body (opcional)
+  let overrideServiceId: string | undefined;
+  try {
+    const body = await req.json();
+    if (typeof body?.apiServiceId === "string" && body.apiServiceId.trim()) {
+      overrideServiceId = body.apiServiceId.trim();
+    }
+  } catch { /* body vazio ou ausente é ok */ }
+
   // Buscar pedido — só aceita pedidos ainda não enviados
-  const order = await prisma.order.findFirst({
+  let order = await prisma.order.findFirst({
     where: { id: orderId, type: "api", apiOrderId: 0, status: "pending" },
   });
   if (!order) {
@@ -26,6 +35,15 @@ export async function POST(
       { error: "Pedido não encontrado, já foi enviado ou não é do tipo API." },
       { status: 404 }
     );
+  }
+
+  // Persistir o service ID editado antes de enviar
+  if (overrideServiceId && overrideServiceId !== order.apiServiceId) {
+    await prisma.order.update({
+      where: { id: orderId },
+      data: { apiServiceId: overrideServiceId },
+    });
+    order = { ...order, apiServiceId: overrideServiceId };
   }
 
   if (!order.apiProviderId || !order.apiServiceId) {

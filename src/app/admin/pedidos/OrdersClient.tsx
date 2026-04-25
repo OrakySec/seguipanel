@@ -34,13 +34,18 @@ function OrderDetailModal({ order, onClose }: { order: any; onClose: () => void 
   const [apiData, setApiData]     = useState<any>(null);
   const [loading, setLoading]     = useState(false);
   const [checked, setChecked]     = useState(false);
-  const [retrying, setRetrying]   = useState(false);
-  const [retriedId, setRetriedId] = useState<number | null>(null);
+  const [retrying, setRetrying]     = useState(false);
+  const [retriedId, setRetriedId]   = useState<number | null>(null);
+  const [editServiceId, setEditServiceId] = useState<string>(order.apiServiceId ?? "");
 
   const handleRetrySupplier = async () => {
     setRetrying(true);
     try {
-      const res  = await fetch(`/api/admin/orders/${order.id}/retry-supplier`, { method: "POST" });
+      const res  = await fetch(`/api/admin/orders/${order.id}/retry-supplier`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiServiceId: editServiceId }),
+      });
       const data = await res.json();
       if (data.success) {
         setRetriedId(data.apiOrderId);
@@ -117,7 +122,23 @@ function OrderDetailModal({ order, onClose }: { order: any; onClose: () => void 
           <Section title="Fornecedor / API">
             <Row label="Tipo"           value={order.type ?? "—"} />
             <Row label="Provider ID"    value={order.apiProviderId ?? "Não definido"} />
-            <Row label="Service ID"     value={order.apiServiceId ?? "Não definido"} />
+            {order.type === "api" && !retriedId && order.apiOrderId === 0 ? (
+              <div className="flex items-center justify-between gap-4 px-4 py-2.5">
+                <span className="text-[10px] font-bold text-muted uppercase tracking-wider whitespace-nowrap shrink-0">
+                  Service ID
+                </span>
+                <input
+                  value={editServiceId}
+                  onChange={(e) => setEditServiceId(e.target.value)}
+                  className="text-xs font-semibold text-right bg-amber-50 border border-amber-300 rounded-xl
+                             px-3 py-1.5 w-40 outline-none focus:ring-2 focus:ring-amber-400/40
+                             focus:border-amber-400 transition-all font-mono text-foreground"
+                  placeholder="Service ID"
+                />
+              </div>
+            ) : (
+              <Row label="Service ID" value={order.apiServiceId ?? "Não definido"} />
+            )}
             <Row label="Order ID (API)" value={retriedId ? String(retriedId) : (order.apiOrderId === 0 ? "⚠ Ainda não enviado" : String(order.apiOrderId))} highlight={!retriedId && order.apiOrderId === 0} />
             {order.remains   != null && <Row label="Restam"       value={String(order.remains)} />}
             {order.startCounter != null && <Row label="Início"    value={String(order.startCounter)} />}
