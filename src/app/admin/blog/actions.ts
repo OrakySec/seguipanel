@@ -34,14 +34,17 @@ export async function upsertBlog(data: {
   };
 
   try {
+    let savedId: number;
     if (data.id) {
       await prisma.blog.update({ where: { id: data.id }, data: payload });
+      savedId = data.id;
     } else {
-      await prisma.blog.create({ data: payload });
+      const created = await prisma.blog.create({ data: payload });
+      savedId = created.id;
     }
     revalidatePath("/admin/blog");
     revalidatePath("/blog");
-    return { success: true };
+    return { success: true, id: savedId };
   } catch (error: any) {
     console.error("[upsertBlog]", error);
     if (error?.code === "P2002") return { success: false, error: "Já existe um post com esse slug." };

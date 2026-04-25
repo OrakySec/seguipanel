@@ -233,7 +233,7 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] 
       if (!res.success) { setFormError(res.error || "Erro ao salvar."); return; }
 
       const saved: BlogPost = {
-        id: form.id ?? Date.now(),
+        id: form.id ?? res.id!,
         title: form.title,
         urlSlug: form.urlSlug || slugify(form.title),
         category: form.category || null,
