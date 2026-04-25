@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Plus_Jakarta_Sans, Pacifico } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { NavigationProgress } from "@/components/ui/NavigationProgress";
@@ -145,6 +146,19 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
+        {/* Google Ads */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17638838744"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17638838744');
+          `}
+        </Script>
       </head>
       <body 
         className="min-h-full flex flex-col bg-background text-foreground"
