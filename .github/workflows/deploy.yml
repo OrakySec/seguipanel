@@ -63,7 +63,9 @@ jobs:
 
       - name: Atualizar docker-compose.yml com tag SHA
         run: |
-          sed -i "s|image: ghcr.io/orakysec/seguipanel:.*|image: ghcr.io/orakysec/seguipanel:${{ steps.sha.outputs.tag }}|" docker-compose.yml
+          # Usa a variável IMAGE_NAME para o sed, convertendo para minúsculo para garantir match se necessário
+          IMAGE_LOWER=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          sed -i "s|image: ${IMAGE_LOWER}:.*|image: ${IMAGE_LOWER}:${{ steps.sha.outputs.tag }}|" docker-compose.yml
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docker-compose.yml
@@ -78,15 +80,25 @@ jobs:
     steps:
       - name: Forçar atualização do serviço com tag SHA
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_SSH_PORT || 22 }}
           timeout: 120s
+          envs: GITHUB_TOKEN,REGISTRY,IMAGE_NAME
           script: |
-            docker pull ghcr.io/orakysec/seguipanel:${{ needs.build-and-push.outputs.sha_tag }}
+            # Garante login no registry para evitar erro 'denied'
+            echo "$GITHUB_TOKEN" | docker login "$REGISTRY" -u "${{ github.actor }}" --password-stdin
+            
+            # Pull da imagem específica do commit
+            IMAGE_PATH=$(echo "$REGISTRY/$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
+            docker pull "$IMAGE_PATH:${{ needs.build-and-push.outputs.sha_tag }}"
+            
+            # Atualiza o serviço no Swarm
             docker service update \
-              --image ghcr.io/orakysec/seguipanel:${{ needs.build-and-push.outputs.sha_tag }} \
+              --image "$IMAGE_PATH:${{ needs.build-and-push.outputs.sha_tag }}" \
               --force \
               seguifacil_app
