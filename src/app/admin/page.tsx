@@ -16,6 +16,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { formatBRL } from "@/lib/utils";
 import Link from "next/link";
+import { RevenueChart } from "@/components/admin/RevenueChart";
 
 export default async function AdminDashboard() {
   const now = new Date();
@@ -63,26 +64,28 @@ export default async function AdminDashboard() {
         user: { select: { email: true } }
       }
     }),
-    // Transações dos últimos 7 dias
+    // Transações dos últimos 30 dias
     prisma.transactionLog.findMany({
       where: {
         status: 1,
-        createdAt: { gte: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6) },
+        createdAt: { gte: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29) },
         NOT: { order: { status: { in: ["canceled", "partial"] } } }
       },
       select: { amount: true, createdAt: true }
     })
   ]);
 
-  // Processamento dos dados para o gráfico de 7 dias
-  const revenueByDay = Array.from({ length: 7 }).map((_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6 + i);
-    const dateStr = d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit" }).replace(".", "");
+  // Processamento dos dados para o gráfico de 30 dias
+  const revenueByDay = Array.from({ length: 30 }).map((_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29 + i);
+    const dateStr = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
     return { date: dateStr, amount: 0, fullDate: d };
   });
+
+  const last30DaysTransactions = last7DaysTransactions; // Reaproveitando a variável para evitar erro de escopo se usada embaixo
   
-  if (Array.isArray(last7DaysTransactions)) {
-    last7DaysTransactions.forEach((tx: any) => {
+  if (Array.isArray(last30DaysTransactions)) {
+    last30DaysTransactions.forEach((tx: any) => {
       const txDate = new Date(tx.createdAt);
       const txDateOnly = new Date(txDate.getFullYear(), txDate.getMonth(), txDate.getDate());
       
@@ -167,33 +170,12 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Gráfico Placeholder */}
+        {/* Gráfico 30 Dias */}
         <div className="lg:col-span-2 bg-card rounded-[2.5rem] border border-border p-8 md:p-10 shadow-card flex flex-col">
-            <h4 className="text-xl font-black text-foreground mb-8">Evolução Faturamento (7 Dias)</h4>
+            <h4 className="text-xl font-black text-foreground mb-2">Evolução de Faturamento</h4>
+            <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-4">Últimos 30 Dias</p>
             
-            <div className="flex-1 flex items-end gap-2 md:gap-4 h-48 md:h-64 mt-auto">
-              {revenueByDay.map((day, i) => {
-                const heightPercentage = Math.max((day.amount / maxRevenue) * 100, 2); // Minimum 2% height
-                const isToday = i === 6;
-                
-                return (
-                  <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group">
-                    <div className="w-full flex justify-center mb-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-[10px] font-bold bg-foreground text-background px-2 py-1 rounded-md whitespace-nowrap">
-                        {formatBRL(day.amount)}
-                      </span>
-                    </div>
-                    <div 
-                      className={`w-full max-w-[40px] rounded-t-xl transition-all duration-500 ease-out group-hover:bg-primary ${isToday ? 'bg-primary' : 'bg-surface border border-border'}`}
-                      style={{ height: `${heightPercentage}%` }}
-                    />
-                    <span className="text-[10px] font-bold text-muted uppercase tracking-wider mt-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-full px-1">
-                      {day.date.split(',')[0]}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            <RevenueChart data={revenueByDay} />
         </div>
 
         {/* Últimos Pedidos Dinámicos */}
