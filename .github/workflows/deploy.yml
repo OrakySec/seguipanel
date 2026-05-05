@@ -76,6 +76,8 @@ jobs:
     name: Redeploy no VPS via SSH
     runs-on: ubuntu-latest
     needs: build-and-push
+    permissions:
+      packages: read
 
     steps:
       - name: Forçar atualização do serviço com tag SHA

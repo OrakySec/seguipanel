@@ -146,6 +146,11 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
+      </head>
+      <body 
+        className="min-h-full flex flex-col bg-background text-foreground"
+        suppressHydrationWarning
+      >
         {/* Google Ads */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-18137688084"
@@ -159,11 +164,7 @@ export default function RootLayout({
             gtag('config', 'AW-18137688084');
           `}
         </Script>
-      </head>
-      <body 
-        className="min-h-full flex flex-col bg-background text-foreground"
-        suppressHydrationWarning
-      >
+
         <NavigationProgress />
         {children}
         <WhatsAppButton />
