@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import FaqAccordion from "@/components/home/FaqAccordion";
 import { getActiveSocialNetworks, getBestSellerServices, getActivityFeedServices } from "@/lib/catalog";
 import { AestheticHero } from "@/components/home/AestheticHero";
 import { AnimatedPlatformCardsClient } from "@/components/home/AnimatedPlatformCardsClient";
@@ -28,6 +27,10 @@ import { AnimatedPopularServicesClient } from "@/components/home/AnimatedPopular
 import { LiveActivityFeedClient } from "@/components/home/LiveActivityFeedClient";
 import { getSettingsBatch } from "@/lib/settings";
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
+
+// Componentes abaixo da dobra carregados dinamicamente para não bloquear a thread principal
+const FaqAccordion = dynamic(() => import("@/components/home/FaqAccordion"), { ssr: false });
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettingsBatch({

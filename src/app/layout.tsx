@@ -141,9 +141,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(rootJsonLd) }}
         />
-        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://www.googleadservices.com" crossOrigin="anonymous" />
         
         {/* Critical CSS para LCP (Logo, Cores Base e Hero) */}
         <style dangerouslySetInnerHTML={{ __html: `

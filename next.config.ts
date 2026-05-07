@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
 
   experimental: {
     nextScriptWorkers: true,
+    optimizeCss: true,
     optimizePackageImports: [
       "lucide-react",
       "framer-motion",
