@@ -150,7 +150,7 @@ export default function RootLayout({
           :root {
             --background: #ffffff;
             --foreground: #0f172a;
-            --font-jakarta: '__jakarta_4d4d4d', '__jakarta_Fallback_4d4d4d', system-ui, sans-serif;
+            --font-jakarta: var(--font-jakarta), system-ui, sans-serif;
             --primary: #c60cff;
             --muted: #64748b;
           }
@@ -161,6 +161,12 @@ export default function RootLayout({
             margin: 0;
             font-family: var(--font-jakarta), system-ui, sans-serif;
             -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+          }
+          h1 {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: block !important;
           }
           .logo-text {
             font-weight: 900;
@@ -217,7 +223,6 @@ export default function RootLayout({
           `}
         </Script>
 
-        <NavigationProgressLazy />
         {children}
         <WhatsAppButton />
       </body>
