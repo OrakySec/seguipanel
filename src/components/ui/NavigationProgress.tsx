@@ -66,9 +66,7 @@ export function NavigationProgress() {
     <div
       className="fixed inset-0 z-[99999] flex flex-col items-center justify-center pointer-events-none"
       style={{
-        background: "rgba(255,255,255,0.75)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
+        background: "rgba(255,255,255,0.95)",
         opacity: isDone ? 0 : 1,
         transition: "opacity 0.35s ease",
       }}

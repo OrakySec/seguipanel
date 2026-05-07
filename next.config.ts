@@ -4,10 +4,19 @@ const nextConfig: NextConfig = {
   output: "standalone",
   compress: true,
   poweredByHeader: false,
+  reactStrictMode: true,
 
-  // Tree-shake lucide-react
   experimental: {
-    optimizePackageImports: ["lucide-react", "framer-motion"],
+    nextScriptWorkers: true,
+    optimizePackageImports: [
+      "lucide-react",
+      "framer-motion",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-toast",
+      "clsx",
+      "tailwind-merge"
+    ],
   },
 
   // Remove console.log em produção (reduz bundle size)
@@ -17,6 +26,7 @@ const nextConfig: NextConfig = {
       : false,
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: "https",
@@ -60,10 +70,6 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
-      // Em PROD: chunks têm content hashes reais no nome, immutable é correto.
-      // Em DEV: Turbopack reutiliza os mesmos nomes de chunk entre rebuilds —
-      // com immutable o browser cacheia o JS antigo por 1 ano e nunca busca
-      // a versão nova, causando hydration mismatch persistente.
       ...(!isDev
         ? [
             {

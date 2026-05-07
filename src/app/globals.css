@@ -94,6 +94,18 @@ body {
   background-clip: text;
 }
 
+.logo-text {
+  font-weight: 900;
+  font-size: 1.25rem;
+  letter-spacing: -0.05em;
+  background: linear-gradient(to right, #ff616d, #fb24b1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  text-transform: uppercase;
+}
+
 /* --- Glassmorphism 2026 (Liquid Glass) --- */
 /* backdrop-filter é caríssimo em paint — mantemos apenas em superfícies pequenas (modais, etc.). */
 .glass-2026 {
@@ -258,11 +270,12 @@ body {
 
 /* --- Animação de entrada do Hero (CSS-only, roda antes do JS) --- */
 @keyframes heroEntrance {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .hero-entrance {
-  animation: heroEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* Only apply to elements that are NOT LCP if possible, or keep it very fast */
+  animation: heroEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* --- Fade in up genérico (para notificações, modals, etc.) --- */

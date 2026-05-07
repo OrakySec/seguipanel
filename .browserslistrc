@@ -1,11 +1,10 @@
-# Target modern browsers only — eliminates legacy JS polyfills
-# (Array.at, Array.flat, Object.fromEntries, Object.hasOwn, String.trimStart/End)
-# All of these are natively supported since Chrome 93 / Safari 15.4 / Firefox 95 (2021)
+# Target ONLY very modern browsers to eliminate ALL legacy JS polyfills
+# This fixes the "JavaScript legado" issue in PageSpeed
 [production]
-Chrome >= 93
-Firefox >= 95
-Safari >= 15
-Edge >= 93
+Chrome >= 110
+Firefox >= 110
+Safari >= 16.4
+Edge >= 110
 not dead
 
 [development]

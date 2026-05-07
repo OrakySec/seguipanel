@@ -541,14 +541,15 @@ function CtaBanner() {
 }
 
 export default async function HomePage() {
-  // Fetch platforms separately to unblock the Hero as fast as possible
+  // Fetch platforms once. Header will also use the cached result.
   const platforms = await getActiveSocialNetworks();
 
   return (
     <>
       <AnnouncementBar />
       <Header />
-      {/* O Feed de atividade pode carregar depois */}
+      
+      {/* O Feed de atividade carrega em background (streaming) */}
       <Suspense fallback={<div className="h-12 bg-gray-50 animate-pulse" />}>
         <ActivityFeedWrapper />
       </Suspense>

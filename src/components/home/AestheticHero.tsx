@@ -19,10 +19,10 @@ interface Platform {
  */
 export function AestheticHero({ platforms }: { platforms: Platform[] }) {
   return (
-    <div className="hero-entrance max-w-4xl mx-auto relative z-10">
-      {/* Badge social proof */}
+    <div className="max-w-4xl mx-auto relative z-10">
+      {/* Badge social proof - Pode animar sutilmente */}
       <div
-        className="inline-flex items-center bg-white/85 rounded-full px-6 py-1.5 mb-8"
+        className="hero-entrance inline-flex items-center bg-white/85 rounded-full px-6 py-1.5 mb-8"
         style={{
           border: "1.2px solid #ece4ff",
           boxShadow: "0 8px 30px rgba(124, 77, 255, 0.12)",
@@ -45,6 +45,7 @@ export function AestheticHero({ platforms }: { platforms: Platform[] }) {
         </p>
       </div>
 
+      {/* H1 - LCP: SEM ANIMAÇÃO para carregar instantaneamente */}
       <h1 className="text-5xl sm:text-7xl lg:text-[86px] font-black text-gray-900 tracking-tight leading-[0.95] mb-6">
         Compre Seguidores
         <br /> Para Suas

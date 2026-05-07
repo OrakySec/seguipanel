@@ -148,12 +148,12 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-background text-foreground"
         suppressHydrationWarning
       >
-        {/* Google Ads – lazyOnload para não bloquear a thread principal */}
+        {/* Google Ads – agora no Web Worker (Partytown) para não bloquear a thread principal */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17638838744"
-          strategy="lazyOnload"
+          strategy="worker"
         />
-        <Script id="google-ads" strategy="lazyOnload">
+        <Script id="google-ads" strategy="worker">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
