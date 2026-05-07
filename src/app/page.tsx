@@ -26,6 +26,7 @@ import { AnimatedPlatformCardsClient } from "@/components/home/AnimatedPlatformC
 import { AnimatedPopularServicesClient } from "@/components/home/AnimatedPopularServicesClient";
 import { LiveActivityFeedClient } from "@/components/home/LiveActivityFeedClient";
 import { getSettingsBatch } from "@/lib/settings";
+import type { Metadata } from "next";
 import { DeferredHomeContent } from "@/components/home/DeferredHomeContent";
 
 export async function generateMetadata(): Promise<Metadata> {
