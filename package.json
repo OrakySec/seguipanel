@@ -17,14 +17,9 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
-  "browserslist": [
-    "last 2 Chrome versions",
-    "last 2 Firefox versions",
-    "last 2 Safari versions",
-    "last 2 Edge versions",
-    "not dead"
-  ],
+
   "dependencies": {
+    "@builder.io/partytown": "^0.10.3",
     "@prisma/client": "^6.19.2",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",

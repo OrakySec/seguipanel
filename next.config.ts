@@ -5,9 +5,10 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // Tree-shake lucide-react para importar apenas ícones usados
+  // Tree-shake lucide-react e habilita suporte a Partytown (Web Workers)
   experimental: {
     optimizePackageImports: ["lucide-react"],
+    nextScriptWorkers: true,
   },
 
   // Remove console.log em produção (reduz bundle size)

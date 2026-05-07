@@ -7,8 +7,11 @@ import { SocialIcon } from "@/components/ui/SocialIcon";
 import { Zap, ShieldCheck, RefreshCw, Headphones, Eye, Star, X } from "lucide-react";
 
 function useViewerCount() {
-  const [count, setCount] = useState(() => Math.floor(Math.random() * (310 - 190 + 1)) + 190);
+  const [count, setCount] = useState(254);
   useEffect(() => {
+    // Inicializa com um valor aleatório no cliente para evitar mismatch
+    setCount(Math.floor(Math.random() * (310 - 190 + 1)) + 190);
+    
     let timer: ReturnType<typeof setTimeout>;
     const scheduleNext = () => {
       const delay = Math.floor(Math.random() * (12_000 - 5_000 + 1)) + 5_000;
@@ -167,7 +170,7 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
                   marginLeft: i === 0 ? 0 : '-12px', position: 'relative'
                 }}
               >
-                <img src={img} alt="Cliente" className="w-full h-full object-cover" width={32} height={32} />
+                <img src={img} alt="Cliente" className="w-full h-full object-cover" width={32} height={32} fetchpriority="high" />
               </div>
             ))}
           </div>
