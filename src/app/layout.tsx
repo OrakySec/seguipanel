@@ -9,8 +9,9 @@ import { getSettingsBatch } from "@/lib/settings";
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
-  display: "swap",
+  display: "optional",
   preload: true,
+  fallback: ["system-ui", "sans-serif"],
 });
 
 const BASE_URL = "https://seguifacil.com";
@@ -159,11 +160,6 @@ export default function RootLayout({
             font-family: var(--font-jakarta), system-ui, sans-serif;
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
-          }
-          h1 {
-            opacity: 1 !important;
-            visibility: visible !important;
-            display: block !important;
           }
           .logo-text {
             font-weight: 900;

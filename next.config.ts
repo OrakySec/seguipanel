@@ -16,7 +16,10 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-dropdown-menu",
       "@radix-ui/react-toast",
       "clsx",
-      "tailwind-merge"
+      "tailwind-merge",
+      "zod",
+      "jose",
+      "bcryptjs"
     ],
   },
 
