@@ -46,7 +46,10 @@ export function AestheticHero({ platforms }: { platforms: Platform[] }) {
       </div>
 
       {/* H1 - LCP: SEM ANIMAÇÃO para carregar instantaneamente */}
-      <h1 className="text-5xl sm:text-7xl lg:text-[86px] font-black text-gray-900 tracking-tight leading-[0.95] mb-6">
+      <h1 
+        className="text-5xl sm:text-7xl lg:text-[86px] font-black text-gray-900 tracking-tight leading-[0.95] mb-6"
+        style={{ fontWeight: 900, letterSpacing: '-0.04em' }}
+      >
         Compre Seguidores Para Suas Redes Sociais
       </h1>
 
