@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { createPortal } from "react-dom";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 import { Zap, ShieldCheck, RefreshCw, Headphones, Eye, Star, X } from "lucide-react";
@@ -170,7 +171,7 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
                   marginLeft: i === 0 ? 0 : '-12px', position: 'relative'
                 }}
               >
-                <img src={img} alt="Cliente" className="w-full h-full object-cover" width={32} height={32} fetchpriority="high" />
+                <Image src={img} alt="Cliente" className="w-full h-full object-cover" width={32} height={32} priority unoptimized />
               </div>
             ))}
           </div>

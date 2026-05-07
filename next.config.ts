@@ -5,10 +5,9 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // Tree-shake lucide-react e habilita suporte a Partytown (Web Workers)
+  // Tree-shake lucide-react
   experimental: {
     optimizePackageImports: ["lucide-react"],
-    nextScriptWorkers: true,
   },
 
   // Remove console.log em produção (reduz bundle size)

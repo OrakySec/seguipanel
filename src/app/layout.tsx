@@ -4,7 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { NavigationProgress } from "@/components/ui/NavigationProgress";
-import { getSetting } from "@/lib/settings";
+import { getSettingsBatch } from "@/lib/settings";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -30,11 +30,15 @@ const pacifico = Pacifico({
 const BASE_URL = "https://seguifacil.com";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [siteTitle, siteDesc, siteName] = await Promise.all([
-    getSetting("website_title", "SeguiFacil – Comprar Seguidores e Curtidas | A partir de R$2,50"),
-    getSetting("website_desc", "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017."),
-    getSetting("website_name", "SeguiFacil"),
-  ]);
+  const settings = await getSettingsBatch({
+    website_title: "SeguiFacil – Comprar Seguidores e Curtidas | A partir de R$2,50",
+    website_desc: "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017.",
+    website_name: "SeguiFacil",
+  });
+  
+  const siteTitle = settings.website_title;
+  const siteDesc = settings.website_desc;
+  const siteName = settings.website_name;
 
   return {
     metadataBase: new URL(BASE_URL),
@@ -164,12 +168,12 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-background text-foreground"
         suppressHydrationWarning
       >
-        {/* Google Ads – worker (Partytown) para não bloquear a thread principal */}
+        {/* Google Ads – lazyOnload para não bloquear a thread principal */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17638838744"
-          strategy="worker"
+          strategy="lazyOnload"
         />
-        <Script id="google-ads" strategy="worker">
+        <Script id="google-ads" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

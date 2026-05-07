@@ -155,6 +155,15 @@ body {
 .mesh-ball-2 { top: 40%; right: -10%; background: var(--mesh-2); animation-duration: 30s; animation-direction: reverse; }
 .mesh-ball-3 { bottom: -10%; left: 20%; background: var(--mesh-3); animation-duration: 35s; }
 
+@media (prefers-reduced-motion: reduce) {
+  .mesh-ball { animation: none; }
+}
+
+@media (max-width: 768px) {
+  .mesh-ball { animation: none; }
+  .mesh-ball-2, .mesh-ball-3 { display: none; }
+}
+
 /* --- Botão Tátil 2026 --- */
 .btn-tactile {
   position: relative;

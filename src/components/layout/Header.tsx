@@ -1,7 +1,7 @@
 import React from "react";
 import HeaderClient from "./HeaderClient";
 import { getActiveSocialNetworks } from "@/lib/catalog";
-import { getSetting } from "@/lib/settings";
+import { getSettingsBatch } from "@/lib/settings";
 
 export default async function Header() {
   const networks = await getActiveSocialNetworks();
@@ -11,10 +11,18 @@ export default async function Header() {
     href: `/comprar-seguidores-${n.urlSlug || n.name.toLowerCase()}`,
   }));
 
-  const logoType = await getSetting("logo_type", "text");
-  const logoUrl = await getSetting("logo_url", "");
-  const websiteName = await getSetting("website_name", "SeguiFacil");
-  const logoText = await getSetting("website_logo_text", websiteName);
+  const settings = await getSettingsBatch({
+    logo_type: "text",
+    logo_url: "",
+    website_name: "SeguiFacil",
+  });
+  
+  const logoType = settings.logo_type;
+  const logoUrl = settings.logo_url;
+  const websiteName = settings.website_name;
+  // website_logo_text can fall back to websiteName
+  const settingsLogoText = await getSettingsBatch({ website_logo_text: websiteName });
+  const logoText = settingsLogoText.website_logo_text;
 
   // Fallback to defaults if there are absolutely no networks active
   const finalPlatforms = platforms.length > 0 ? platforms : [

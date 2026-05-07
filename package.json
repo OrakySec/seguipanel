@@ -17,7 +17,6 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
-
   "dependencies": {
     "@builder.io/partytown": "^0.10.3",
     "@prisma/client": "^6.19.2",

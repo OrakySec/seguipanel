@@ -1,9 +1,8 @@
 "use client";
 
 /**
- * Wrapper client-only para AnimatedPlatformCards.
- * ssr: false aqui é permitido pois este é um Client Component.
- * Mantém framer-motion fora do bundle crítico (LCP/TBT).
+ * Wrapper para AnimatedPlatformCards.
+ * Sem framer-motion → pode ser SSR; mantemos dynamic apenas para code-splitting.
  */
 
 import dynamic from "next/dynamic";

@@ -1,16 +1,17 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 import { stripHtml } from "@/lib/utils";
+import { useInView } from "@/lib/useInView";
 
-// Gera um número de vendas "dessa semana" pseudo-aleatório mas estável por serviço
 function weeklySales(seed: number) {
   return 80 + ((seed * 37 + 13) % 120);
 }
 
 export function AnimatedPopularServices({ services }: { services: any[] }) {
+  const { ref, inView } = useInView();
+
   if (services.length === 0) return null;
 
   return (
@@ -21,33 +22,25 @@ export function AnimatedPopularServices({ services }: { services: any[] }) {
           <h2 id="services-heading" className="text-3xl sm:text-5xl font-black text-gray-900 mb-4 tracking-tight">Mais Vendidos</h2>
           <p className="text-gray-500 text-lg">Os pacotes favoritos da nossa comunidade de elite.</p>
         </div>
-        <motion.div
+        <div
+          ref={ref}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={{
-            hidden: {},
-            visible: {
-              transition: { staggerChildren: 0.15 },
-            },
-          }}
         >
           {services.map((s, i) => {
-            // Calcula preço original (preço atual × fator de desconto simulado)
             const currentPrice = parseFloat(String(s.price).replace(/[^0-9,]/g, "").replace(",", ".")) || 0;
             const discountPct = [50, 47, 49, 45][i % 4];
             const originalPrice = currentPrice > 0 ? (currentPrice / (1 - discountPct / 100)).toFixed(2).replace(".", ",") : null;
             const sales = weeklySales(i + 1);
 
             return (
-              <motion.article
+              <article
                 key={i}
-                variants={{
-                  hidden: { y: 30 },
-                  visible: { y: 0 },
+                className="glass-card-2026 flex flex-col rounded-[2.5rem] p-3 shadow-premium group service-card-animate"
+                style={{
+                  animationDelay: inView ? `${i * 100}ms` : "0ms",
+                  animationPlayState: inView ? "running" : "paused",
+                  opacity: inView ? undefined : 0,
                 }}
-                className="glass-card-2026 flex flex-col rounded-[2.5rem] p-3 shadow-premium group"
               >
                 <div className="bg-white rounded-[2rem] p-6 flex flex-col flex-1 shadow-sm transition-transform duration-500 group-hover:scale-[1.02]">
                   <div className="flex items-center justify-between mb-5">
@@ -57,7 +50,6 @@ export function AnimatedPopularServices({ services }: { services: any[] }) {
                     >
                       {s.platform}
                     </span>
-                    {/* Badge % OFF */}
                     {discountPct > 0 && (
                       <span className="text-[10px] font-black text-white bg-red-500 px-2.5 py-1 rounded-full uppercase tracking-widest">
                         {discountPct}% OFF
@@ -83,7 +75,6 @@ export function AnimatedPopularServices({ services }: { services: any[] }) {
                     ))}
                   </div>
 
-                  {/* Escassez social */}
                   <p className="text-[10px] font-bold text-orange-500 mb-4">
                     🔥 {sales} vendidos essa semana
                   </p>
@@ -108,10 +99,10 @@ export function AnimatedPopularServices({ services }: { services: any[] }) {
                     </Link>
                   </div>
                 </div>
-              </motion.article>
+              </article>
             );
           })}
-        </motion.div>
+        </div>
 
         <div className="text-center mt-16">
           <Link href="/servicos" className="btn-tactile inline-flex items-center gap-3 px-10 py-5 text-sm font-black text-gray-900 bg-white border-2 border-gray-900 rounded-3xl shadow-premium hover:bg-gray-900 hover:text-white transition-all">

@@ -1,11 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 import { stripHtml } from "@/lib/utils";
+import { useInView } from "@/lib/useInView";
 
 export function AnimatedPlatformCards({ platforms }: { platforms: any[] }) {
+  const { ref, inView } = useInView();
+
   if (platforms.length === 0) return null;
 
   return (
@@ -15,27 +17,21 @@ export function AnimatedPlatformCards({ platforms }: { platforms: any[] }) {
           <h2 id="platforms-heading" className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 tracking-tight">Onde você quer crescer?</h2>
           <p className="text-gray-500 sm:text-lg text-sm">Selecione a rede social e acelere seu perfil hoje.</p>
         </div>
-        <motion.div 
+        <div
+          ref={ref}
           className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-5"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={{
-            hidden: {},
-            visible: {
-              transition: { staggerChildren: 0.1 }
-            }
-          }}
         >
-          {platforms.filter(p => p.urlSlug).map((p) => (
-            <motion.div
+          {platforms.filter(p => p.urlSlug).map((p, i) => (
+            <div
               key={p.name}
-              variants={{
-                hidden: { y: 15 },
-                visible: { y: 0 }
+              className="platform-card-animate"
+              style={{
+                animationDelay: inView ? `${i * 80}ms` : "0ms",
+                animationPlayState: inView ? "running" : "paused",
+                opacity: inView ? undefined : 0,
               }}
             >
-              <Link 
+              <Link
                 href={`/comprar-seguidores-${p.urlSlug}`}
                 className="group flex flex-col bg-white rounded-2xl border border-gray-100 shadow-premium hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden h-full"
               >
@@ -45,7 +41,7 @@ export function AnimatedPlatformCards({ platforms }: { platforms: any[] }) {
                 </div>
                 <div className="p-5 flex flex-col flex-1">
                   <h3 className="font-bold text-gray-900 mb-1.5 text-base">{p.name}</h3>
-                  <div 
+                  <div
                     className="text-[11px] text-gray-500 leading-relaxed flex-1 font-medium prose prose-sm prose-p:my-0"
                     dangerouslySetInnerHTML={{ __html: stripHtml(p.description || "Planos reais e seguros.") }}
                   />
@@ -55,9 +51,9 @@ export function AnimatedPlatformCards({ platforms }: { platforms: any[] }) {
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

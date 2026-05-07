@@ -26,7 +26,7 @@ export default function HeaderClient({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+    <header className="sticky top-0 z-50 bg-white/95 md:bg-white/80 md:backdrop-blur-md border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
 
@@ -88,7 +88,7 @@ export default function HeaderClient({
       {mobileOpen && (
         <div
           id="mobile-menu"
-          className="sm:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl px-4 pb-6 pt-4 animate-fade-in-up"
+          className="sm:hidden border-t border-gray-100 bg-white/95 md:backdrop-blur-xl px-4 pb-6 pt-4 animate-fade-in-up"
           role="navigation"
           aria-label="Menu mobile"
         >

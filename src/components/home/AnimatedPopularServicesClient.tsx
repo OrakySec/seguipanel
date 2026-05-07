@@ -1,9 +1,8 @@
 "use client";
 
 /**
- * Wrapper client-only para AnimatedPopularServices.
- * ssr: false aqui é permitido pois este é um Client Component.
- * Mantém framer-motion fora do bundle crítico (LCP/TBT).
+ * Wrapper para AnimatedPopularServices.
+ * Sem framer-motion → pode ser SSR; mantemos dynamic apenas para code-splitting.
  */
 
 import dynamic from "next/dynamic";

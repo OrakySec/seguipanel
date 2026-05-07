@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { getSetting } from "@/lib/settings";
+import { getSettingsBatch } from "@/lib/settings";
 import { getActiveSocialNetworks } from "@/lib/catalog";
+import Image from "next/image";
 
 const staticHelpLinks: { name: string; href: string; external?: boolean }[] = [
   { name: "Blog",                 href: "/blog" },
@@ -12,14 +13,21 @@ const staticHelpLinks: { name: string; href: string; external?: boolean }[] = [
 ];
 
 export default async function Footer() {
-  const [logoType, logoUrl, websiteName, logoText, whatsappNumber, networks] = await Promise.all([
-    getSetting("logo_type", "text"),
-    getSetting("logo_url", ""),
-    getSetting("website_name", "SeguiFacil"),
-    getSetting("website_logo_text", "SeguiFacil"),
-    getSetting("whatsapp_number", "558193886173"),
-    getActiveSocialNetworks(),
-  ]);
+  const networks = await getActiveSocialNetworks();
+
+  const settings = await getSettingsBatch({
+    logo_type: "text",
+    logo_url: "",
+    website_name: "SeguiFacil",
+    website_logo_text: "SeguiFacil",
+    whatsapp_number: "558193886173",
+  });
+
+  const logoType = settings.logo_type;
+  const logoUrl = settings.logo_url;
+  const websiteName = settings.website_name;
+  const logoText = settings.website_logo_text;
+  const whatsappNumber = settings.whatsapp_number;
 
   const platformLinks = networks.length > 0
     ? networks.map(n => ({
@@ -61,10 +69,13 @@ export default async function Footer() {
               <div className="flex -space-x-2">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden shadow-sm">
-                    <img 
+                    <Image
                       src={`https://images.unsplash.com/photo-${i === 1 ? '1507003211169-0a1dd7228f2d' : i === 2 ? '1494790108377-be9c29b29330' : '1599566150163-29194dcaad36'}?q=80&w=50&h=50&auto=format&fit=crop`} 
                       alt="Cliente" 
+                      width={24}
+                      height={24}
                       className="w-full h-full object-cover"
+                      unoptimized
                     />
                   </div>
                 ))}
