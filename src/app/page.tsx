@@ -41,7 +41,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const testimonials = [
 /* ─── Countdown helper (client) ─── */
 function AnnouncementBar() {
   const items = [
