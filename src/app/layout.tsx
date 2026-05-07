@@ -181,20 +181,6 @@ export default function RootLayout({
             -webkit-text-fill-color: transparent;
             background-clip: text;
           }
-          .font-script-stylized {
-            font-family: "Brush Script MT", cursive;
-            font-style: italic;
-            background-image: linear-gradient(to right, #ff616d, #fb24b1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-          }
-          @keyframes heroEntrance {
-            from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
-          }
-          .hero-entrance {
-            animation: heroEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-          }
           header { opacity: 1 !important; position: sticky; top: 0; z-index: 50; }
         `}} />
       </head>

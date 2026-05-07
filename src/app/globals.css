@@ -302,22 +302,6 @@ body {
 .animate-ticker:hover {
   animation-play-state: paused;
 }
-.font-script-stylized {
-  font-family: "Brush Script MT", "Snell Roundhand", "Apple Chancery", "Lucida Handwriting", cursive;
-  font-style: italic;
-  font-weight: 400;
-  font-size: 1em;
-  letter-spacing: 0px;
-  line-height: 1.2;
-  display: block;
-  margin-top: 1rem;
-  color: #c60cff;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(to right, #ff616d, #fb24b1, #2d348b);
-  padding: 1rem 0;
-}
 
 /* ─── Blog: Estilos do conteúdo de artigos ─── */
 .prose { color: #1e293b; font-size: 1rem; line-height: 1.8; }

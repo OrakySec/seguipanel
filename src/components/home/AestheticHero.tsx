@@ -47,9 +47,7 @@ export function AestheticHero({ platforms }: { platforms: Platform[] }) {
 
       {/* H1 - LCP: SEM ANIMAÇÃO para carregar instantaneamente */}
       <h1 className="text-5xl sm:text-7xl lg:text-[86px] font-black text-gray-900 tracking-tight leading-[0.95] mb-6">
-        Compre Seguidores
-        <br /> Para Suas
-        <span className="font-script-stylized">Redes sociais</span>
+        Compre Seguidores Para Suas Redes Sociais
       </h1>
 
       <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
