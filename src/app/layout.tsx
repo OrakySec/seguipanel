@@ -143,6 +143,61 @@ export default function RootLayout({
         />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.googleadservices.com" crossOrigin="anonymous" />
+        
+        {/* Critical CSS para LCP (Logo, Cores Base e Hero) */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            --background: #ffffff;
+            --foreground: #0f172a;
+            --font-jakarta: '__jakarta_4d4d4d', '__jakarta_Fallback_4d4d4d', system-ui, sans-serif;
+            --primary: #c60cff;
+            --muted: #64748b;
+          }
+          html { background-color: #ffffff; }
+          body {
+            background-color: var(--background);
+            color: var(--foreground);
+            margin: 0;
+            font-family: var(--font-jakarta), system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+          }
+          .logo-text {
+            font-weight: 900;
+            font-size: 1.25rem;
+            letter-spacing: -0.05em;
+            background: linear-gradient(to right, #ff616d, #fb24b1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
+          }
+          .bg-brand-gradient {
+            background: linear-gradient(135deg, #c60cff 0%, #ff1f7d 50%, #fd5949 100%);
+          }
+          .text-brand-gradient {
+            background: linear-gradient(135deg, #c60cff 0%, #ff1f7d 50%, #fd5949 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+          .font-script-stylized {
+            font-family: "Brush Script MT", cursive;
+            font-style: italic;
+            background-image: linear-gradient(to right, #ff616d, #fb24b1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
+          @keyframes heroEntrance {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          .hero-entrance {
+            animation: heroEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+          }
+          header { opacity: 1 !important; position: sticky; top: 0; z-index: 50; }
+        `}} />
       </head>
       <body 
         className="min-h-full flex flex-col bg-background text-foreground"
