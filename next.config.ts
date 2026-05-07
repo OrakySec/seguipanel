@@ -5,11 +5,9 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // Elimina polyfills legados (Array.at, Object.fromEntries, etc.)
-  // que o Next.js injeta por padrão para suporte a browsers antigos.
-  // Como já temos browserslist no package.json, isso é redundante.
+  // Tree-shake lucide-react para importar apenas ícones usados
   experimental: {
-    optimizePackageImports: ["lucide-react", "framer-motion", "recharts"],
+    optimizePackageImports: ["lucide-react"],
   },
 
   // Remove console.log em produção (reduz bundle size)

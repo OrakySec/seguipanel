@@ -1,0 +1,14 @@
+# Target modern browsers only — eliminates legacy JS polyfills
+# (Array.at, Array.flat, Object.fromEntries, Object.hasOwn, String.trimStart/End)
+# All of these are natively supported since Chrome 93 / Safari 15.4 / Firefox 95 (2021)
+[production]
+Chrome >= 93
+Firefox >= 95
+Safari >= 15
+Edge >= 93
+not dead
+
+[development]
+last 1 Chrome version
+last 1 Firefox version
+last 1 Safari version

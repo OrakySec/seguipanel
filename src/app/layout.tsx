@@ -151,12 +151,12 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-background text-foreground"
         suppressHydrationWarning
       >
-        {/* Google Ads – lazy load para não bloquear LCP/FCP */}
+        {/* Google Ads – afterInteractive para não bloquear o HTML inicial */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17638838744"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
-        <Script id="google-ads" strategy="lazyOnload">
+        <Script id="google-ads" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

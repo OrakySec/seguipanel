@@ -70,7 +70,7 @@ export default async function Footer() {
                 ))}
               </div>
               <p className="text-xs font-bold tracking-tight">
-                <span className="text-[#c60cff] font-bold">83.327+ </span>
+                <span className="text-primary-dark font-bold">83.327+ </span>
                 <span className="text-muted">clientes satisfeitos</span>
               </p>
             </div>
