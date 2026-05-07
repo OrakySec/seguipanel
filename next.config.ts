@@ -5,6 +5,19 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
 
+  // Elimina polyfills legados (Array.at, Object.fromEntries, etc.)
+  // que o Next.js injeta por padrão para suporte a browsers antigos.
+  // Como já temos browserslist no package.json, isso é redundante.
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion", "recharts"],
+  },
+
+  // Remove console.log em produção (reduz bundle size)
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production"
+      ? { exclude: ["error", "warn"] }
+      : false,
+  },
   images: {
     remotePatterns: [
       {

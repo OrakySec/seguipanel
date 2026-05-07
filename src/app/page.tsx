@@ -533,7 +533,7 @@ function CtaBanner() {
           </Link>
           <Link
             href="#faq"
-            className="px-7 py-3.5 text-sm font-semibold text-primary border border-primary rounded-full hover:bg-white transition-colors"
+            className="px-7 py-3.5 text-sm font-semibold text-primary-dark border-2 border-primary-dark rounded-full hover:bg-primary-dark hover:text-white transition-colors"
           >
             Tirar dúvidas
           </Link>

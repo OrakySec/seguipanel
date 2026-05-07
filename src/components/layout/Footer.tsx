@@ -50,7 +50,7 @@ export default async function Footer() {
               {logoType === "image" && logoUrl ? (
                  <img src={logoUrl} alt={websiteName} className="h-8 w-auto object-contain" />
               ) : (
-                 <span className="text-2xl font-black tracking-tighter text-brand-gradient uppercase" style={{ fontFamily: "var(--font-heading)" }}>{logoText}</span>
+                 <span className="text-2xl font-black tracking-tighter text-primary-dark uppercase" style={{ fontFamily: "var(--font-heading)" }}>{logoText}</span>
               )}
             </Link>
             <p className="text-sm text-muted leading-relaxed max-w-xs">
@@ -70,7 +70,7 @@ export default async function Footer() {
                 ))}
               </div>
               <p className="text-xs font-bold tracking-tight">
-                <span className="text-[#ff1f7d]">83.327+ </span>
+                <span className="text-[#c60cff] font-bold">83.327+ </span>
                 <span className="text-muted">clientes satisfeitos</span>
               </p>
             </div>
