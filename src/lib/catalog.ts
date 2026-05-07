@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { unstable_cache } from "next/cache";
 
 export const SOCIAL_COLORS: Record<string, string> = {
   instagram: "#E1306C",

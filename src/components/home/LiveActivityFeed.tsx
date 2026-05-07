@@ -1,7 +1,23 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
+const toastStyles = `
+@keyframes toastEnter {
+  0% { opacity: 0; transform: translateY(-20px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastExit {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-10px) scale(0.97); }
+}
+.toast-anim-enter {
+  animation: toastEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.toast-anim-exit {
+  animation: toastExit 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+`;
 
 /* ── Tipos ─────────────────────────────────────────────────────────── */
 
@@ -153,6 +169,7 @@ function PlatformIcon({ platform, bg }: { platform: string; bg: string }) {
 export function LiveActivityFeed({ services }: { services: FeedService[] }) {
   const [mounted,   setMounted]   = useState(false);
   const [current,   setCurrent]   = useState<Activity | null>(null);
+  const [isExiting, setIsExiting] = useState(false);
   const [topOffset, setTopOffset] = useState(120);
   const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -178,10 +195,14 @@ export function LiveActivityFeed({ services }: { services: FeedService[] }) {
   function showNext() {
     if (!services.length) return;
     setCurrent(buildActivity(services));
+    setIsExiting(false);
     playNotificationSound();
     dismissRef.current = setTimeout(() => {
-      setCurrent(null);
-      timerRef.current = setTimeout(showNext, randomDelay(8000, 20000));
+      setIsExiting(true);
+      setTimeout(() => {
+        setCurrent(null);
+        timerRef.current = setTimeout(showNext, randomDelay(8000, 20000));
+      }, 400); // Wait for the exit animation to complete
     }, randomDelay(4000, 7000));
   }
 
@@ -211,45 +232,40 @@ export function LiveActivityFeed({ services }: { services: FeedService[] }) {
       aria-label="Compras recentes"
       suppressHydrationWarning
     >
-      <AnimatePresence>
-        {current && (
-          <motion.div
-            key={current.id}
-            initial={{ opacity: 0, y: -20, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0,   scale: 1    }}
-            exit={{    opacity: 0, y: -10,  scale: 0.97 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-sm pointer-events-auto"
+      <style dangerouslySetInnerHTML={{ __html: toastStyles }} />
+      {current && (
+        <div
+          key={current.id}
+          className={`w-full max-w-sm pointer-events-auto ${isExiting ? 'toast-anim-exit' : 'toast-anim-enter'}`}
+        >
+          <div
+            className="bg-white rounded-2xl px-3 py-3 flex items-center gap-3"
+            style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07)" }}
           >
-            <div
-              className="bg-white rounded-2xl px-3 py-3 flex items-center gap-3"
-              style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07)" }}
-            >
-              <PlatformIcon platform={current.platform} bg={current.platformBg} />
+            <PlatformIcon platform={current.platform} bg={current.platformBg} />
 
-              <div className="flex-1 min-w-0">
-                {/* plataforma + "Agora" */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-semibold text-gray-500">
-                    {current.platform}
-                  </span>
-                  <span className="text-[11px] text-gray-500 flex-shrink-0">Agora</span>
-                </div>
-                {/* nome */}
-                <p className="text-[13px] font-bold text-gray-900 leading-tight mt-0.5">
-                  {current.name}{" "}
-                  <span className="font-normal text-gray-500">de {current.city}</span>
-                </p>
-                {/* serviço */}
-                <p className="text-[12px] text-gray-500 leading-tight mt-0.5">
-                  Comprou{" "}
-                  <span className="font-bold text-gray-800">{current.serviceName}</span>
-                </p>
+            <div className="flex-1 min-w-0">
+              {/* plataforma + "Agora" */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-semibold text-gray-500">
+                  {current.platform}
+                </span>
+                <span className="text-[11px] text-gray-500 flex-shrink-0">Agora</span>
               </div>
+              {/* nome */}
+              <p className="text-[13px] font-bold text-gray-900 leading-tight mt-0.5">
+                {current.name}{" "}
+                <span className="font-normal text-gray-500">de {current.city}</span>
+              </p>
+              {/* serviço */}
+              <p className="text-[12px] text-gray-500 leading-tight mt-0.5">
+                Comprou{" "}
+                <span className="font-bold text-gray-800">{current.serviceName}</span>
+              </p>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

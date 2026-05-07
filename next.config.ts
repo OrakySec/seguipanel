@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
 
   // Tree-shake lucide-react
   experimental: {
-    optimizePackageImports: ["lucide-react"],
+    optimizePackageImports: ["lucide-react", "framer-motion"],
   },
 
   // Remove console.log em produção (reduz bundle size)
