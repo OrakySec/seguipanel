@@ -263,7 +263,7 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
         </div>
 
         {/* Trust bar */}
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-6">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-6">
           {[
             { Icon: Zap,          text: "Entrega em Minutos"      },
             { Icon: ShieldCheck,  text: "Sem Senha"               },

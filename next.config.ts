@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self'",
               "img-src 'self' data: https://api.dicebear.com https://img.icons8.com https://api.qrserver.com https://images.unsplash.com https:",
-              "connect-src 'self' https://www.google-analytics.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net",
+              "connect-src 'self' https://www.google.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

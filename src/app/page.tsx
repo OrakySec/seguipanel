@@ -248,7 +248,7 @@ function HowItWorks() {
     <section className="bg-white py-24 px-4 overflow-hidden" aria-labelledby="how-heading">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-20">
-          <span className="text-primary font-bold uppercase tracking-[0.2em] text-[10px] mb-4 block">Processo Inteligente</span>
+          <span className="text-primary-dark font-bold uppercase tracking-[0.2em] text-[10px] mb-4 block">Processo Inteligente</span>
           <h2 id="how-heading" className="text-3xl sm:text-5xl font-black text-gray-900 mb-4 tracking-tight">
             Como Comprar Seguidores com Segurança em 3 Passos
           </h2>
@@ -261,7 +261,7 @@ function HowItWorks() {
               <div className="w-24 h-24 rounded-[2rem] bg-white border border-gray-100 flex items-center justify-center mb-6 shadow-premium group-hover:scale-110 transition-transform duration-500 glass-2026">
                 <step.Icon size={36} className="text-primary" aria-hidden />
               </div>
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Passo {step.number}</span>
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Passo {step.number}</span>
               <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
               <p className="text-sm text-gray-500 leading-relaxed max-w-[240px]">{step.description}</p>
             </div>
@@ -296,7 +296,7 @@ function StatsSection() {
             <div className="text-4xl sm:text-5xl font-black mb-2 tracking-tighter bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
               {s.value}
             </div>
-            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-primary transition-colors">
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 group-hover:text-primary transition-colors">
               {s.label}
             </div>
           </div>
@@ -344,7 +344,7 @@ function OriginalDataSection() {
   return (
     <section className="bg-white py-16 px-4 border-y border-gray-100" aria-labelledby="data-heading">
       <div className="max-w-4xl mx-auto text-center">
-        <span className="text-primary font-bold uppercase tracking-[0.2em] text-[10px] mb-4 block">Dados Proprietários</span>
+        <span className="text-primary-dark font-bold uppercase tracking-[0.2em] text-[10px] mb-4 block">Dados Proprietários</span>
         <h2 id="data-heading" className="text-2xl sm:text-3xl font-black text-gray-900 mb-6 tracking-tight">
           Números Reais de 7 Anos de Operação
         </h2>
@@ -364,7 +364,7 @@ function OriginalDataSection() {
           ].map((d) => (
             <div key={d.label} className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
               <div className="text-2xl sm:text-3xl font-black text-primary mb-1 tracking-tighter">{d.value}</div>
-              <div className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{d.label}</div>
+              <div className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{d.label}</div>
             </div>
           ))}
         </div>
@@ -400,11 +400,11 @@ function GuaranteeSection() {
     <section className="bg-primary/5 py-20 px-4 border-y border-primary/10" aria-labelledby="guarantee-heading">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-14">
-          <span className="text-primary font-bold uppercase tracking-[0.2em] text-[10px] mb-4 block">Compra Protegida</span>
+          <span className="text-primary-dark font-bold uppercase tracking-[0.2em] text-[10px] mb-4 block">Compra Protegida</span>
           <h2 id="guarantee-heading" className="text-2xl sm:text-4xl font-black text-gray-900 mb-3 tracking-tight">
             Garantia Total em Todos os Pedidos
           </h2>
-          <p className="text-gray-500">Compre sem medo. Se não entregar, devolvemos ou repomos.</p>
+          <p className="text-gray-600">Compre sem medo. Se não entregar, devolvemos ou repomos.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {guarantees.map((g) => (

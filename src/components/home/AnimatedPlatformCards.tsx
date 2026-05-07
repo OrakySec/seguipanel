@@ -51,7 +51,7 @@ export function AnimatedPlatformCards({ platforms }: { platforms: any[] }) {
                   />
                   <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">A partir de</span>
-                    <span className="text-sm font-bold text-primary">{p.fromPrice}</span>
+                    <span className="text-sm font-bold text-primary-dark">{p.fromPrice}</span>
                   </div>
                 </div>
               </Link>

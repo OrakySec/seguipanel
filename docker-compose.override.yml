@@ -1,0 +1,27 @@
+# Override local — expõe portas e usa bridge em vez de overlay (sem Swarm)
+# Carregado automaticamente pelo docker compose localmente
+# NÃO é usado no VPS (que usa docker stack deploy)
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:15432:5432"
+    networks:
+      - internal
+  redis:
+    ports:
+      - "6379:6379"
+    networks:
+      - internal
+  minio:
+    networks:
+      - internal
+  cron:
+    networks:
+      - internal
+
+networks:
+  YkaroNET:
+    external: false
+    driver: bridge
+  internal:
+    driver: bridge
