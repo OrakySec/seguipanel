@@ -188,12 +188,12 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-background text-foreground"
         suppressHydrationWarning
       >
-        {/* Google Ads – agora no Web Worker (Partytown) para não bloquear a thread principal */}
+        {/* Google Ads */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17638838744"
-          strategy="worker"
+          strategy="afterInteractive"
         />
-        <Script id="google-ads" strategy="worker">
+        <Script id="google-ads" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

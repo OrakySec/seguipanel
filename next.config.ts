@@ -7,8 +7,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
 
   experimental: {
-    nextScriptWorkers: true,
-    optimizeCss: true,
     optimizePackageImports: [
       "lucide-react",
       "framer-motion",
@@ -16,10 +14,7 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-dropdown-menu",
       "@radix-ui/react-toast",
       "clsx",
-      "tailwind-merge",
-      "zod",
-      "jose",
-      "bcryptjs"
+      "tailwind-merge"
     ],
   },
 
