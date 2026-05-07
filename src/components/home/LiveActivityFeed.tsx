@@ -230,10 +230,10 @@ export function LiveActivityFeed({ services }: { services: FeedService[] }) {
               <div className="flex-1 min-w-0">
                 {/* plataforma + "Agora" */}
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-semibold text-gray-400">
+                  <span className="text-[11px] font-semibold text-gray-500">
                     {current.platform}
                   </span>
-                  <span className="text-[11px] text-gray-400 flex-shrink-0">Agora</span>
+                  <span className="text-[11px] text-gray-500 flex-shrink-0">Agora</span>
                 </div>
                 {/* nome */}
                 <p className="text-[13px] font-bold text-gray-900 leading-tight mt-0.5">

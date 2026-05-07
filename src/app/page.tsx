@@ -452,7 +452,7 @@ function Testimonials() {
                 <meta itemProp="worstRating" content="1" />
               </span>
 
-              <div className="flex gap-0.5 mb-3" aria-label={`${t.stars} de 5 estrelas`}>
+              <div className="flex gap-0.5 mb-3" role="img" aria-label={`${t.stars} de 5 estrelas`}>
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <span key={idx} className="text-star" style={{ fontSize: 14 }} aria-hidden>★</span>
                 ))}
@@ -473,7 +473,7 @@ function Testimonials() {
                   <p className="text-sm font-semibold text-gray-900" itemProp="author" itemScope itemType="https://schema.org/Person">
                     <span itemProp="name">{t.name}</span>
                   </p>
-                  <p className="text-xs text-gray-400">{t.role} · {t.city} · {t.platform}</p>
+                  <p className="text-xs text-gray-500">{t.role} · {t.city} · {t.platform}</p>
                 </div>
               </figcaption>
             </figure>

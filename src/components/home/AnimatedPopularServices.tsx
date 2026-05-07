@@ -65,7 +65,7 @@ export function AnimatedPopularServices({ services }: { services: any[] }) {
                     )}
                   </div>
 
-                  <div className="flex gap-0.5 mb-4" aria-label={`${s.stars} estrelas`}>
+                  <div className="flex gap-0.5 mb-4" role="img" aria-label={`${s.stars} estrelas`}>
                     {Array.from({ length: 5 }).map((_, idx) => (
                       <span key={idx} className={idx < s.stars ? "text-star" : "text-gray-100"} style={{ fontSize: 10 }} aria-hidden>★</span>
                     ))}
@@ -73,13 +73,13 @@ export function AnimatedPopularServices({ services }: { services: any[] }) {
 
                   <h3 className="font-bold text-gray-900 leading-tight mb-3 text-base tracking-tight">{s.name}</h3>
                   <div
-                    className="text-xs text-gray-400 leading-relaxed flex-1 font-medium italic prose prose-sm prose-p:my-0"
+                    className="text-xs text-gray-500 leading-relaxed flex-1 font-medium italic prose prose-sm prose-p:my-0"
                     dangerouslySetInnerHTML={{ __html: `"${stripHtml(s.description)}"` }}
                   />
 
                   <div className="flex flex-wrap gap-2 mt-4 mb-5">
                     {s.badges.slice(0, 2).map((b: string) => (
-                      <span key={b} className="text-[9px] font-black bg-gray-50 text-gray-400 border border-gray-100 px-2.5 py-1 rounded-lg uppercase tracking-wider">{b}</span>
+                      <span key={b} className="text-[9px] font-black bg-gray-50 text-gray-500 border border-gray-100 px-2.5 py-1 rounded-lg uppercase tracking-wider">{b}</span>
                     ))}
                   </div>
 

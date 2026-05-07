@@ -163,10 +163,10 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
         >
           <div className="flex flex-shrink-0">
             {[
-              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&h=150&auto=format&fit=crop",
-              "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&h=150&auto=format&fit=crop",
-              "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=150&h=150&auto=format&fit=crop",
-              "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&h=150&auto=format&fit=crop"
+              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=70&w=64&h=64&auto=format,compress&fit=crop",
+              "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=70&w=64&h=64&auto=format,compress&fit=crop",
+              "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=70&w=64&h=64&auto=format,compress&fit=crop",
+              "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=70&w=64&h=64&auto=format,compress&fit=crop"
             ].map((img, i) => (
               <div
                 key={`avatar-force-${i}`}
@@ -210,7 +210,7 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
         </h1>
 
         {/* Parágrafo GEO anchor — logo após o h1 para SEO e alinhamento SSR/client */}
-        <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed opacity-70 font-medium">
+        <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
           O SeguiFacil é a plataforma SMM brasileira com mais de 83.000 clientes atendidos desde 2017.
           Seguidores reais com entrega automática e garantia de reposição.
         </p>
@@ -223,7 +223,7 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
           >
             <Zap size={22} aria-hidden /> Comprar Seguidores Agora
           </button>
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest flex flex-wrap justify-center items-center gap-3">
+          <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest flex flex-wrap justify-center items-center gap-3">
             <span>✓ Entrega em minutos</span>
             <span>✓ PIX</span>
             <span>✓ Garantia inclusa</span>
