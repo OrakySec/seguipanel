@@ -277,8 +277,8 @@ body {
 
 /* --- Animação de entrada do Hero (CSS-only, roda antes do JS) --- */
 @keyframes heroEntrance {
-  from { transform: translateY(24px); }
-  to   { transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 .hero-entrance {
   animation: heroEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;

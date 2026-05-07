@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import Link from "next/link";
 import {
@@ -25,17 +25,18 @@ import { AestheticHero } from "@/components/home/AestheticHero";
 import { AnimatedPlatformCardsClient } from "@/components/home/AnimatedPlatformCardsClient";
 import { AnimatedPopularServicesClient } from "@/components/home/AnimatedPopularServicesClient";
 import { LiveActivityFeedClient } from "@/components/home/LiveActivityFeedClient";
-import { getSetting } from "@/lib/settings";
+import { getSetting, getSettingsBatch } from "@/lib/settings";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [title, description] = await Promise.all([
-    getSetting("website_title", "Comprar Seguidores Brasileiros e Curtidas Reais | A partir de R$2,50"),
-    getSetting("website_desc", "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017."),
-  ]);
+  const settings = await getSettingsBatch({
+    website_title: "Comprar Seguidores Brasileiros e Curtidas Reais | A partir de R$2,50",
+    website_desc: "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017.",
+  });
+
   return {
-    title,
-    description,
+    title: settings.website_title,
+    description: settings.website_desc,
     alternates: { canonical: "https://seguifacil.com" },
   };
 }
@@ -233,7 +234,20 @@ function HeroSection({ platforms }: { platforms: any[] }) {
         <div className="mesh-ball mesh-ball-3" />
       </div>
       <div className="absolute inset-0 pointer-events-none bg-white/40 backdrop-blur-[2px]" aria-hidden />
-      <AestheticHero platforms={platforms} />
+      <AestheticHero platforms={platforms}>
+        <h1 className="text-5xl sm:text-7xl lg:text-[86px] font-black text-gray-900 tracking-tight leading-[0.95] mb-6">
+          Compre Seguidores
+          <br /> Para Suas
+          <span className="font-script-stylized">
+            Redes sociais
+          </span>
+        </h1>
+
+        <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
+          O SeguiFacil é a plataforma SMM brasileira com mais de 83.000 clientes atendidos desde 2017.
+          Seguidores reais com entrega automática e garantia de reposição.
+        </p>
+      </AestheticHero>
     </section>
   );
 }
@@ -544,20 +558,31 @@ function CtaBanner() {
 }
 
 export default async function HomePage() {
-  const platforms    = await getActiveSocialNetworks();
-  const bestSellers  = await getBestSellerServices();
-  const feedServices = await getActivityFeedServices();
+  // Fetch platforms separately to unblock the Hero as fast as possible
+  const platforms = await getActiveSocialNetworks();
 
   return (
     <>
       <AnnouncementBar />
       <Header />
-      <LiveActivityFeedClient services={feedServices} />
+      {/* O Feed de atividade pode carregar depois */}
+      <Suspense fallback={<div className="h-12 bg-gray-50 animate-pulse" />}>
+        <ActivityFeedWrapper />
+      </Suspense>
+      
       <main className="overflow-x-hidden">
         <HeroSection platforms={platforms} />
-        <AnimatedPlatformCardsClient platforms={platforms} />
+        
+        <Suspense fallback={<div className="h-64 bg-gray-50 animate-pulse" />}>
+          <PlatformCardsWrapper platforms={platforms} />
+        </Suspense>
+
         <HowItWorks />
-        <AnimatedPopularServicesClient services={bestSellers} />
+
+        <Suspense fallback={<div className="h-96 bg-gray-50 animate-pulse" />}>
+          <PopularServicesWrapper />
+        </Suspense>
+
         <StatsSection />
         <OriginalDataSection />
         <WhyUs />
@@ -569,4 +594,19 @@ export default async function HomePage() {
       <Footer />
     </>
   );
+}
+
+// Novos wrappers para permitir o streaming
+async function ActivityFeedWrapper() {
+  const feedServices = await getActivityFeedServices();
+  return <LiveActivityFeedClient services={feedServices} />;
+}
+
+async function PlatformCardsWrapper({ platforms }: { platforms: any[] }) {
+  return <AnimatedPlatformCardsClient platforms={platforms} />;
+}
+
+async function PopularServicesWrapper() {
+  const bestSellers = await getBestSellerServices();
+  return <AnimatedPopularServicesClient services={bestSellers} />;
 }

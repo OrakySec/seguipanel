@@ -24,7 +24,7 @@ const pacifico = Pacifico({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-script",
-  display: "optional",
+  display: "swap",
 });
 
 const BASE_URL = "https://seguifacil.com";
