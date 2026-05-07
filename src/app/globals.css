@@ -268,11 +268,11 @@ body {
 
 /* --- Animação de entrada do Hero (CSS-only, roda antes do JS) --- */
 @keyframes heroEntrance {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { transform: translateY(24px); }
+  to   { transform: translateY(0); }
 }
 .hero-entrance {
-  animation: heroEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: heroEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* --- Fade in up genérico (para notificações, modals, etc.) --- */
@@ -300,16 +300,19 @@ body {
   animation-play-state: paused;
 }
 .font-script-stylized {
-  font-family: var(--font-script) !important;
+  font-family: var(--font-script), cursive;
   font-weight: 400;
   font-size: 1em;
   letter-spacing: 0px;
   line-height: 1.2;
   display: block;
   margin-top: 1rem;
+  /* Fallback: solid color always visible */
+  color: #c60cff;
+  /* Override with gradient when supported */
   background-clip: text;
   -webkit-background-clip: text;
-  color: transparent;
+  -webkit-text-fill-color: transparent;
   background-image: linear-gradient(to right, #ff616d, #fb24b1, #2d348b);
   padding: 1rem 0;
 }

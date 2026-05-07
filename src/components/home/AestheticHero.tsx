@@ -1,8 +1,7 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 import { Zap, ShieldCheck, RefreshCw, Headphones, Eye, Star, X } from "lucide-react";
@@ -27,6 +26,7 @@ function useViewerCount() {
   return count;
 }
 
+/* ── Modal de seleção de plataforma (CSS puro, sem framer-motion) ─── */
 function PlatformModal({
   platforms,
   onClose,
@@ -35,114 +35,105 @@ function PlatformModal({
   onClose: () => void;
 }) {
   const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    // Força reflow para ativar a transição CSS
+    requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") handleClose(); };
     window.addEventListener("keydown", handler);
-    // Impede scroll do body enquanto modal está aberto
     document.body.style.overflow = "hidden";
     return () => {
       window.removeEventListener("keydown", handler);
       document.body.style.overflow = "";
     };
-  }, [onClose]);
+  }, []);
+
+  function handleClose() {
+    setVisible(false);
+    setTimeout(onClose, 250);
+  }
 
   if (!mounted) return null;
 
   return createPortal(
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-[99999] flex items-center justify-center px-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center px-4"
+      style={{
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.25s ease",
+        pointerEvents: visible ? "auto" : "none",
+      }}
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={handleClose}
+      />
+
+      {/* Card */}
+      <div
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+        style={{
+          transform: visible ? "scale(1) translateY(0)" : "scale(0.95) translateY(16px)",
+          transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
       >
-        {/* Backdrop */}
-        <motion.div
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        />
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4 flex items-start justify-between">
+          <div>
+            <h2 className="text-xl font-black text-gray-900 tracking-tight">
+              Onde você quer crescer?
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Escolha a rede social para começar
+            </p>
+          </div>
+          <button
+            onClick={handleClose}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors flex-shrink-0 ml-4"
+            aria-label="Fechar"
+          >
+            <X size={16} className="text-gray-600" />
+          </button>
+        </div>
 
-        {/* Card */}
-        <motion.div
-          className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
-          initial={{ opacity: 0, scale: 0.93, y: 24 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 16 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        >
-          {/* Header do modal */}
-          <div className="px-6 pt-6 pb-4 flex items-start justify-between">
-            <div>
-              <h2 className="text-xl font-black text-gray-900 tracking-tight">
-                Onde você quer crescer?
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Escolha a rede social para começar
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors flex-shrink-0 ml-4"
-              aria-label="Fechar"
+        {/* Lista de plataformas */}
+        <div className="px-4 pb-6 grid grid-cols-1 gap-2">
+          {platforms.filter((p) => p.urlSlug).map((p) => (
+            <Link
+              key={p.name}
+              href={`/comprar-seguidores-${p.urlSlug}`}
+              onClick={handleClose}
+              className="flex items-center gap-4 px-4 py-4 rounded-2xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all group"
             >
-              <X size={16} className="text-gray-600" />
-            </button>
-          </div>
-
-          {/* Lista de plataformas */}
-          <div className="px-4 pb-6 grid grid-cols-1 gap-2">
-            {platforms.filter((p) => p.urlSlug).map((p, i) => (
-              <motion.div
-                key={p.name}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.05 + i * 0.04, ease: [0.16, 1, 0.3, 1] }}
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: p.gradient }}
               >
-                <Link
-                  href={`/comprar-seguidores-${p.urlSlug}`}
-                  onClick={onClose}
-                  className="flex items-center gap-4 px-4 py-4 rounded-2xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all group"
-                >
-                  {/* Ícone da plataforma */}
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: p.gradient }}
-                  >
-                    <SocialIcon slug={p.urlSlug} size={22} className="text-white" />
-                  </div>
-
-                  {/* Texto */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900">
-                      {p.name}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      A partir de {p.fromPrice}
-                    </p>
-                  </div>
-
-                  {/* Seta */}
-                  <div className="w-7 h-7 rounded-full bg-gray-100 group-hover:bg-primary group-hover:text-white flex items-center justify-center transition-all flex-shrink-0">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" className="text-gray-400 group-hover:text-white">
-                      <path d="M4.5 2.5L8 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                    </svg>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>,
+                <SocialIcon slug={p.urlSlug} size={22} className="text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-gray-900">{p.name}</p>
+                <p className="text-xs text-gray-500">A partir de {p.fromPrice}</p>
+              </div>
+              <div className="w-7 h-7 rounded-full bg-gray-100 group-hover:bg-primary group-hover:text-white flex items-center justify-center transition-all flex-shrink-0">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" className="text-gray-400 group-hover:text-white">
+                  <path d="M4.5 2.5L8 6l-3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                </svg>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>,
     document.body
   );
 }
 
+/* ── Componente principal ─────────────────────────────────────────── */
 export function AestheticHero({ platforms }: { platforms: any[] }) {
   const viewers = useViewerCount();
   const [modalOpen, setModalOpen] = useState(false);
@@ -151,10 +142,9 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
     <>
       <div className="hero-entrance max-w-4xl mx-auto relative z-10">
         {/* Badge social proof */}
-        {/* Badge social proof premium (ESTILO FORÇADO VIA INLINE PARA PRECISÃO) */}
-        <div 
+        <div
           className="inline-flex items-center bg-white/70 rounded-full px-6 py-1.5 mb-8 transition-all duration-500 hover:scale-105"
-          style={{ 
+          style={{
             border: '1.2px solid #ece4ff',
             boxShadow: '0 8px 30px rgba(124, 77, 255, 0.12)',
             backdropFilter: 'blur(10px)',
@@ -170,31 +160,22 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
             ].map((img, i) => (
               <div
                 key={`avatar-force-${i}`}
-                style={{ 
-                  width: '32px', 
-                  height: '32px', 
-                  minWidth: '32px', 
-                  minHeight: '32px',
-                  borderRadius: '9999px',
-                  border: '2px solid white',
-                  overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                  zIndex: i,
-                  marginLeft: i === 0 ? 0 : '-12px',
-                  position: 'relative'
+                style={{
+                  width: '32px', height: '32px', minWidth: '32px', minHeight: '32px',
+                  borderRadius: '9999px', border: '2px solid white', overflow: 'hidden',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)', zIndex: i,
+                  marginLeft: i === 0 ? 0 : '-12px', position: 'relative'
                 }}
               >
-                <img src={img} alt="Cliente" className="w-full h-full object-cover" />
+                <img src={img} alt="Cliente" className="w-full h-full object-cover" width={32} height={32} />
               </div>
             ))}
           </div>
           <p className="text-xs font-bold tracking-tight whitespace-nowrap">
-            <span style={{ 
+            <span style={{
               background: 'linear-gradient(to right, #fb24b1, #7c4dff)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              color: 'transparent'
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text', color: 'transparent'
             }}>
               Mais de 83.327 clientes satisfeitos
             </span>
@@ -209,7 +190,6 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
           </span>
         </h1>
 
-        {/* Parágrafo GEO anchor — logo após o h1 para SEO e alinhamento SSR/client */}
         <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
           O SeguiFacil é a plataforma SMM brasileira com mais de 83.000 clientes atendidos desde 2017.
           Seguidores reais com entrega automática e garantia de reposição.
@@ -240,36 +220,28 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
           </p>
         </div>
 
-
-
-        {/* Botões de plataforma */}
+        {/* Botões de plataforma — CSS hover sem framer-motion */}
         <div className="flex flex-wrap justify-center gap-3 mb-10">
-          {platforms.filter((p) => p.urlSlug).map((p, i) => (
-            <motion.div
+          {platforms.filter((p) => p.urlSlug).map((p) => (
+            <Link
               key={p.name}
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2 + 0.05 * i, ease: [0.16, 1, 0.3, 1] }}
+              href={`/comprar-seguidores-${p.urlSlug}`}
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm font-bold bg-white border border-gray-200 text-gray-800 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all"
             >
-              <Link
-                href={`/comprar-seguidores-${p.urlSlug}`}
-                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm font-bold bg-white border border-gray-200 text-gray-800 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all"
-              >
-                <SocialIcon slug={p.urlSlug} size={18} />
-                {p.name}
-              </Link>
-            </motion.div>
+              <SocialIcon slug={p.urlSlug} size={18} />
+              {p.name}
+            </Link>
           ))}
         </div>
 
         {/* Trust bar */}
         <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-6">
           {[
-            { Icon: Zap,          text: "Entrega em Minutos"      },
-            { Icon: ShieldCheck,  text: "Sem Senha"               },
-            { Icon: RefreshCw,    text: "Garantia de Reposição"   },
-            { Icon: Headphones,   text: "Suporte 24h"             },
-            { Icon: Star,         text: "4.9/5 · 12.400 Avaliações" },
+            { Icon: Zap,         text: "Entrega em Minutos"        },
+            { Icon: ShieldCheck, text: "Sem Senha"                 },
+            { Icon: RefreshCw,   text: "Garantia de Reposição"     },
+            { Icon: Headphones,  text: "Suporte 24h"               },
+            { Icon: Star,        text: "4.9/5 · 12.400 Avaliações" },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center border border-gray-100">
@@ -295,7 +267,6 @@ export function AestheticHero({ platforms }: { platforms: any[] }) {
         </div>
       </div>
 
-      {/* Modal de seleção de plataforma */}
       {modalOpen && (
         <PlatformModal
           platforms={platforms}

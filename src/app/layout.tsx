@@ -9,17 +9,22 @@ import { getSetting } from "@/lib/settings";
 const geistSans = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans",
+  display: "swap",
+  preload: true,
 });
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-heading",
+  display: "swap",
+  preload: true,
 });
 
 const pacifico = Pacifico({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-script",
+  display: "optional",
 });
 
 const BASE_URL = "https://seguifacil.com";
