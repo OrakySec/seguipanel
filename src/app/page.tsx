@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import {
   Zap,
   ShieldCheck,
@@ -23,20 +22,11 @@ import Footer from "@/components/layout/Footer";
 import FaqAccordion from "@/components/home/FaqAccordion";
 import { getActiveSocialNetworks, getBestSellerServices, getActivityFeedServices } from "@/lib/catalog";
 import { AestheticHero } from "@/components/home/AestheticHero";
+import { AnimatedPlatformCardsClient } from "@/components/home/AnimatedPlatformCardsClient";
+import { AnimatedPopularServicesClient } from "@/components/home/AnimatedPopularServicesClient";
 import { LiveActivityFeedClient } from "@/components/home/LiveActivityFeedClient";
 import { getSetting } from "@/lib/settings";
 import type { Metadata } from "next";
-
-// Lazy-load heavy framer-motion components (below the fold) —
-// keeps framer-motion OUT of the critical JS bundle, improving LCP + TBT.
-const AnimatedPlatformCards = dynamic(
-  () => import("@/components/home/AnimatedPlatformCards").then(m => m.AnimatedPlatformCards),
-  { ssr: false, loading: () => <div className="bg-[#fafafa] py-12 sm:py-20 px-4" aria-hidden="true" style={{ minHeight: 280 }} /> }
-);
-const AnimatedPopularServices = dynamic(
-  () => import("@/components/home/AnimatedPopularServices").then(m => m.AnimatedPopularServices),
-  { ssr: false, loading: () => <div className="bg-white py-24 px-4" aria-hidden="true" style={{ minHeight: 400 }} /> }
-);
 
 export async function generateMetadata(): Promise<Metadata> {
   const [title, description] = await Promise.all([
@@ -565,9 +555,9 @@ export default async function HomePage() {
       <LiveActivityFeedClient services={feedServices} />
       <main className="overflow-x-hidden">
         <HeroSection platforms={platforms} />
-        <AnimatedPlatformCards platforms={platforms} />
+        <AnimatedPlatformCardsClient platforms={platforms} />
         <HowItWorks />
-        <AnimatedPopularServices services={bestSellers} />
+        <AnimatedPopularServicesClient services={bestSellers} />
         <StatsSection />
         <OriginalDataSection />
         <WhyUs />
