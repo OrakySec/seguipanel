@@ -1,7 +1,37 @@
 import Link from "next/link";
 import { getSettingsBatch } from "@/lib/settings";
 import { getActiveSocialNetworks } from "@/lib/catalog";
-import Image from "next/image";
+
+const FOOTER_AVATAR_GRADIENTS: ReadonlyArray<readonly [string, string]> = [
+  ["#fb24b1", "#7c4dff"],
+  ["#fd5949", "#fb24b1"],
+  ["#1877F2", "#7c4dff"],
+];
+
+function FooterAvatar({ idx }: { idx: number }) {
+  const [a, b] = FOOTER_AVATAR_GRADIENTS[idx];
+  const id = `ft-av-${idx}`;
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      aria-hidden="true"
+      style={{ display: "block" }}
+    >
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={a} />
+          <stop offset="100%" stopColor={b} />
+        </linearGradient>
+      </defs>
+      <rect width="24" height="24" rx="12" fill={`url(#${id})`} />
+      <circle cx="12" cy="10" r="3.5" fill="white" opacity="0.92" />
+      <path d="M4 22c0-4 4-7 8-7s8 3 8 7z" fill="white" opacity="0.92" />
+    </svg>
+  );
+}
 
 const staticHelpLinks: { name: string; href: string; external?: boolean }[] = [
   { name: "Blog",                 href: "/blog" },
@@ -13,15 +43,16 @@ const staticHelpLinks: { name: string; href: string; external?: boolean }[] = [
 ];
 
 export default async function Footer() {
-  const networks = await getActiveSocialNetworks();
-
-  const settings = await getSettingsBatch({
-    logo_type: "text",
-    logo_url: "",
-    website_name: "SeguiFacil",
-    website_logo_text: "SeguiFacil",
-    whatsapp_number: "558193886173",
-  });
+  const [networks, settings] = await Promise.all([
+    getActiveSocialNetworks(),
+    getSettingsBatch({
+      logo_type: "text",
+      logo_url: "",
+      website_name: "SeguiFacil",
+      website_logo_text: "SeguiFacil",
+      whatsapp_number: "558193886173",
+    }),
+  ]);
 
   const logoType = settings.logo_type;
   const logoUrl = settings.logo_url;
@@ -67,16 +98,12 @@ export default async function Footer() {
             </p>
             <div className="mt-6 flex items-center gap-2">
               <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden shadow-sm">
-                    <Image
-                      src={`https://images.unsplash.com/photo-${i === 1 ? '1507003211169-0a1dd7228f2d' : i === 2 ? '1494790108377-be9c29b29330' : '1599566150163-29194dcaad36'}?q=80&w=50&h=50&auto=format&fit=crop`} 
-                      alt="Cliente" 
-                      width={24}
-                      height={24}
-                      className="w-full h-full object-cover"
-                      unoptimized
-                    />
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-6 h-6 rounded-full border-2 border-white overflow-hidden shadow-sm"
+                  >
+                    <FooterAvatar idx={i} />
                   </div>
                 ))}
               </div>

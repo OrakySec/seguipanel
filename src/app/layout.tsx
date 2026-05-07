@@ -1,30 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Plus_Jakarta_Sans, Pacifico } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { NavigationProgress } from "@/components/ui/NavigationProgress";
+import { NavigationProgressLazy } from "@/components/ui/NavigationProgressLazy";
 import { getSettingsBatch } from "@/lib/settings";
 
-const geistSans = Geist({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-jakarta",
   display: "swap",
   preload: true,
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-heading",
-  display: "swap",
-  preload: true,
-});
-
-const pacifico = Pacifico({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-script",
-  display: "swap",
 });
 
 const BASE_URL = "https://seguifacil.com";
@@ -99,38 +85,43 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const organizationSchema = {
+const rootJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "SeguiFacil",
-  url: BASE_URL,
-  logo: `${BASE_URL}/logo.png`,
-  foundingDate: "2017",
-  description: "SeguiFacil é a plataforma líder no Brasil para compra de seguidores e curtidas para Instagram, TikTok, Kwai, YouTube e Facebook. Atendemos mais de 83.000 clientes desde 2017.",
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "customer support",
-    availableLanguage: "Portuguese",
-  },
-  sameAs: [
-    "https://www.instagram.com/seguifacil",
-    "https://www.tiktok.com/@seguifacil",
-  ],
-};
-
-const websiteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "SeguiFacil",
-  url: BASE_URL,
-  potentialAction: {
-    "@type": "SearchAction",
-    target: {
-      "@type": "EntryPoint",
-      urlTemplate: `${BASE_URL}/busca?q={search_term_string}`,
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${BASE_URL}#org`,
+      name: "SeguiFacil",
+      url: BASE_URL,
+      logo: `${BASE_URL}/logo.png`,
+      foundingDate: "2017",
+      description:
+        "SeguiFacil é a plataforma líder no Brasil para compra de seguidores e curtidas para Instagram, TikTok, Kwai, YouTube e Facebook. Atendemos mais de 83.000 clientes desde 2017.",
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        availableLanguage: "Portuguese",
+      },
+      sameAs: [
+        "https://www.instagram.com/seguifacil",
+        "https://www.tiktok.com/@seguifacil",
+      ],
     },
-    "query-input": "required name=search_term_string",
-  },
+    {
+      "@type": "WebSite",
+      "@id": `${BASE_URL}#site`,
+      name: "SeguiFacil",
+      url: BASE_URL,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${BASE_URL}/busca?q={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -139,30 +130,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html 
-      lang="pt-BR" 
-      className={`${geistSans.variable} ${plusJakarta.variable} ${pacifico.variable} h-full antialiased`}
+    <html
+      lang="pt-BR"
+      className={`${jakarta.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
-        {/* Impede que browsers com dark mode do sistema apliquem cores escuras automaticamente */}
         <meta name="color-scheme" content="light" />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(rootJsonLd) }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://www.google.com" />
-        <link rel="preconnect" href="https://images.unsplash.com" />
-        <link rel="preconnect" href="https://api.dicebear.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://www.google.com" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link rel="dns-prefetch" href="https://api.dicebear.com" />
       </head>
       <body 
         className="min-h-full flex flex-col bg-background text-foreground"
@@ -182,7 +162,7 @@ export default function RootLayout({
           `}
         </Script>
 
-        <NavigationProgress />
+        <NavigationProgressLazy />
         {children}
         <WhatsAppButton />
       </body>

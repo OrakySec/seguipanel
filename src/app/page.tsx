@@ -1,5 +1,6 @@
 export const revalidate = 60;
 
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   Zap,
@@ -25,7 +26,7 @@ import { AestheticHero } from "@/components/home/AestheticHero";
 import { AnimatedPlatformCardsClient } from "@/components/home/AnimatedPlatformCardsClient";
 import { AnimatedPopularServicesClient } from "@/components/home/AnimatedPopularServicesClient";
 import { LiveActivityFeedClient } from "@/components/home/LiveActivityFeedClient";
-import { getSetting, getSettingsBatch } from "@/lib/settings";
+import { getSettingsBatch } from "@/lib/settings";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -228,26 +229,8 @@ function AnnouncementBar() {
 function HeroSection({ platforms }: { platforms: any[] }) {
   return (
     <section className="pt-4 pb-16 px-4 text-center relative overflow-hidden">
-      <div className="mesh-container">
-        <div className="mesh-ball mesh-ball-1" />
-        <div className="mesh-ball mesh-ball-2" />
-        <div className="mesh-ball mesh-ball-3" />
-      </div>
-      <div className="absolute inset-0 pointer-events-none bg-white/40 backdrop-blur-[2px]" aria-hidden />
-      <AestheticHero platforms={platforms}>
-        <h1 className="text-5xl sm:text-7xl lg:text-[86px] font-black text-gray-900 tracking-tight leading-[0.95] mb-6">
-          Compre Seguidores
-          <br /> Para Suas
-          <span className="font-script-stylized">
-            Redes sociais
-          </span>
-        </h1>
-
-        <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
-          O SeguiFacil é a plataforma SMM brasileira com mais de 83.000 clientes atendidos desde 2017.
-          Seguidores reais com entrega automática e garantia de reposição.
-        </p>
-      </AestheticHero>
+      <div className="mesh-container" aria-hidden />
+      <AestheticHero platforms={platforms} />
     </section>
   );
 }
