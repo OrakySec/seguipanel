@@ -5,7 +5,7 @@ services:
   app:
     image: ghcr.io/orakysec/seguipanel:sha-bd9c06b
     environment:
-      DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/smm_app"
+      DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD_ENCODED:-${POSTGRES_PASSWORD}}@postgres:5432/smm_app"
       JWT_SECRET: "${JWT_SECRET}"
       JWT_EXPIRES_IN: "7d"
       NEXT_PUBLIC_APP_URL: "https://seguifacil.com"
