@@ -1,31 +1,61 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SOCIAL_METADATA } from "@/lib/catalog";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 import Link from "next/link";
-import { Zap, ShieldCheck, RefreshCw, Headphones, Check } from "lucide-react";
+import { Zap, ShieldCheck, RefreshCw, Headphones, ChevronDown } from "lucide-react";
+import {
+  getPlatformSeoData,
+  buildProductSchema,
+  buildFaqSchema,
+  buildBreadcrumbSchema,
+} from "@/lib/seo";
+
+const BASE_URL = "https://seguifacil.com";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  if (!slug.startsWith("comprar-seguidores-")) {
+    return {};
+  }
+  const platformSlug = slug.replace("comprar-seguidores-", "");
+  const seo = getPlatformSeoData(platformSlug);
+
+  return {
+    title: seo.title,
+    description: seo.description,
+    keywords: seo.keywords,
+    alternates: {
+      canonical: `${BASE_URL}/${slug}`,
+    },
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+      url: `${BASE_URL}/${slug}`,
+      locale: "pt_BR",
+      type: "website",
+    },
+  };
+}
+
 export default async function PlatformPage({ params }: Props) {
   const { slug } = await params;
 
-  // 1. Verificar se o slug segue o padrão esperado
   if (!slug.startsWith("comprar-seguidores-")) {
-    // Aqui poderíamos verificar se é uma CustomPage ou outra coisa
-    // Por enquanto, se não seguir o padrão, damos 404
     return notFound();
   }
 
   const platformSlug = slug.replace("comprar-seguidores-", "");
 
-  // 2. Buscar a rede social e seus serviços no banco
   const network = await prisma.socialNetwork.findUnique({
     where: { urlSlug: platformSlug, status: 1 },
     include: {
@@ -47,11 +77,45 @@ export default async function PlatformPage({ params }: Props) {
   }
 
   const metadata = SOCIAL_METADATA[platformSlug] || SOCIAL_METADATA.default;
+  const seo = getPlatformSeoData(platformSlug);
+
+  // Preço mínimo para o Schema Product
+  const allPrices = network.categories
+    .flatMap((c) => c.services)
+    .map((s) => parseFloat(s.price.toString()));
+  const minPrice = allPrices.length > 0 ? Math.min(...allPrices) : 2.5;
+
+  const productSchema = buildProductSchema(network.name, platformSlug, minPrice);
+  const faqSchema = buildFaqSchema(seo.faqs);
+  const breadcrumbSchema = buildBreadcrumbSchema(network.name, platformSlug);
 
   return (
     <div className="min-h-screen bg-surface">
+      {/* JSON-LD Schema Markup */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       <Header />
-      
+
+      {/* Breadcrumb visual */}
+      <nav className="max-w-7xl mx-auto px-4 pt-4 pb-0" aria-label="Breadcrumb">
+        <ol className="flex items-center gap-2 text-xs text-gray-400">
+          <li><Link href="/" className="hover:text-primary transition-colors">Início</Link></li>
+          <li aria-hidden>/</li>
+          <li className="text-gray-700 font-medium">Comprar Seguidores {network.name}</li>
+        </ol>
+      </nav>
+
       {/* Hero da Categoria */}
       <section className="relative py-20 overflow-hidden bg-white border-b border-gray-100">
         <div className="mesh-container opacity-30">
@@ -59,7 +123,7 @@ export default async function PlatformPage({ params }: Props) {
           <div className="mesh-ball mesh-ball-2" />
         </div>
         <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-          <div 
+          <div
             className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg"
             style={{ background: metadata.gradient }}
           >
@@ -71,25 +135,26 @@ export default async function PlatformPage({ params }: Props) {
           <div
             className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed [&_strong]:font-bold [&_strong]:text-gray-700 [&_p]:mb-2"
             dangerouslySetInnerHTML={{
-              __html: network.description || `<p>Acelere seu perfil no ${network.name} com seguidores reais e brasileiros. Entrega rápida e garantida.</p>`,
+              __html:
+                network.description ||
+                `<p>Acelere seu perfil no ${network.name} com seguidores reais e brasileiros. Entrega rápida e garantida.</p>`,
             }}
           />
 
-          {/* Navegação rápida por categoria */}
           {network.categories.length > 1 && (
             <div className="mt-10">
               <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">Serviços Disponíveis</p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {network.categories.map((cat) => (
-                <a
-                  key={cat.id}
-                  href={`#cat-${cat.id}`}
-                  className="px-5 py-2.5 rounded-full text-sm font-bold border border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all shadow-sm"
-                >
-                  {cat.name}
-                </a>
-              ))}
-            </div>
+              <div className="flex flex-wrap justify-center gap-3">
+                {network.categories.map((cat) => (
+                  <a
+                    key={cat.id}
+                    href={`#cat-${cat.id}`}
+                    className="px-5 py-2.5 rounded-full text-sm font-bold border border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all shadow-sm"
+                  >
+                    {cat.name}
+                  </a>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -106,7 +171,7 @@ export default async function PlatformPage({ params }: Props) {
                 </h2>
                 <div className="h-1 w-20 bg-brand-gradient rounded-full" />
                 {category.description && (
-                  <div 
+                  <div
                     className="text-gray-500 mt-4 max-w-2xl text-sm leading-relaxed prose prose-sm prose-p:my-1"
                     dangerouslySetInnerHTML={{ __html: category.description }}
                   />
@@ -116,7 +181,7 @@ export default async function PlatformPage({ params }: Props) {
 
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {category.services.map((service) => (
-                <div 
+                <div
                   key={service.id}
                   className="glass-card-2026 flex flex-col bg-white rounded-3xl border border-gray-100 p-4 md:p-6 shadow-premium hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
                 >
@@ -125,7 +190,7 @@ export default async function PlatformPage({ params }: Props) {
                       {service.discount}% OFF
                     </div>
                   )}
-                  
+
                   <div className="flex-1">
                     <h3 className="font-bold text-gray-900 mb-2 text-base md:text-lg leading-tight">
                       {service.name}
@@ -143,7 +208,7 @@ export default async function PlatformPage({ params }: Props) {
                         </span>
                       )}
                     </div>
-                    
+
                     <Link
                       href={`/checkout?service=${service.id}&name=${encodeURIComponent(service.name)}&platform=${encodeURIComponent(network.name)}&price=${service.price}&qty=${service.quantity || ""}&requiredField=${encodeURIComponent(category.requiredField || "Link do Perfil")}&deliveryTime=${encodeURIComponent((category as any).deliveryTime || "")}`}
                       className="w-full py-3.5 text-xs font-bold text-white rounded-2xl bg-brand-gradient hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-brand"
@@ -158,8 +223,21 @@ export default async function PlatformPage({ params }: Props) {
         ))}
       </main>
 
+      {/* Conteúdo Rico (SEO) */}
+      <section className="bg-gray-50 py-16 px-4 border-y border-gray-100">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-black text-gray-900 mb-6">
+            Por que Comprar Seguidores {network.name} no SeguiFacil?
+          </h2>
+          <div
+            className="text-gray-600 leading-relaxed prose prose-p:mb-4 [&_strong]:text-gray-800"
+            dangerouslySetInnerHTML={{ __html: seo.richContent }}
+          />
+        </div>
+      </section>
+
       {/* Diferenciais */}
-      <section className="bg-gray-50 py-20 px-4">
+      <section className="bg-white py-20 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           {[
             { icon: Zap, title: "Velocidade", desc: "Início imediato após o PIX." },
@@ -175,6 +253,37 @@ export default async function PlatformPage({ params }: Props) {
               <p className="text-xs text-gray-500">{item.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="bg-gray-50 py-20 px-4 border-t border-gray-100" aria-labelledby="faq-heading">
+        <div className="max-w-3xl mx-auto">
+          <h2 id="faq-heading" className="text-2xl md:text-3xl font-black text-gray-900 mb-2 text-center">
+            Perguntas Frequentes
+          </h2>
+          <p className="text-gray-500 text-center mb-12">
+            Tire suas dúvidas sobre comprar seguidores {network.name}
+          </p>
+          <div className="space-y-4">
+            {seo.faqs.map((faq, i) => (
+              <details
+                key={i}
+                className="group bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+              >
+                <summary className="flex items-center justify-between p-6 cursor-pointer font-bold text-gray-900 list-none hover:text-primary transition-colors">
+                  {faq.question}
+                  <ChevronDown
+                    size={18}
+                    className="flex-shrink-0 text-gray-400 group-open:rotate-180 transition-transform duration-300"
+                  />
+                </summary>
+                <div className="px-6 pb-6 text-gray-600 text-sm leading-relaxed border-t border-gray-50 pt-4">
+                  {faq.answer}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

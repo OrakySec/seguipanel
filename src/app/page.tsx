@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { HOME_FAQS, buildFaqSchema } from "@/lib/seo";
 
 import { Suspense } from "react";
 import Link from "next/link";
@@ -264,6 +265,38 @@ function GuaranteeSection() {
 }
 
 
+function FaqSection() {
+  return (
+    <section id="faq" className="bg-white py-24 px-4 border-t border-gray-100" aria-labelledby="faq-home-heading">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-14">
+          <span className="text-primary-dark font-bold uppercase tracking-[0.2em] text-[10px] mb-4 block">Dúvidas Frequentes</span>
+          <h2 id="faq-home-heading" className="text-3xl sm:text-4xl font-black text-gray-900 mb-4 tracking-tight">
+            Perguntas sobre Comprar Seguidores
+          </h2>
+          <p className="text-gray-500">Respondemos as dúvidas mais comuns dos nossos clientes.</p>
+        </div>
+        <div className="space-y-3">
+          {HOME_FAQS.map((faq, i) => (
+            <details
+              key={i}
+              className="group bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden"
+            >
+              <summary className="flex items-center justify-between p-5 cursor-pointer font-bold text-gray-900 list-none hover:text-primary transition-colors text-sm">
+                {faq.question}
+                <svg className="flex-shrink-0 w-4 h-4 text-gray-400 group-open:rotate-180 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </summary>
+              <div className="px-5 pb-5 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-4">
+                {faq.answer}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CtaBanner() {
   return (
     <section className="bg-primary-light py-16 px-4">
@@ -294,11 +327,17 @@ function CtaBanner() {
 }
 
 export default async function HomePage() {
-  // Fetch platforms once. Header will also use the cached result.
   const platforms = await getActiveSocialNetworks();
+  const faqJsonLd = buildFaqSchema(HOME_FAQS);
 
   return (
     <>
+      {/* FAQ Schema para home */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+
       <AnnouncementBar />
       <Header />
       
@@ -324,6 +363,7 @@ export default async function HomePage() {
         <OriginalDataSection />
         <WhyUs />
         <GuaranteeSection />
+        <FaqSection />
         <DeferredHomeContent />
         <CtaBanner />
       </main>
