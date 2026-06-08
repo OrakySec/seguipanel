@@ -12,11 +12,7 @@ RUN apk add --no-cache openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Gera o Prisma Client com o schema atualizado
 RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
-
-# Build da aplicação
 RUN npm run build
 
 # ─── Stage 3: imagem final (standalone) ────────────────────────────────────────
@@ -28,7 +24,6 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Usuário root temporário para copiar arquivos
 COPY --from=builder /app/public                        ./public
 COPY --from=builder /app/.next/standalone              ./
 COPY --from=builder /app/.next/static                  ./.next/static
@@ -39,20 +34,20 @@ COPY --from=builder /app/prisma.config.ts              ./prisma.config.ts
 COPY --from=builder /app/node_modules/.prisma          ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma          ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma           ./node_modules/prisma
-COPY --from=builder /app/node_modules/.bin/prisma*     ./node_modules/.bin/
-# dotenv é necessário para o prisma.config.ts carregar no entrypoint
+COPY --from=builder /app/node_modules/.bin/prisma      ./node_modules/.bin/prisma
+COPY --from=builder /app/node_modules/.bin/prisma.cmd  ./node_modules/.bin/prisma.cmd
+
+# dotenv necessário para prisma.config.ts
 COPY --from=builder /app/node_modules/dotenv           ./node_modules/dotenv
 
 # Script de inicialização
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
-# Usuário não-root para segurança
 RUN addgroup --system --gid 1001 nodejs && \
     adduser  --system --uid 1001 nextjs && \
     chown -R nextjs:nodejs /app
 
 USER nextjs
 EXPOSE 3000
-
 CMD ["sh", "docker-entrypoint.sh"]
