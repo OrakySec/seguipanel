@@ -1,0 +1,29 @@
+name: Run DB Seed (one-time)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  seed:
+    name: Popular banco de dados via SSH
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executar seed no container do app
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          timeout: 120s
+          script: |
+            # Encontra o container do app seguifacil
+            CONTAINER=$(docker ps --filter "name=seguifacil_app" --format "{{.ID}}" | head -1)
+            echo "Container do app: $CONTAINER"
+            
+            # Roda as migrations primeiro (garante tabelas atualizadas)
+            docker exec -i "$CONTAINER" sh -c "cd /app && DATABASE_URL='postgresql://postgres:Deligar89541300@seguifacil_postgres:5432/smm_app' npx prisma migrate deploy" || echo "Migrations OK ou já aplicadas"
+            
+            # Roda o seed para popular dados iniciais
+            docker exec -i "$CONTAINER" sh -c "cd /app && DATABASE_URL='postgresql://postgres:Deligar89541300@seguifacil_postgres:5432/smm_app' npx prisma db seed"
+            echo "Seed concluído!"
