@@ -1,0 +1,27 @@
+name: Seed Blog Posts (one-time)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  seed-blog:
+    name: Criar posts de blog via SSH
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executar seed de blog no container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          timeout: 120s
+          script: |
+            CONTAINER=$(docker ps --filter name=seguifacil_app --format '{{.ID}}' | head -1)
+            echo "Container: $CONTAINER"
+            docker exec -i $CONTAINER sh -c "
+              cd /app && \
+              DATABASE_URL='postgresql://postgres:Deligar89541300@seguifacil_postgres:5432/smm_app' \
+              npx tsx scripts/seed-blog.ts
+            "
+            echo "Blog populado com sucesso!"
