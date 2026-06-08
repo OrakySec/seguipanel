@@ -16,9 +16,8 @@ RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma gene
 RUN npm run build
 
 # ─── Stage 3: imagem final (standalone) ────────────────────────────────────────
-RUN apk add --no-cache openssl netcat-openbsd
 FROM node:20-alpine AS runner
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl netcat-openbsd
 WORKDIR /app
 
 ENV NODE_ENV=production

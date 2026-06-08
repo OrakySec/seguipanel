@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    # Ignora commits feitos pelo próprio CI para evitar loop infinito
-    paths-ignore:
-      - 'docker-compose.yml'
 
 env:
   REGISTRY: ghcr.io
