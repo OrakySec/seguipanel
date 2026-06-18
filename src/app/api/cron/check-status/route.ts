@@ -174,10 +174,29 @@ export async function POST(req: NextRequest) {
               select: { email: true },
             });
 
-            if (newStatus === "completed" && user?.email) {
-              sendOrderCompletedEmail(user.email, order).catch((e) =>
-                console.error("[CRON:check-status] email completed:", e)
-              );
+            if (newStatus === "completed") {
+              if (user?.email) {
+                sendOrderCompletedEmail(user.email, order).catch((e) =>
+                  console.error("[CRON:check-status] email completed:", e)
+                );
+              }
+              
+              // Libera a comissão do afiliado
+              if (order.affiliateId && order.commissionAmount && !order.commissionPaid) {
+                try {
+                  await prisma.user.update({
+                    where: { id: order.affiliateId },
+                    data: { balance: { increment: order.commissionAmount } },
+                  });
+                  await prisma.order.update({
+                    where: { id: order.id },
+                    data: { commissionPaid: true },
+                  });
+                  console.log(`[CRON:check-status] Comissão de R$${order.commissionAmount} liberada para o afiliado #${order.affiliateId}`);
+                } catch (e) {
+                  console.error("[CRON:check-status] erro ao liberar comissão:", e);
+                }
+              }
             }
 
             if (newStatus === "canceled") {

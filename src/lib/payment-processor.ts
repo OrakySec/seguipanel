@@ -37,6 +37,7 @@ export async function processConfirmedPayment(pushinpayTransactionId: string): P
   const quantity  = details.quantity as string | undefined;
   const email     = (details.email as string) ?? "";
   const couponCode = details.couponCode as string | undefined;
+  const affiliateCode = details.affiliateCode as string | undefined;
 
   const service = await prisma.service.findUnique({
     where: { id: serviceId },
@@ -55,6 +56,27 @@ export async function processConfirmedPayment(pushinpayTransactionId: string): P
     ? Math.round(baseQty * (1 + overdeliveryPct / 100))
     : baseQty;
 
+  // Afiliados: Calcular comissão
+  let affiliateId: number | undefined;
+  let commissionAmount: number | undefined;
+
+  if (affiliateCode) {
+    const affiliate = await prisma.user.findUnique({
+      where: { affiliateCode },
+    });
+
+    // Permite que admins testem também, não apenas role AFFILIATE estritamente
+    if (affiliate && (affiliate.role === "AFFILIATE" || affiliate.role === "ADMIN")) {
+      const globalRate = Number(await getSetting("affiliate_commission_rate", "10"));
+      const rate = affiliate.commissionRate ? Number(affiliate.commissionRate) : globalRate;
+      
+      if (rate > 0) {
+        commissionAmount = (transaction.amount * rate) / 100;
+        affiliateId = affiliate.id;
+      }
+    }
+  }
+
   const order = await prisma.order.create({
     data: {
       userId:       transaction.userId,
@@ -68,6 +90,8 @@ export async function processConfirmedPayment(pushinpayTransactionId: string): P
       quantity: String(finalQty || baseQty),
       charge:   transaction.amount,
       status:   "pending",
+      affiliateId,
+      commissionAmount,
     },
   });
 

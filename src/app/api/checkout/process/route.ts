@@ -110,6 +110,8 @@ export async function POST(req: NextRequest) {
       return apiError(errorMessage, 502);
     }
 
+    const affiliateCode = req.cookies.get("affiliate_ref")?.value;
+
     // 6. Criar TransactionLog (status=0 pendente, order_id null)
     const transaction = await prisma.transactionLog.create({
       data: {
@@ -123,6 +125,7 @@ export async function POST(req: NextRequest) {
           whatsapp,
           couponCode: couponCode ?? null,
           discountApplied,
+          affiliateCode: affiliateCode ?? null,
         },
         amount: finalPrice,
         status: 0,

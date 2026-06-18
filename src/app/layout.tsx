@@ -5,7 +5,8 @@ import "./globals.css";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { NavigationProgressLazy } from "@/components/ui/NavigationProgressLazy";
 import { getSettingsBatch } from "@/lib/settings";
-
+import { Suspense } from "react";
+import { AffiliateTracker } from "@/components/home/AffiliateTracker";
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
@@ -207,6 +208,9 @@ export default function RootLayout({
 
         {children}
         <WhatsAppButton />
+        <Suspense fallback={null}>
+          <AffiliateTracker />
+        </Suspense>
       </body>
     </html>
   );
