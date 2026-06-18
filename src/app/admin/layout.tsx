@@ -30,6 +30,8 @@ const navItems = [
   { icon: FolderTree, label: "Categorias", href: "/admin/categorias" },
   { icon: Smartphone, label: "Serviços", href: "/admin/servicos" },
   { icon: Tag, label: "Cupons", href: "/admin/cupons" },
+  { icon: Users, label: "Afiliados", href: "/admin/afiliados" },
+  { icon: CreditCard, label: "Saques", href: "/admin/saques" },
   { icon: FileText, label: "Blog", href: "/admin/blog" },
   { icon: Users, label: "Usuários", href: "/admin/usuarios" },
   { icon: CreditCard, label: "Financeiro", href: "/admin/financeiro" },
