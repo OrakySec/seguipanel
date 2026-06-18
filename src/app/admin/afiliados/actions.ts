@@ -1,11 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireAdminOrSupporter } from "@/lib/auth";
+import { getSessionFromCookies } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export async function getAffiliates() {
-  await requireAdminOrSupporter();
+  const session = await getSessionFromCookies();
+  if (!session || (session.role !== "ADMIN" && session.role !== "SUPPORTER")) throw new Error("Não autorizado");
 
   const affiliates = await prisma.user.findMany({
     where: { role: "AFFILIATE" },
@@ -41,7 +42,8 @@ export async function getAffiliates() {
 }
 
 export async function updateAffiliate(id: number, data: { commissionRate: number | null, status: number }) {
-  await requireAdminOrSupporter();
+  const session = await getSessionFromCookies();
+  if (!session || (session.role !== "ADMIN" && session.role !== "SUPPORTER")) throw new Error("Não autorizado");
 
   try {
     await prisma.user.update({

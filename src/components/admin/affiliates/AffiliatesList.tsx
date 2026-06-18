@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Edit2, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/affiliate-ui";
 
 export default function AffiliatesList({
   affiliates,
@@ -67,7 +67,7 @@ export default function AffiliatesList({
                 </td>
                 <td className="p-4">
                   {a.commissionRate !== null ? (
-                    <Badge variant="primary">{a.commissionRate}% (Esp.)</Badge>
+                    <Badge variant="default">{a.commissionRate}% (Esp.)</Badge>
                   ) : (
                     <Badge variant="outline">{a.globalRate}% (Global)</Badge>
                   )}

@@ -1,11 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireAdminOrSupporter } from "@/lib/auth";
+import { getSessionFromCookies } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export async function getPayouts() {
-  await requireAdminOrSupporter();
+  const session = await getSessionFromCookies();
+  if (!session || (session.role !== "ADMIN" && session.role !== "SUPPORTER")) throw new Error("Não autorizado");
 
   const payouts = await prisma.payout.findMany({
     include: {
@@ -24,7 +25,8 @@ export async function getPayouts() {
 }
 
 export async function approvePayout(id: number) {
-  await requireAdminOrSupporter();
+  const session = await getSessionFromCookies();
+  if (!session || (session.role !== "ADMIN" && session.role !== "SUPPORTER")) throw new Error("Não autorizado");
 
   try {
     const payout = await prisma.payout.findUnique({ where: { id } });
@@ -45,7 +47,8 @@ export async function approvePayout(id: number) {
 }
 
 export async function rejectPayout(id: number) {
-  await requireAdminOrSupporter();
+  const session = await getSessionFromCookies();
+  if (!session || (session.role !== "ADMIN" && session.role !== "SUPPORTER")) throw new Error("Não autorizado");
 
   try {
     const payout = await prisma.payout.findUnique({ where: { id } });

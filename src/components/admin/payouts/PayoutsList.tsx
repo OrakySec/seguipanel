@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Search, CheckCircle, XCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/affiliate-ui";
 import { Button } from "@/components/ui/button";
 
 export default function PayoutsList({
