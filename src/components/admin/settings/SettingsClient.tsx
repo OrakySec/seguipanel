@@ -504,6 +504,39 @@ export default function SettingsClient({
                       </p>
                     </div>
                   </div>
+
+                  {/* Afiliados */}
+                  <div className="space-y-6 pt-8 border-t border-border/50">
+                    <div className="p-6 bg-blue-500/5 rounded-2xl border border-blue-500/20 flex gap-4">
+                      <Globe size={22} className="text-blue-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-black text-foreground mb-1">Taxa Global de Afiliados (%)</p>
+                        <p className="text-[12px] text-muted font-medium leading-relaxed">
+                          Porcentagem padrão de comissão para novos afiliados. <br />
+                          Pode ser substituída individualmente no cadastro de cada afiliado.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="max-w-xs">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-3 ml-1">Comissão Global (%)</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={settings.affiliate_commission_rate || "10"}
+                          onChange={(e) => handleChange("affiliate_commission_rate", e.target.value)}
+                          className="w-full h-14 px-6 pr-12 bg-surface rounded-2xl border border-transparent focus:border-primary/20 focus:ring-8 focus:ring-primary/5 outline-none transition-all font-black text-sm"
+                        />
+                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-sm font-black text-muted">%</span>
+                      </div>
+                      <p className="text-[11px] text-muted font-medium mt-2 px-1">
+                        Padrão do sistema: 10%
+                      </p>
+                    </div>
+                  </div>
                 </motion.div>
               )}
 
