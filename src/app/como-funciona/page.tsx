@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+
 
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart, Zap, Shield, RefreshCw, CheckCircle2, MessageCircle } from "lucide-react";
