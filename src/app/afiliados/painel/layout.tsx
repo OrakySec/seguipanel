@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSessionFromCookies } from "@/lib/auth";
 import Link from "next/link";
 import { Home, DollarSign, ExternalLink } from "lucide-react";
+import { LogoutButton } from "./LogoutButton";
 
 export default async function AffiliateDashboardLayout({
   children,
@@ -29,7 +30,7 @@ export default async function AffiliateDashboardLayout({
           <NavLink href="/afiliados/painel/saques" icon={<DollarSign className="w-5 h-5" />} label="Meus Saques" />
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-slate-100 space-y-1">
           <Link
             href="/"
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-700 text-sm font-medium transition-colors"
@@ -37,6 +38,7 @@ export default async function AffiliateDashboardLayout({
             <ExternalLink className="w-4 h-4" />
             Voltar ao Site
           </Link>
+          <LogoutButton />
         </div>
       </aside>
 

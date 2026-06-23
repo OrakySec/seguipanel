@@ -72,6 +72,13 @@ export default async function Header() {
               Blog
             </Link>
             <Link
+              href="/afiliados"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-all"
+            >
+              <span aria-hidden>💰</span>
+              Seja Afiliado
+            </Link>
+            <Link
               href="/meus-pedidos"
               className="btn-tactile inline-flex items-center gap-2 px-6 py-3 text-xs font-black uppercase tracking-widest text-white bg-brand-gradient rounded-2xl shadow-xl hover:-translate-y-0.5 transition-all"
             >

@@ -29,11 +29,13 @@ import { LiveActivityFeedClient } from "@/components/home/LiveActivityFeedClient
 import { getSettingsBatch } from "@/lib/settings";
 import type { Metadata } from "next";
 import { DeferredHomeContent } from "@/components/home/DeferredHomeContent";
+import { AffiliatePopup } from "@/components/home/AffiliatePopup";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettingsBatch({
     website_title: "Comprar Seguidores Brasileiros e Curtidas Reais | A partir de R$2,50",
     website_desc: "Compre seguidores e curtidas brasileiras para Instagram, TikTok, Kwai, YouTube e Facebook. Entrega em minutos, 100% seguro, sem precisar de senha. A partir de R$2,50. Mais de 83.000 clientes satisfeitos desde 2017.",
+    affiliate_commission_rate: "10",
   });
 
   return {
@@ -329,6 +331,8 @@ function CtaBanner() {
 export default async function HomePage() {
   const platforms = await getActiveSocialNetworks();
   const faqJsonLd = buildFaqSchema(HOME_FAQS);
+  const settings = await getSettingsBatch({ affiliate_commission_rate: "10" });
+  const commissionRate = Number(settings.affiliate_commission_rate || 10);
 
   return (
     <>
@@ -340,6 +344,7 @@ export default async function HomePage() {
 
       <AnnouncementBar />
       <Header />
+      <AffiliatePopup commissionRate={commissionRate} />
       
       {/* O Feed de atividade carrega em background (streaming) */}
       <Suspense fallback={<div className="h-12 bg-gray-50 animate-pulse" />}>

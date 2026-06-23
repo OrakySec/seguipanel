@@ -48,14 +48,23 @@ export default function HeaderMobileMenu({ platforms }: { platforms: Platform[] 
               </Link>
             ))}
           </div>
-          <div className="flex gap-2">
-            <Link
-              href="/blog"
-              onClick={() => setMobileOpen(false)}
-              className="flex-shrink-0 inline-flex items-center justify-center gap-2 py-4 px-5 text-xs font-black uppercase tracking-widest text-primary bg-primary/10 rounded-2xl"
-            >
-              Blog
-            </Link>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <Link
+                href="/blog"
+                onClick={() => setMobileOpen(false)}
+                className="flex-shrink-0 inline-flex items-center justify-center gap-2 py-4 px-5 text-xs font-black uppercase tracking-widest text-primary bg-primary/10 rounded-2xl"
+              >
+                Blog
+              </Link>
+              <Link
+                href="/afiliados"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 inline-flex items-center justify-center gap-2 py-4 text-xs font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-2xl"
+              >
+                💰 Seja Afiliado
+              </Link>
+            </div>
             <Link
               href="/meus-pedidos"
               onClick={() => setMobileOpen(false)}
